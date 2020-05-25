@@ -94,7 +94,7 @@ function RIC_EventHandler(self, event, ...)
 		RIC_Guild_Browser.updateListing();
 	elseif event == "PARTY_LEADER_CHANGED" then
 		-- Check if we have lead now. If not, we either gave it away or were not lead before either, so definitely stop any current invite phase
-		if ((hashLength(raidMembers)>0) and (raidMembers[UnitName("player")]["rank"] < 2)) then
+		if (IsInGroup() or IsInRaid()) and (not UnitIsGroupLeader("player")) then
 			RIC_Roster_Browser.endInvitePhase();
 		end
 	end

@@ -68,8 +68,13 @@ function getClassColor(classFilename)
 end
 
 function removeServerFromName(name)
-    name = strsub(name, 1, string.find(name, "-")-1);
-    return name;
+    -- Removes server names from full names, e.g. "Tim-Patchwerk" -> "Tim"
+    local dashPosStart, dashPosEnd = string.find(name, "-")
+    if dashPosStart ~= nil then -- Check if name has a dash in it
+        return strsub(name, 1, dashPosStart-1)
+    else
+        return name -- No dash found - we have to assume there was no server name and this is already the correct  character name
+    end
 end
 
 function countFrequency(list, value)
