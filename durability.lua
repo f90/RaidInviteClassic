@@ -55,8 +55,9 @@ end
 
 -- Checks a player for current durability. If it can be retrieved and is too low, warn them (if they were not warned before)
 function RIC_Durability_Manager.warnPlayer(player)
-	-- Only raid leader is allowed to send durability warnings, so cancel attempt if not raid leader
-	if (not IsInRaid()) or (not UnitIsGroupLeader("player")) then
+	-- Only raid leader is allowed to send durability warnings, so give up checking if not raid leader
+	if (not IsInRaid()) or (not UnitIsGroupLeader("player")) then -- TODO maybe also check durability if just in a group not raid?
+		playersNeedWarning[player] = nil -- Clear up durability check request time
 		return
 	end
 
