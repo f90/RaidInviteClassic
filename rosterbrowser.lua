@@ -481,24 +481,28 @@ function RIC_Roster_Browser.toggleInvitePhase()
 end
 
 function RIC_Roster_Browser.startInvitePhase()
-	local raidMembers = getRaidMembers();
-	-- Check if invite phase was disabled before, and that we are alone or a raid/group leader
-	if (not invitePhaseActive) and ((hashLength(raidMembers)==0) or UnitIsGroupLeader("player")) then
-		-- Reset variables that remember who was invited/declined invite etc
-		inviteStatusList = {};
+	local raidMembers = getRaidMembers()
+	if not invitePhaseActive then -- Check if invite phase was disabled before, otherwise do nothing
+		if ((hashLength(raidMembers)==0) or UnitIsGroupLeader("player")) then -- CHeck that we are alone or a raid/group leader
+			-- Reset variables that remember who was invited/declined invite etc
+			inviteStatusList = {}
 
-		-- Change text of button
-		_G["RIC_SendMassInvites".."Text"]:SetText("Stop invites")
+			-- Change text of button
+			_G["RIC_SendMassInvites".."Text"]:SetText("Stop invites")
 
-		-- Notify via guild message
-		if RIC_NotifyInvitePhaseStart then
-			SendChatMessage("INVITING NOW - If you are registered for the raid, please leave your groups now and standby!" ,"GUILD" ,nil ,nil);
+			-- Notify via guild message
+			if RIC_NotifyInvitePhaseStart then
+				SendChatMessage("INVITING NOW - If you are registered for the raid, please leave your groups now and standby!" ,"GUILD" ,nil ,nil)
+			end
+
+			-- Notify codewords via guild
+			RIC_Codewords_Handler.startInvitePhase()
+
+			invitePhaseActive = true
+		else
+			-- We cannot activate invite phase because we are already in a group, but not leading it - give error message
+			message("You can only start the invite phase when alone or as a group or raid leader!")
 		end
-
-		-- Notify codewords via guild
-		RIC_Codewords_Handler.startInvitePhase();
-
-		invitePhaseActive = true;
 	end
 end
 
