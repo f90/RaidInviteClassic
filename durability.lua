@@ -63,13 +63,13 @@ function RIC_Durability_Manager.warnPlayer(player)
 
 	-- If we dont have durability info - cannot fulfil check request - just cancel
 	if durability[player] == nil then
-		print("Could not find durability for " .. player)
+		-- print("Could not find durability for " .. player)
 		return
 	end
 
 	-- If durability info is too outdated - cannot fulfil check request - just cancel
 	if (time() - durability[player]["time"]) > 60 then
-		print("Durability info is too old for " .. player)
+		-- print("Durability info is too old for " .. player)
 		return
 	end
 
