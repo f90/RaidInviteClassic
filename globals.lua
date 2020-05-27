@@ -18,6 +18,7 @@ RIC_CodeWords = {}
 
 RIC_ShowOffline = true
 RIC_CodewordOnlyDuringInvite = true
+RIC_CodewordOnlyInGroup = true
 RIC_CodeWordNotifyStart = true
 RIC_CodeWordNotifyEnd = false
 

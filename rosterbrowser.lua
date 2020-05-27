@@ -314,14 +314,15 @@ end
 
 -- Process an invite request whisper from one particular person
 function RIC_Roster_Browser.inviteWhisper(author, msg)
-	-- Check if message is an invite request
+	-- Check if message is an invite request, otherwise ignore
 	if (not RIC_Codewords_Handler.checkFilters(msg)) then
 		return
 	end
 
 	-- Event if message has sth like "invite" in it, probably unrelated message if we are currently completely alone (e.g. "invite person X to the guild please")
 	-- => Ignore request if we are alone. Also prevents people from pushing you into a group when you dont want to
-	if (not IsInGroup()) and (not IsInRaid()) then
+	if ((not IsInGroup()) and (not IsInRaid())) and RIC_CodewordOnlyInGroup then
+		print("A codeword whisper by " .. author .. " was ignored because you were alone.")
 		return
 	end
 

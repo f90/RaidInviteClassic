@@ -43,6 +43,7 @@ function RIC_EventHandler(self, event, ...)
 			_G["RIC_CodeWordEditBox"]:SetText(RIC_CodeWordString)
 			_G["RIC_OnlyGuildMembersBox"]:SetChecked(RIC_GuildWhispersOnly)
 			_G["RIC_CodewordOnlyDuringInviteBox"]:SetChecked(RIC_CodewordOnlyDuringInvite)
+			_G["RIC_CodewordOnlyInGroupBox"]:SetChecked(RIC_CodewordOnlyInGroup)
 			_G["RIC_CodeWordNotifyStartBox"]:SetChecked(RIC_CodeWordNotifyStart)
 			_G["RIC_CodeWordNotifyEndBox"]:SetChecked(RIC_CodeWordNotifyEnd)
 			_G["RIC_OnlyRosterMembersBox"]:SetChecked(RIC_RosterWhispersOnly)
@@ -87,6 +88,8 @@ function RIC_EventHandler(self, event, ...)
 		local msg, author, theRest = ...
 		if author ~= nil then -- For some reason this can be nil sometimes?
 			RIC_Roster_Browser.inviteWhisper(removeServerFromName(author), msg) -- Remove server tag from name
+		else
+			print("WARNING: Author name of some message could not be parsed - you might have missed an invite whisper!")
 		end
 	elseif event == "CHAT_MSG_SYSTEM" then
 		local msg = ...
@@ -137,11 +140,12 @@ function RICMainFrame_OnLoad()
 	end
 
 	-- Set text fields
-	_G["RIC_CodewordOnlyDuringInviteBoxText"]:SetText("Only Accept During Invite Phase")
-	_G["RIC_CodeWordNotifyStartBoxText"]:SetText("Send Guild Message at Start")
-	_G["RIC_CodeWordNotifyEndBoxText"]:SetText("Send Guild Message at End")
-	_G["RIC_OnlyGuildMembersBoxText"]:SetText("Only Accept Whispers From Guild")
-	_G["RIC_OnlyRosterMembersBoxText"]:SetText("Only Accept Whispers From Roster")
+	_G["RIC_CodewordOnlyInGroupBoxText"]:SetText("Only accept when in group")
+	_G["RIC_CodewordOnlyDuringInviteBoxText"]:SetText("Only accept during invite phase")
+	_G["RIC_CodeWordNotifyStartBoxText"]:SetText("Send guild message at start")
+	_G["RIC_CodeWordNotifyEndBoxText"]:SetText("Send guild message at end")
+	_G["RIC_OnlyGuildMembersBoxText"]:SetText("Only accept whispers from guild")
+	_G["RIC_OnlyRosterMembersBoxText"]:SetText("Only accept whispers from roster")
 	_G["RIC_ShowOfflineBoxText"]:SetText("Show Offline")
 
 	-- Create player entry popup

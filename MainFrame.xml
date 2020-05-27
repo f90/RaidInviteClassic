@@ -1114,10 +1114,27 @@
 							</OnClick>
 						</Scripts>
 					</Button>
+
+					<CheckButton name="RIC_CodewordOnlyInGroupBox" inherits="UICheckButtonTemplate" text="">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+								<Offset x="160" y="-40" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								if self:GetChecked() then
+									RIC_CodewordOnlyInGroup = true
+								else
+									RIC_CodewordOnlyInGroup = false
+								end
+							</OnClick>
+						</Scripts>
+					</CheckButton>
 					<CheckButton name="RIC_CodewordOnlyDuringInviteBox" inherits="UICheckButtonTemplate" text="">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="170" y="-88" />
+								<Offset x="160" y="-70" />
 							</Anchor>
 						</Anchors>
 						<Scripts>
@@ -1133,7 +1150,7 @@
 					<CheckButton name="RIC_CodeWordNotifyStartBox" inherits="UICheckButtonTemplate" text="">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="170" y="-122" />
+								<Offset x="160" y="-100" />
 							</Anchor>
 						</Anchors>
 						<Scripts>
@@ -1149,7 +1166,7 @@
 					<CheckButton name="RIC_CodeWordNotifyEndBox" inherits="UICheckButtonTemplate" text="">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="170" y="-162" />
+								<Offset x="160" y="-130" />
 							</Anchor>
 						</Anchors>
 						<Scripts>
@@ -1162,26 +1179,10 @@
 							</OnClick>
 						</Scripts>
 					</CheckButton>
-					<CheckButton name="RIC_OnlyRosterMembersBox" inherits="UICheckButtonTemplate" text="">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="170" y="-242" />
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								if self:GetChecked() then
-									RIC_RosterWhispersOnly = true
-								else
-									RIC_RosterWhispersOnly = false
-								end
-							</OnClick>
-						</Scripts>
-					</CheckButton>
 					<CheckButton name="RIC_OnlyGuildMembersBox" inherits="UICheckButtonTemplate" text="">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="170" y="-202" />
+								<Offset x="160" y="-160" />
 							</Anchor>
 						</Anchors>
 						<Scripts>
@@ -1190,6 +1191,22 @@
 									RIC_GuildWhispersOnly = true
 								else
 									RIC_GuildWhispersOnly = false
+								end
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+					<CheckButton name="RIC_OnlyRosterMembersBox" inherits="UICheckButtonTemplate" text="">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+								<Offset x="160" y="-190" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								if self:GetChecked() then
+									RIC_RosterWhispersOnly = true
+								else
+									RIC_RosterWhispersOnly = false
 								end
 							</OnClick>
 						</Scripts>
