@@ -30,7 +30,7 @@ function getStatusSymbol(in_raid, in_roster, online, invite_status)
     --Question mark symbol - Everything else
 
     if in_raid and in_roster then
-        return RIC_Status["READY"];
+        return RIC_Status["READY"]
     elseif in_raid and (not in_roster) then
         return RIC_Status["EXTRA"]
     elseif (not in_raid) and (online==1) and in_roster and ((invite_status==RIC_InviteStatus["NOT_INVITED"]) or (invite_status == nil)) then
@@ -57,12 +57,12 @@ RIC_ColorTable = {
 	["SHAMAN"] = "2459FF",
 	["WARLOCK"] = "9482C9",
 	["WARRIOR"] = "C79C6E",
-};
+}
 
 function getClassColor(classFilename)
     local color = "|cffffffff"
     if RIC_ColorTable[classFilename] then
-        color = "|cFF" .. RIC_ColorTable[classFilename];
+        color = "|cFF" .. RIC_ColorTable[classFilename]
     end
     return color
 end
@@ -78,10 +78,10 @@ function removeServerFromName(name)
 end
 
 function countFrequency(list, value)
-    n = 0;
+    n = 0
     for k,v in pairs(list) do
         if v == value then
-            n = n+1;
+            n = n+1
         end
     end
     return n
@@ -90,9 +90,9 @@ end
 function getRaidMembers()
     local output = {}
     for ci=1, MAX_RAID_MEMBERS do
-        local name, rank, subgroup, level, class, classFileName, zone, online, isDead, role, isML = GetRaidRosterInfo(ci);
+        local name, rank, subgroup, level, class, classFileName, zone, online, isDead, role, isML = GetRaidRosterInfo(ci)
         if online == nil then
-            online = 0; -- 0 if offline, 1 if online
+            online = 0 -- 0 if offline, 1 if online
         end
 
         if name ~= nil then
@@ -111,13 +111,13 @@ function getRaidMembers()
 end
 
 function hashLength(assocTable)
-    local n = 0;
+    local n = 0
     if assocTable == nil then
-        return 0;
+        return 0
     end
 
     for k,v in pairs(assocTable) do
-        n = n+1;
+        n = n+1
     end
     return n
 end

@@ -2,7 +2,7 @@
 	<Button name="RIC_GuildHeader" virtual="true">
 		<Scripts>
 			<OnClick>
-				RIC_Guild_Browser.sortClicked(self:GetID());
+				RIC_Guild_Browser.sortClicked(self:GetID())
 			</OnClick>
 			<OnEnter>
 				_G[self:GetName().."BG"]:SetVertexColor(1, 1, 1, 1)
@@ -76,7 +76,7 @@
 				_G[self:GetName().."BG"]:Hide()
 			</OnLeave>
 			<OnClick>
-				RIC_Guild_Browser.selectRow(self:GetID());
+				RIC_Guild_Browser.selectRow(self:GetID())
 			</OnClick>
 		</Scripts>
 		<NormalTexture name="$parentBG">
@@ -86,7 +86,7 @@
 	<Button name="RIC_RosterHeader" virtual="true">
 		<Scripts>
 			<OnClick>
-				RIC_Roster_Browser.sortClicked(self:GetID());
+				RIC_Roster_Browser.sortClicked(self:GetID())
 			</OnClick>
 			<OnEnter>
 				_G[self:GetName().."BG"]:SetVertexColor(1, 1, 1, 1)
@@ -169,7 +169,7 @@
 				_G[self:GetName().."BG"]:Hide()
 			</OnLeave>
 			<OnClick>
-				RIC_Roster_Browser.selectRow(self:GetID());
+				RIC_Roster_Browser.selectRow(self:GetID())
 			</OnClick>
 		</Scripts>
 		<NormalTexture name="$parentBG">
@@ -458,7 +458,7 @@
 										</Anchors>
 										<Scripts>
 											<OnClick>
-												RIC_Roster_Browser.sliderButtonPushed(1);
+												RIC_Roster_Browser.sliderButtonPushed(1)
 											</OnClick>
 										</Scripts>
 									</Button>
@@ -468,14 +468,14 @@
 										</Anchors>
 										<Scripts>
 											<OnClick>
-												RIC_Roster_Browser.sliderButtonPushed(2);
+												RIC_Roster_Browser.sliderButtonPushed(2)
 											</OnClick>
 										</Scripts>
 									</Button>
 								</Frames>
 								<Scripts>
 									<OnValueChanged>
-										RIC_Roster_Browser.updateOffset(self:GetValue());
+										RIC_Roster_Browser.updateOffset(self:GetValue())
 									</OnValueChanged>
 								</Scripts>
 								<ThumbTexture name="$parentThumbTexture" inherits="UIPanelScrollBarButton" file="Interface\Buttons\UI-ScrollBar-Knob">
@@ -510,8 +510,8 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_RosterEditBox:SetText(RIC_Roster_Browser.generateRosterList());
-								RIC_ImportFrame:Show();
+								RIC_RosterEditBox:SetText(RIC_Roster_Browser.generateRosterList())
+								RIC_ImportFrame:Show()
 							</OnClick>
 						</Scripts>
 					</Button>
@@ -526,7 +526,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Roster_Browser.selectAll();
+								RIC_Roster_Browser.selectAll()
 							</OnClick>
 						</Scripts>
 					</Button>
@@ -541,7 +541,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Roster_Browser.clearSelection();
+								RIC_Roster_Browser.clearSelection()
 							</OnClick>
 						</Scripts>
 					</Button>
@@ -556,7 +556,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Roster_Browser.addSelectedToRoster();
+								RIC_Roster_Browser.addSelectedToRoster()
 							</OnClick>
 						</Scripts>
 					</Button>
@@ -571,7 +571,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Roster_Browser.removeFromRoster();
+								RIC_Roster_Browser.removeFromRoster()
 							</OnClick>
 						</Scripts>
 					</Button>
@@ -586,7 +586,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Roster_Browser.toggleInvitePhase();
+								RIC_Roster_Browser.toggleInvitePhase()
 							</OnClick>
 						</Scripts>
 
@@ -822,7 +822,7 @@
 										</Anchors>
 										<Scripts>
 											<OnClick>
-												RIC_Guild_Browser.sliderButtonPushed(1);
+												RIC_Guild_Browser.sliderButtonPushed(1)
 											</OnClick>
 										</Scripts>
 									</Button>
@@ -832,14 +832,14 @@
 										</Anchors>
 										<Scripts>
 											<OnClick>
-												RIC_Guild_Browser.sliderButtonPushed(2);
+												RIC_Guild_Browser.sliderButtonPushed(2)
 											</OnClick>
 										</Scripts>
 									</Button>
 								</Frames>
 								<Scripts>
 									<OnValueChanged>
-										RIC_Guild_Browser.updateOffset(self:GetValue());
+										RIC_Guild_Browser.updateOffset(self:GetValue())
 									</OnValueChanged>
 								</Scripts>
 								<ThumbTexture name="$parentThumbTexture" inherits="UIPanelScrollBarButton" file="Interface\Buttons\UI-ScrollBar-Knob">
@@ -874,7 +874,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Guild_Browser.selectAll();
+								RIC_Guild_Browser.selectAll()
 							</OnClick>
 						</Scripts>
 					</Button>
@@ -889,7 +889,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Guild_Browser.clearSelection();
+								RIC_Guild_Browser.clearSelection()
 							</OnClick>
 						</Scripts>
 					</Button>
@@ -1036,7 +1036,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Guild_Browser.addSelectedToRoster();
+								RIC_Guild_Browser.addSelectedToRoster()
 							</OnClick>
 						</Scripts>
 		
@@ -1066,8 +1066,8 @@
 						</Backdrop>
 						<Scripts>
 							<OnClick>
-								RIC_CodeWordEditBox:SetFocus();
-								RIC_CodeWordEditBox:SetCursorPosition(RIC_CodeWordEditBox:GetNumLetters());
+								RIC_CodeWordEditBox:SetFocus()
+								RIC_CodeWordEditBox:SetCursorPosition(RIC_CodeWordEditBox:GetNumLetters())
 							</OnClick>
 						</Scripts>
 						<Frames>
@@ -1108,9 +1108,9 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_CodeWordEditBox:ClearFocus();
-								RIC_CodeWordString=RIC_CodeWordEditBox:GetText();
-								RIC_Codewords_Handler.updateCodeWords();
+								RIC_CodeWordEditBox:ClearFocus()
+								RIC_CodeWordString=RIC_CodeWordEditBox:GetText()
+								RIC_Codewords_Handler.updateCodeWords()
 							</OnClick>
 						</Scripts>
 					</Button>
@@ -1123,9 +1123,9 @@
 						<Scripts>
 							<OnClick>
 								if self:GetChecked() then
-									RIC_CodewordOnlyDuringInvite = true;
+									RIC_CodewordOnlyDuringInvite = true
 								else
-									RIC_CodewordOnlyDuringInvite = false;
+									RIC_CodewordOnlyDuringInvite = false
 								end
 							</OnClick>
 						</Scripts>
@@ -1139,9 +1139,9 @@
 						<Scripts>
 							<OnClick>
 								if self:GetChecked() then
-									RIC_CodeWordNotifyStart = true;
+									RIC_CodeWordNotifyStart = true
 								else
-									RIC_CodeWordNotifyStart = false;
+									RIC_CodeWordNotifyStart = false
 								end
 							</OnClick>
 						</Scripts>
@@ -1155,9 +1155,9 @@
 						<Scripts>
 							<OnClick>
 								if self:GetChecked() then
-									RIC_CodeWordNotifyEnd = true;
+									RIC_CodeWordNotifyEnd = true
 								else
-									RIC_CodeWordNotifyEnd = false;
+									RIC_CodeWordNotifyEnd = false
 								end
 							</OnClick>
 						</Scripts>
@@ -1173,7 +1173,7 @@
 								if self:GetChecked() then
 									RIC_RosterWhispersOnly = true
 								else
-									RIC_RosterWhispersOnly = false;
+									RIC_RosterWhispersOnly = false
 								end
 							</OnClick>
 						</Scripts>
@@ -1189,7 +1189,7 @@
 								if self:GetChecked() then
 									RIC_GuildWhispersOnly = true
 								else
-									RIC_GuildWhispersOnly = false;
+									RIC_GuildWhispersOnly = false
 								end
 							</OnClick>
 						</Scripts>
@@ -1229,16 +1229,16 @@
 							<OnClick>
 								if self:GetChecked() then
 									RIC_MinimapShow = true
-									RIC_Mod_MinimapButton:Show();
+									RIC_Mod_MinimapButton:Show()
 									RIC_Mod_MinimapButton_Reposition()
 								else
-									RIC_MinimapShow = false;
-									RIC_Mod_MinimapButton:Hide();
+									RIC_MinimapShow = false
+									RIC_Mod_MinimapButton:Hide()
 								end
 							</OnClick>
 							<OnLoad>
-								_G["RIC_ShowMinimapIconConfigText"]:SetText("Minimap Icon");
-								self:SetChecked(RIC_MinimapShow);
+								_G["RIC_ShowMinimapIconConfigText"]:SetText("Minimap Icon")
+								self:SetChecked(RIC_MinimapShow)
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -1251,13 +1251,13 @@
 						<Scripts>
 							<OnClick>
 								if self:GetChecked() then
-									RIC_NotifyInvitePhaseStart = true;
+									RIC_NotifyInvitePhaseStart = true
 								else
-									RIC_NotifyInvitePhaseStart = false;
+									RIC_NotifyInvitePhaseStart = false
 								end
 							</OnClick>
 							<OnLoad>
-								_G["RIC_NotifyInvitePhaseStartBoxText"]:SetText("Announce start of invite phase to guild");
+								_G["RIC_NotifyInvitePhaseStartBoxText"]:SetText("Announce start of invite phase to guild")
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -1270,13 +1270,13 @@
 						<Scripts>
 							<OnClick>
 								if self:GetChecked() then
-									RIC_NotifyInvitePhaseEnd = true;
+									RIC_NotifyInvitePhaseEnd = true
 								else
-									RIC_NotifyInvitePhaseEnd = false;
+									RIC_NotifyInvitePhaseEnd = false
 								end
 							</OnClick>
 							<OnLoad>
-								_G["RIC_NotifyInvitePhaseEndBoxText"]:SetText("Announce end of invite phase to guild");
+								_G["RIC_NotifyInvitePhaseEndBoxText"]:SetText("Announce end of invite phase to guild")
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -1291,11 +1291,11 @@
 								if self:GetChecked() then
 									RIC_MasterLooter = true
 								else
-									RIC_MasterLooter = false;
+									RIC_MasterLooter = false
 								end
 							</OnClick>
 							<OnLoad>
-								_G["RIC_AutoSetMasterLooterBoxText"]:SetText("Automatically Set To |cFFFFFFFFMaster Looter|r");
+								_G["RIC_AutoSetMasterLooterBoxText"]:SetText("Automatically Set To |cFFFFFFFFMaster Looter|r")
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -1314,7 +1314,7 @@
 								end
 							</OnClick>
 							<OnLoad>
-								_G["RIC_DurabilityCheckBoxText"]:SetText("Whisper new raid members with low gear durability");
+								_G["RIC_DurabilityCheckBoxText"]:SetText("Whisper new raid members with low gear durability")
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -1329,7 +1329,7 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								self:SetMaxLetters(3);
+								self:SetMaxLetters(3)
 							</OnLoad>
 							<OnEscapePressed>
 								self:ClearFocus()
@@ -1339,7 +1339,7 @@
 								RIC_Durability_Manager.setDurabilityThreshold(self:GetText())
 							</OnEnterPressed>
 							<OnTabPressed>
-								self:ClearFocus();
+								self:ClearFocus()
 							</OnTabPressed>
 						</Scripts>
 					</Editbox>
@@ -1354,17 +1354,17 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								self:SetMaxLetters(4);
+								self:SetMaxLetters(4)
 							</OnLoad>
 							<OnEscapePressed>
 								self:ClearFocus()
 							</OnEscapePressed>		
 							<OnEnterPressed>
 								self:ClearFocus()
-								RIC_setScale();
+								RIC_setScale()
 							</OnEnterPressed>
 							<OnTabPressed>
-								self:ClearFocus();
+								self:ClearFocus()
 							</OnTabPressed>
 						</Scripts>
 					</Editbox>
@@ -1403,12 +1403,12 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-                    	PanelTemplates_SetTab(RIC_MainFrame, 1);
-						RIC_TabPage1:Show();
-                    	RIC_TabPage2:Hide();
+                    	PanelTemplates_SetTab(RIC_MainFrame, 1)
+						RIC_TabPage1:Show()
+                    	RIC_TabPage2:Hide()
 						RIC_TabPage3:Hide()
-                    	RIC_TabPage4:Hide();
-						RIC_selectTab(1);
+                    	RIC_TabPage4:Hide()
+						RIC_selectTab(1)
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -1421,12 +1421,12 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-                    	PanelTemplates_SetTab(RIC_MainFrame, 2);
-						RIC_TabPage1:Hide();
-                    	RIC_TabPage2:Show();
+                    	PanelTemplates_SetTab(RIC_MainFrame, 2)
+						RIC_TabPage1:Hide()
+                    	RIC_TabPage2:Show()
 						RIC_TabPage3:Hide()
-                    	RIC_TabPage4:Hide();
-						RIC_selectTab(2);
+                    	RIC_TabPage4:Hide()
+						RIC_selectTab(2)
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -1439,12 +1439,12 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-                    	PanelTemplates_SetTab(RIC_MainFrame, 3);
-						RIC_TabPage1:Hide();
-                    	RIC_TabPage2:Hide();
+                    	PanelTemplates_SetTab(RIC_MainFrame, 3)
+						RIC_TabPage1:Hide()
+                    	RIC_TabPage2:Hide()
 						RIC_TabPage3:Show()
-                    	RIC_TabPage4:Hide();
-						RIC_selectTab(3);
+                    	RIC_TabPage4:Hide()
+						RIC_selectTab(3)
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -1457,12 +1457,12 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-                    	PanelTemplates_SetTab(RIC_MainFrame, 4);
+                    	PanelTemplates_SetTab(RIC_MainFrame, 4)
 						RIC_TabPage1:Hide()
-                    	RIC_TabPage2:Hide();
-                    	RIC_TabPage3:Hide();
-						RIC_TabPage4:Show();
-						RIC_selectTab(4);
+                    	RIC_TabPage2:Hide()
+                    	RIC_TabPage3:Hide()
+						RIC_TabPage4:Show()
+						RIC_selectTab(4)
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -1494,10 +1494,10 @@
 		</Layers>
 		<Scripts>
 			<OnLoad>
-				RICMainFrame_OnLoad();
-    	        PanelTemplates_SetNumTabs(RIC_MainFrame, 4);
-	            PanelTemplates_SetTab(RIC_MainFrame, 1);
-				self:RegisterForDrag("LeftButton");
+				RICMainFrame_OnLoad()
+    	        PanelTemplates_SetNumTabs(RIC_MainFrame, 4)
+	            PanelTemplates_SetTab(RIC_MainFrame, 1)
+				self:RegisterForDrag("LeftButton")
 			</OnLoad>
 			<OnDragStart>
 				self:StartMoving()
@@ -1506,12 +1506,12 @@
 		        self:StopMovingOrSizing()
 		    </OnDragStop>
 			<OnShow>
-				PanelTemplates_SetTab(RIC_MainFrame, 1);
+				PanelTemplates_SetTab(RIC_MainFrame, 1)
     	        RIC_TabPage1:Show()
 				RIC_TabPage2:Hide()
         	    RIC_TabPage3:Hide()
 				RIC_TabPage4:Hide()
-				RICMainFrame_OnShow();
+				RICMainFrame_OnShow()
 			</OnShow>
 		</Scripts>
 	</Frame>
@@ -1581,7 +1581,7 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								self:SetScrollChild(RIC_RosterEditBox);
+								self:SetScrollChild(RIC_RosterEditBox)
 							</OnLoad>
 						</Scripts>
 						<Frames>

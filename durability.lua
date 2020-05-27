@@ -17,7 +17,7 @@ do
 end
 
 function RIC_Durability_Manager.checkDurabilities()
-	local raidMembers = getRaidMembers();-- Get current list of raid members
+	local raidMembers = getRaidMembers()-- Get current list of raid members
 	-- Go through all players that joined and might still need a warning
 	for player,_ in pairs(playersNeedWarning) do
 		if raidMembers[player] ~= nil then -- Check if player is in raid. If not - doesn't need warning anymore!
@@ -37,7 +37,7 @@ function RIC_Durability_Manager.checkDurabilities()
 		end
 	end
 
-	LD:RequestDurability(); -- Get new durability values for next time
+	LD:RequestDurability() -- Get new durability values for next time
 end
 
 function RIC_Durability_Manager.setPlayerWarning(player)

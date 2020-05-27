@@ -1,14 +1,14 @@
 local sortMethod = "asc"
-local currSortIndex = 1;
-local rosterOffset = 0;
+local currSortIndex = 1
+local rosterOffset = 0
 
-local rosterRaidList = {}; -- Table view of raid + roster list
-local selectedList = {};
+local rosterRaidList = {} -- Table view of raid + roster list
+local selectedList = {}
 
 -- Invite handling
-local invitePhaseActive = false;
-local inviteStatusList = {};
-local inviteTimeList = {};
+local invitePhaseActive = false
+local inviteStatusList = {}
+local inviteTimeList = {}
 
 function RIC_Roster_Browser.buildRosterRaidList()
 	-- Get current guild info
@@ -17,33 +17,33 @@ function RIC_Roster_Browser.buildRosterRaidList()
 	-- and a failed invitation earlier (e.g. because they were offline) does not matter anymore.
 	-- This leads to faster invites for people who come online
 
-	local guildMembers = RIC_Guild_Manager.getGuildMembers();
+	local guildMembers = RIC_Guild_Manager.getGuildMembers()
 	for name,data in pairs(guildMembers) do
 		if data["justCameOnline"] == true then
 			-- This player just came online - reset their invite status!
-			inviteStatusList[name] = RIC_InviteStatus["NOT_INVITED"];
+			inviteStatusList[name] = RIC_InviteStatus["NOT_INVITED"]
 			inviteTimeList[name] = nil -- Doesn't matter when we last invited that person since they just logged in
-			RIC_Guild_Manager.resetCameOnlineFlag(name);
+			RIC_Guild_Manager.resetCameOnlineFlag(name)
 		end
 	end
 
 	-- Go through all raid members, add them to overall list if they are not in roster list
-	rosterRaidList = {};
+	rosterRaidList = {}
 	local inRaid = {}
-	local raidMembers = getRaidMembers();
+	local raidMembers = getRaidMembers()
 	for name, data in pairs(raidMembers) do
 		-- Check guild rank of raid member (if in guild?)
-		local guildRank = "<Not in Guild>";
-		local guildRankIndex = 0;
+		local guildRank = "<Not in Guild>"
+		local guildRankIndex = 0
 		if guildMembers[name] ~= nil then
 			guildRank = guildMembers[name]["rank"]
 			guildRankIndex = guildMembers[name]["rankIndex"]
 		end
 
-		inRaid[name] = 1;
+		inRaid[name] = 1
 
 		-- filter based on view selection
-		local status = getStatusSymbol(true, (RIC_RosterList[name] ~= nil), data["online"], inviteStatusList[name]);
+		local status = getStatusSymbol(true, (RIC_RosterList[name] ~= nil), data["online"], inviteStatusList[name])
 		if RIC_Roster_Browser.showStatusSymbol(status) then
 			table.insert(rosterRaidList, {
 				name,
@@ -51,7 +51,7 @@ function RIC_Roster_Browser.buildRosterRaidList()
 				guildRank,
 				guildRankIndex,
 				status
-			});
+			})
 		end
 	end
 
@@ -67,10 +67,10 @@ function RIC_Roster_Browser.buildRosterRaidList()
 						"<Not in Guild>",
 						0, -- Rank 0 for non-guildies
 						status
-					});
+					})
 				end
 			else
-				local status = getStatusSymbol(false, true, guildMembers[name]["online"], inviteStatusList[name]);
+				local status = getStatusSymbol(false, true, guildMembers[name]["online"], inviteStatusList[name])
 				if RIC_Roster_Browser.showStatusSymbol(status) then -- Check if this status should be shown
 					table.insert(rosterRaidList, {
 						name,
@@ -78,64 +78,64 @@ function RIC_Roster_Browser.buildRosterRaidList()
 						guildMembers[name]["rank"],
 						guildMembers[name]["rankIndex"],
 						status
-					});
+					})
 				end
 			end
 		end
 	end
 
 	-- Clear selection from people who are not shown in rosterRaidList
-	local newSelectedList = {};
+	local newSelectedList = {}
 	for i=1,#rosterRaidList do
 		if selectedList[rosterRaidList[i][1]] ~= nil then
-			assert(selectedList[rosterRaidList[i][1]] == 1);
-			newSelectedList[rosterRaidList[i][1]] = 1;
+			assert(selectedList[rosterRaidList[i][1]] == 1)
+			newSelectedList[rosterRaidList[i][1]] = 1
 		end
 	end
-	selectedList = newSelectedList;
+	selectedList = newSelectedList
 
 	-- Show current roster size as text
-	_G["RIC_RosterNumberText"]:SetText("In Roster: " .. hashLength(RIC_RosterList));
+	_G["RIC_RosterNumberText"]:SetText("In Roster: " .. hashLength(RIC_RosterList))
 
 	-- Set up sliders
 	if #rosterRaidList > 20 then
-		local newVal = #rosterRaidList-20;
-		_G["RIC_RosterSliderContainer"]:Show();
-		_G["RIC_RosterSlider"]:SetValueStep(1);
+		local newVal = #rosterRaidList-20
+		_G["RIC_RosterSliderContainer"]:Show()
+		_G["RIC_RosterSlider"]:SetValueStep(1)
 		if rosterOffset > newVal then
-			rosterOffset = newVal;
+			rosterOffset = newVal
 		else
-			rosterOffset = math.floor(_G["RIC_RosterSlider"]:GetValue());
+			rosterOffset = math.floor(_G["RIC_RosterSlider"]:GetValue())
 		end
-		_G["RIC_RosterSlider"]:SetMinMaxValues(0, newVal);
-		_G["RIC_RosterSlider"]:SetValue(_G["RIC_RosterSlider"]:GetValue());
+		_G["RIC_RosterSlider"]:SetMinMaxValues(0, newVal)
+		_G["RIC_RosterSlider"]:SetValue(_G["RIC_RosterSlider"]:GetValue())
 	else
-		rosterOffset = 0;
-		_G["RIC_RosterSliderContainer"]:Hide();
-		_G["RIC_RosterSlider"]:SetValue(rosterOffset);
+		rosterOffset = 0
+		_G["RIC_RosterSliderContainer"]:Hide()
+		_G["RIC_RosterSlider"]:SetValue(rosterOffset)
 	end
 
 	-- Sort according to current sorting index
-	RIC_Roster_Browser.sortTable(currSortIndex);
+	RIC_Roster_Browser.sortTable(currSortIndex)
 
 	-- Display entries
-	RIC_Roster_Browser.updateListing();
+	RIC_Roster_Browser.updateListing()
 end
 
 -- Function: updateListing
 -- Purpose: Displays the data for the scrolling table
 function RIC_Roster_Browser.updateListing()
 	for ci = 1, 20 do
-		local row = rosterRaidList[ci+rosterOffset];
+		local row = rosterRaidList[ci+rosterOffset]
 		if row then
-			_G["RIC_RosterFrameEntry"..ci.."Name"]:SetText(row[2] .. row[1]);
-			_G["RIC_RosterFrameEntry"..ci.."Rank"]:SetText(row[3]);
-			_G["RIC_RosterFrameEntry"..ci]:Show();
-			local theName = row[1];
+			_G["RIC_RosterFrameEntry"..ci.."Name"]:SetText(row[2] .. row[1])
+			_G["RIC_RosterFrameEntry"..ci.."Rank"]:SetText(row[3])
+			_G["RIC_RosterFrameEntry"..ci]:Show()
+			local theName = row[1]
 			if selectedList[theName] and selectedList[theName] == 1 then
-				_G["RIC_RosterFrameEntry"..ci.."Check"]:Show();
+				_G["RIC_RosterFrameEntry"..ci.."Check"]:Show()
 			else
-				_G["RIC_RosterFrameEntry"..ci.."Check"]:Hide();
+				_G["RIC_RosterFrameEntry"..ci.."Check"]:Hide()
 			end
 
 			if row[5] == RIC_Status["READY"] then
@@ -158,7 +158,7 @@ function RIC_Roster_Browser.updateListing()
 			end
 
 		else
-			_G["RIC_RosterFrameEntry"..ci]:Hide();
+			_G["RIC_RosterFrameEntry"..ci]:Hide()
 		end
 	end
 end
@@ -166,125 +166,125 @@ end
 function RIC_Roster_Browser.showStatusSymbol(status)
 	-- Check if the given status should currently be shown in the roster browser
 	if status == RIC_Status["READY"] then
-		return _G["RIC_ReadyBox"]:GetChecked();
+		return _G["RIC_ReadyBox"]:GetChecked()
 	elseif status == RIC_Status["EXTRA"] then
-		return _G["RIC_ExtraBox"]:GetChecked();
+		return _G["RIC_ExtraBox"]:GetChecked()
 	elseif status == RIC_Status["NOT_INVITED"] then
-		return _G["RIC_NotInvitedBox"]:GetChecked();
+		return _G["RIC_NotInvitedBox"]:GetChecked()
 	elseif status == RIC_Status["INVITE_PENDING"] then
-		return _G["RIC_InvitePendingBox"]:GetChecked();
+		return _G["RIC_InvitePendingBox"]:GetChecked()
 	elseif status == RIC_Status["INVITE_FAILED"] then
-		return _G["RIC_InviteFailedBox"]:GetChecked();
+		return _G["RIC_InviteFailedBox"]:GetChecked()
 	elseif status == RIC_Status["MISSING"] then
-		return _G["RIC_MissingBox"]:GetChecked();
+		return _G["RIC_MissingBox"]:GetChecked()
 	elseif status == RIC_Status["OTHER"] then
-		return _G["RIC_OtherBox"]:GetChecked();
+		return _G["RIC_OtherBox"]:GetChecked()
 	end
 end
 
 function RIC_Roster_Browser.generateRosterList()
 	-- Generates a list of names based on current roster list
-	local rosterString = "";
+	local rosterString = ""
 	for name, present in pairs(RIC_RosterList) do
-		rosterString = rosterString .. name .. "\n";
+		rosterString = rosterString .. name .. "\n"
 	end
-	return rosterString;
+	return rosterString
 end
 
 function RIC_Roster_Browser.importRoster(rosterString)
-	local swapString = gsub(rosterString, "\n", "\186"); -- Use newlines to separate characters
-	local parsedList = { strsplit("\186", swapString) };
+	local swapString = gsub(rosterString, "\n", "\186") -- Use newlines to separate characters
+	local parsedList = { strsplit("\186", swapString) }
 
 	-- Parse names one by one, add to temp list
 	local newList = {}
 	for i=1,#parsedList do
-		local name = trim_name(parsedList[i], "%s+", "");
+		local name = trim_name(parsedList[i], "%s+", "")
 		if string.len(name) > 2 then -- Char names in WoW need to be at least 3 chars long
-			newList[name] = 1;
+			newList[name] = 1
 		end
 	end
 
 	-- If we have a non-empty list, we parsed successfully: Overwrite current roster list
 	if hashLength(newList) > 0 then
-		RIC_RosterList = newList;
+		RIC_RosterList = newList
 	end
 
 	-- Update roster view
-	RIC_Roster_Browser.buildRosterRaidList();
+	RIC_Roster_Browser.buildRosterRaidList()
 end
 
 function RIC_Roster_Browser.updateOffset(val)
 	-- Activates when slider is dragged, gives continuous value -> change to integer
-	rosterOffset = math.floor(val);
-	RIC_Roster_Browser.updateListing();
+	rosterOffset = math.floor(val)
+	RIC_Roster_Browser.updateListing()
 end
 
 function RIC_Roster_Browser.clearSelection()
-	selectedList = {};
+	selectedList = {}
 	RIC_Roster_Browser.updateListing()
 end
 
 function RIC_Roster_Browser.selectAll()
-	selectedList = {};
+	selectedList = {}
 	for ci=1, #rosterRaidList do
-		selectedList[rosterRaidList[ci][1]] = 1;
+		selectedList[rosterRaidList[ci][1]] = 1
 	end
 	RIC_Roster_Browser.updateListing()
 end
 
 function RIC_Roster_Browser.selectRow(rowNum)
-	local theRow = rosterRaidList[rowNum+rosterOffset];
+	local theRow = rosterRaidList[rowNum+rosterOffset]
 	if theRow then
-		local theName = theRow[1];
+		local theName = theRow[1]
 		if theName then
 			if selectedList[theName] ~= nil then
-				selectedList[theName] = nil;
+				selectedList[theName] = nil
 			else
-				selectedList[theName] = 1;
+				selectedList[theName] = 1
 			end
 		end
 	end
 
-	RIC_Roster_Browser.updateListing();
+	RIC_Roster_Browser.updateListing()
 end
 
 function RIC_Roster_Browser.sliderButtonPushed(dir)
-	local currValue = math.floor(_G["RIC_RosterSlider"]:GetValue());
+	local currValue = math.floor(_G["RIC_RosterSlider"]:GetValue())
 	if (dir == 1) and currValue > 0 then
-		newVal = currValue-3;
+		newVal = currValue-3
 		if newVal < 0 then
-			newVal = 0;
+			newVal = 0
 		end
-		_G["RIC_RosterSlider"]:SetValue(newVal);
+		_G["RIC_RosterSlider"]:SetValue(newVal)
 	elseif (dir == 2) and (currValue < (#rosterRaidList-20)) then
-		newVal = currValue+3;
+		newVal = currValue+3
 		if newVal > (#rosterRaidList-20) then
-			newVal = (#rosterRaidList-20);
+			newVal = (#rosterRaidList-20)
 		end
-		_G["RIC_RosterSlider"]:SetValue(newVal);
+		_G["RIC_RosterSlider"]:SetValue(newVal)
 	end
 end
 
 function RIC_Roster_Browser.quickScroll(self, delta)
-	local currValue = math.floor(_G["RIC_RosterSlider"]:GetValue());
+	local currValue = math.floor(_G["RIC_RosterSlider"]:GetValue())
 	if (delta > 0) and currValue > 0 then
-		newVal = currValue-1;
+		newVal = currValue-1
 		if newVal < 0 then
-			newVal = 0;
+			newVal = 0
 		end
-		_G["RIC_RosterSlider"]:SetValue(newVal);
+		_G["RIC_RosterSlider"]:SetValue(newVal)
 	elseif (delta < 0) and (currValue < (#rosterRaidList-20)) then
-		newVal = currValue+1;
+		newVal = currValue+1
 		if newVal > (#rosterRaidList-20) then
-			newVal = (#rosterRaidList-20);
+			newVal = (#rosterRaidList-20)
 		end
-		_G["RIC_RosterSlider"]:SetValue(newVal);
+		_G["RIC_RosterSlider"]:SetValue(newVal)
 	end
 end
 
 function RIC_Roster_Browser.sendInvites()
 	if invitePhaseActive then
-		local raidMembers = getRaidMembers();
+		local raidMembers = getRaidMembers()
 
 		-- Go through roster list, invite players not yet in raid, update invite status
 		for name,present in pairs(RIC_RosterList) do
@@ -294,7 +294,7 @@ function RIC_Roster_Browser.sendInvites()
 				if (inviteStatusList[name] == nil) or (inviteStatusList[name] == RIC_InviteStatus["NOT_INVITED"]) then
 					-- Not invited before. Could have been in group and then left though, so check last invite date in case its there
 					if (inviteTimeList[name] == nil) or ((time() - inviteTimeList[name]) > RIC_InviteInterval) then
-						RIC_Roster_Browser.invite(name, false);
+						RIC_Roster_Browser.invite(name, false)
 					end
 				elseif inviteStatusList[name] == RIC_InviteStatus["INVITE_PENDING"] then
 					-- Check for how long invite was pending, if its too long set to failed
@@ -304,7 +304,7 @@ function RIC_Roster_Browser.sendInvites()
 				elseif inviteStatusList[name] == RIC_InviteStatus["INVITE_FAILED"] then
 					-- Check last invite time, if longer than invite frequency, try inviting again!
 					if (inviteTimeList[name] == nil) or ((time() - inviteTimeList[name]) > RIC_InviteInterval) then
-						RIC_Roster_Browser.invite(name, false);
+						RIC_Roster_Browser.invite(name, false)
 					end
 				end
 			end
@@ -312,6 +312,7 @@ function RIC_Roster_Browser.sendInvites()
 	end
 end
 
+-- Process an invite request whisper from one particular person
 function RIC_Roster_Browser.inviteWhisper(author, msg)
 	-- Check if message is an invite request
 	if (not RIC_Codewords_Handler.checkFilters(msg)) then
@@ -338,7 +339,7 @@ function RIC_Roster_Browser.inviteWhisper(author, msg)
 
 	-- Check if person is guild member
 	if RIC_GuildWhispersOnly then
-		local guildMembers = RIC_Guild_Manager.getGuildMembers();
+		local guildMembers = RIC_Guild_Manager.getGuildMembers()
 		if guildMembers[author] == nil then
 			SendChatMessage("You are not a guild member. Only guild members are invited automatically.", "WHISPER", nil, author)
 			return
@@ -346,7 +347,7 @@ function RIC_Roster_Browser.inviteWhisper(author, msg)
 	end
 
 	-- So far, all conditions met - try to invite person
-	RIC_Roster_Browser.invite(author, true);
+	RIC_Roster_Browser.invite(author, true)
 end
 
 -- Invites one particular person
@@ -357,7 +358,7 @@ function RIC_Roster_Browser.invite(person, reactive)
 	end
 
 	-- Check if person already in raid
-	local raidMembers = getRaidMembers();
+	local raidMembers = getRaidMembers()
 	if raidMembers[person] ~= nil then
 		if reactive then -- If we invite based on whisper, tell player he cant join
 			SendChatMessage("You can't be invited to the raid - you are already in it!", "WHISPER", nil, person)
@@ -382,9 +383,9 @@ function RIC_Roster_Browser.invite(person, reactive)
 	if (hashLength(raidMembers)==0) or (raidMembers[UnitName("player")]["rank"] >= 1) then
 		-- Either this is a reactive invite, so it's fine. It cannot be an active invite unless the raid leader does it, so thats also fine.
 		-- Now check if we are still in group/alone (not RAID) and have to delay some invitations because too many are pending!
-		local num_possible_invites_in_group = 5 - hashLength(raidMembers);
+		local num_possible_invites_in_group = 5 - hashLength(raidMembers)
 		if hashLength(raidMembers) == 0 then
-			num_possible_invites_in_group = 4; -- If we didnt open a group, raidMembers is empty. But only 4 invites possible (us excluded)
+			num_possible_invites_in_group = 4 -- If we didnt open a group, raidMembers is empty. But only 4 invites possible (us excluded)
 		end
 		-- If we are in raid - invite. If not, check if we have some slots in group leftover to invite people into
 		if IsInRaid() or ((num_possible_invites_in_group - countFrequency(inviteStatusList, RIC_InviteStatus["INVITE_PENDING"])) > 0) then
@@ -407,25 +408,25 @@ end
 
 function RIC_Roster_Browser.processSystemMessage(msg)
 	if string.find(msg, string.gsub(ERR_ALREADY_IN_GROUP_S, "%%s", "(%%S+)")) then -- This person is already in a group
-		local playerName = string.match(msg, string.gsub(ERR_ALREADY_IN_GROUP_S, "%%s", "(%%S+)"));
+		local playerName = string.match(msg, string.gsub(ERR_ALREADY_IN_GROUP_S, "%%s", "(%%S+)"))
 		-- Set invite status
-		inviteStatusList[playerName] = RIC_InviteStatus["INVITE_FAILED"];
-		inviteTimeList[playerName] = time(); -- We sent the invite just now, so save current time as last time we attempted invite
+		inviteStatusList[playerName] = RIC_InviteStatus["INVITE_FAILED"]
+		inviteTimeList[playerName] = time() -- We sent the invite just now, so save current time as last time we attempted invite
 		if invitePhaseActive then -- Only notify if we are in the invite phase
-			SendChatMessage("WARNING: You could not be invited to the raid that starts now since you are already in a group. Please leave it!", "WHISPER", nil, playerName);
+			SendChatMessage("WARNING: You could not be invited to the raid that starts now since you are already in a group. Please leave it!", "WHISPER", nil, playerName)
 		end
 	elseif string.find(msg, string.gsub(ERR_JOINED_GROUP_S, "%%s", "%%S+")) then -- Player joined group
-		local playerName = string.match(msg, string.gsub(ERR_JOINED_GROUP_S, "%%s", "(%%S+)"));
+		local playerName = string.match(msg, string.gsub(ERR_JOINED_GROUP_S, "%%s", "(%%S+)"))
 		RIC_Durability_Manager.setPlayerWarning(playerName) -- Set this player to be flagged for durability check soon
 		if invitePhaseActive then
 			-- Convert to raid group if group exists and has at least two members
-			local raidMembers = getRaidMembers();
+			local raidMembers = getRaidMembers()
 			if hashLength(raidMembers) >= 2 then
-				ConvertToRaid();
+				ConvertToRaid()
 
 				-- Set master looter
 				if RIC_MasterLooter then
-					SetLootMethod("master", UnitName("player"));
+					SetLootMethod("master", UnitName("player"))
 				end
 			end
 		end
@@ -433,49 +434,49 @@ function RIC_Roster_Browser.processSystemMessage(msg)
 		-- Remove invite status
 		inviteStatusList[playerName] = nil
 	elseif string.find(msg, string.gsub(ERR_RAID_MEMBER_ADDED_S, "%%s", "%%S+")) then -- Player joined raid group
-		local playerName = string.match(msg, string.gsub(ERR_RAID_MEMBER_ADDED_S, "%%s", "(%%S+)"));
+		local playerName = string.match(msg, string.gsub(ERR_RAID_MEMBER_ADDED_S, "%%s", "(%%S+)"))
 		RIC_Durability_Manager.setPlayerWarning(playerName) -- Set this player to be flagged for durability check soon
 
 		-- Remove invite status
 		inviteStatusList[playerName] = nil
 	elseif string.find(msg, string.gsub(ERR_LEFT_GROUP_S, "%%s", "%%S+")) then -- Player left group
-		local playerName = string.match(msg, string.gsub(ERR_LEFT_GROUP_S, "%%s", "(%%S+)"));
+		local playerName = string.match(msg, string.gsub(ERR_LEFT_GROUP_S, "%%s", "(%%S+)"))
 		-- Set invite status
-		inviteStatusList[playerName] = RIC_InviteStatus["NOT_INVITED"];
-		inviteTimeList[playerName] = time(); -- Act as if we just tried to invite him, to prevent from instant re-invite
+		inviteStatusList[playerName] = RIC_InviteStatus["NOT_INVITED"]
+		inviteTimeList[playerName] = time() -- Act as if we just tried to invite him, to prevent from instant re-invite
 	elseif string.find(msg, string.gsub(ERR_RAID_MEMBER_REMOVED_S, "%%s", "%%S+")) then -- Player left raid group
-		local playerName = string.match(msg, string.gsub(ERR_RAID_MEMBER_REMOVED_S, "%%s", "(%%S+)"));
+		local playerName = string.match(msg, string.gsub(ERR_RAID_MEMBER_REMOVED_S, "%%s", "(%%S+)"))
 		-- Set invite status
-		inviteStatusList[playerName] = RIC_InviteStatus["NOT_INVITED"];
-		inviteTimeList[playerName] = time(); -- Act as if we just tried to invite him, to prevent from instant re-invite
+		inviteStatusList[playerName] = RIC_InviteStatus["NOT_INVITED"]
+		inviteTimeList[playerName] = time() -- Act as if we just tried to invite him, to prevent from instant re-invite
 	elseif string.find(msg, string.gsub(ERR_INVITE_PLAYER_S, "%%s", "%%S+")) then -- sent Valid Invitation
-		local playerName = string.match(msg, string.gsub(ERR_INVITE_PLAYER_S, "%%s", "(%%S+)"));
+		local playerName = string.match(msg, string.gsub(ERR_INVITE_PLAYER_S, "%%s", "(%%S+)"))
 		-- Set invite status
 		inviteStatusList[playerName] = RIC_InviteStatus["INVITE_PENDING"]
 		-- dont need to do anything else - we assume its valid except if we get an error. time was already set when we triggered the invite
 	elseif string.find(msg, string.gsub(ERR_BAD_PLAYER_NAME_S, "%%s", "%%S+")) then -- Player was not online
-		local playerName = string.match(msg, string.gsub(ERR_BAD_PLAYER_NAME_S, "%%s", "(%%S+)"));
+		local playerName = string.match(msg, string.gsub(ERR_BAD_PLAYER_NAME_S, "%%s", "(%%S+)"))
 		-- Set invite status
 		inviteStatusList[playerName] = RIC_InviteStatus["INVITE_FAILED"]
 	elseif string.find(msg, string.gsub(ERR_DECLINE_GROUP_S, "%%s", "%%S+")) then -- Player declined invitation
-		local playerName = string.match(msg, string.gsub(ERR_DECLINE_GROUP_S, "%%s", "(%%S+)"));
+		local playerName = string.match(msg, string.gsub(ERR_DECLINE_GROUP_S, "%%s", "(%%S+)"))
 		-- Set invite status
-		inviteStatusList[playerName] = RIC_InviteStatus["INVITE_FAILED"];
+		inviteStatusList[playerName] = RIC_InviteStatus["INVITE_FAILED"]
 	elseif string.find(msg, ERR_LEFT_GROUP_YOU) or string.find(msg, ERR_RAID_YOU_LEFT) then -- You left group/raid - reset state
-		inviteStatusList = {};
-		inviteTimeList = {};
-		RIC_Roster_Browser.endInvitePhase();
+		inviteStatusList = {}
+		inviteTimeList = {}
+		RIC_Roster_Browser.endInvitePhase()
 	end
 
 	-- Update roster table
-	RIC_Roster_Browser.buildRosterRaidList();
+	RIC_Roster_Browser.buildRosterRaidList()
 end
 
 function RIC_Roster_Browser.toggleInvitePhase()
 	if invitePhaseActive then
-		RIC_Roster_Browser:endInvitePhase();
+		RIC_Roster_Browser:endInvitePhase()
 	else
-		RIC_Roster_Browser:startInvitePhase();
+		RIC_Roster_Browser:startInvitePhase()
 	end
 end
 
@@ -508,25 +509,25 @@ function RIC_Roster_Browser.endInvitePhase()
 
 		-- Notify via guild message
 		if RIC_NotifyInvitePhaseEnd then
-			SendChatMessage("Invite phase for raid ended!" ,"GUILD", nil ,nil);
+			SendChatMessage("Invite phase for raid ended!" ,"GUILD", nil ,nil)
 		end
 
 		-- Notify codewords via guild
-		RIC_Codewords_Handler.endInvitePhase();
+		RIC_Codewords_Handler.endInvitePhase()
 
-		invitePhaseActive = false;
+		invitePhaseActive = false
 	end
 end
 
 function RIC_Roster_Browser.SystemFilter(chatFrame, event, message)
-	return true;
+	return true
 end
 
 -- Adds people selected in roster browser (raid members) to roster, or if none selected, opens pop up menu to accept a typed player name
 function RIC_Roster_Browser.addSelectedToRoster()
 	if hashLength(selectedList) == 0 then -- Nothing selected - open up dialog window to enter custom name
 		-- Show player entry popup window
-		StaticPopup_Show("ROSTER_PLAYER_ENTRY");
+		StaticPopup_Show("ROSTER_PLAYER_ENTRY")
 	else -- Add selected people to roster. Some might already be in the roster, but that's fine
 		for name,present in pairs(selectedList) do
 			RIC_RosterList[name] = 1
@@ -534,20 +535,20 @@ function RIC_Roster_Browser.addSelectedToRoster()
 	end
 
 	-- Remove selection
-	selectedList = {};
+	selectedList = {}
 
 	-- Update list
-	RIC_Roster_Browser.buildRosterRaidList();
+	RIC_Roster_Browser.buildRosterRaidList()
 end
 
 function RIC_Roster_Browser.addNameToRoster(name)
 	-- If name is empty, do nothing
-	local trimmed_name = trim_name(name);
+	local trimmed_name = trim_name(name)
 	if string.len(trimmed_name) > 2 then -- Char names must have at least 3 characters in WoW
 		-- Add to roster list
-		RIC_RosterList[trimmed_name] = 1;
+		RIC_RosterList[trimmed_name] = 1
 		-- Update list
-		RIC_Roster_Browser.buildRosterRaidList();
+		RIC_Roster_Browser.buildRosterRaidList()
 	end
 end
 
@@ -564,7 +565,7 @@ function RIC_Roster_Browser.removeFromRoster()
 	end
 
 	-- Reset selection
-	selectedList = {};
+	selectedList = {}
 
 	-- Update data and view
 	RIC_Roster_Browser.buildRosterRaidList()

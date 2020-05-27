@@ -1,73 +1,73 @@
 local sortMethod = "asc"
-local currSortIndex = 1;
-local guildList = {};
-local guildOffset = 0;
-local selectedList = {};
-local totalGuildNumber = 0;
-local totalNumber = 0;
+local currSortIndex = 1
+local guildList = {}
+local guildOffset = 0
+local selectedList = {}
+local totalGuildNumber = 0
+local totalNumber = 0
 
 function RIC_Guild_Browser.setVisibleRanks()
-	local numRanks = GuildControlGetNumRanks();
+	local numRanks = GuildControlGetNumRanks()
 	for ci=1, 10 do
 		if ci <= numRanks then
-			_G["RIC_ShowRank"..ci]:Show();
-			_G["RIC_ShowRank"..ci.."Text"]:SetText(GuildControlGetRankName(ci));
-			_G["RIC_ShowRank"..ci]:SetChecked(RIC_displayRanks[ci]);
+			_G["RIC_ShowRank"..ci]:Show()
+			_G["RIC_ShowRank"..ci.."Text"]:SetText(GuildControlGetRankName(ci))
+			_G["RIC_ShowRank"..ci]:SetChecked(RIC_displayRanks[ci])
 		else
-			_G["RIC_ShowRank"..ci]:Hide();
+			_G["RIC_ShowRank"..ci]:Hide()
 		end
 	end
 end
 
 function RIC_Guild_Browser.updateOffset(val)
 	-- Activates when slider is dragged, gives continuous value -> change to integer
-	guildOffset = math.floor(val);
-	RIC_Guild_Browser.updateListing();
+	guildOffset = math.floor(val)
+	RIC_Guild_Browser.updateListing()
 end
 
 -- Function: buildGuildList
 -- Purpose: Builds data for listing guild members
 function RIC_Guild_Browser.buildGuildList()
-	totalGuildNumber = 0;
-	totalNumber = 0;
+	totalGuildNumber = 0
+	totalNumber = 0
 	guildList = {}
 
-	local guildMembers = RIC_Guild_Manager.getGuildMembers();
+	local guildMembers = RIC_Guild_Manager.getGuildMembers()
 
 	for name, data in pairs(guildMembers) do
 		if RIC_ShowOffline or (data["online"]==1) then
 			if RIC_displayRanks[data["rankIndex"]] then
-				totalGuildNumber = totalGuildNumber+1;
+				totalGuildNumber = totalGuildNumber+1
 				table.insert(guildList, {
 							 name,
 							 data["rank"],
 							 data["rankIndex"],
 							 data["color"],
 							 data["online"]
-						});
+						})
 			end
 		end
 	end
 
 	if totalGuildNumber > 20 then
-		local newVal = totalGuildNumber-20;
-		_G["RIC_GuildSliderContainer"]:Show();
-		_G["RIC_GuildSlider"]:SetValueStep(1);
+		local newVal = totalGuildNumber-20
+		_G["RIC_GuildSliderContainer"]:Show()
+		_G["RIC_GuildSlider"]:SetValueStep(1)
 		if guildOffset > newVal then
-			guildOffset = newVal;
+			guildOffset = newVal
 		else
-			guildOffset = math.floor(_G["RIC_GuildSlider"]:GetValue());
+			guildOffset = math.floor(_G["RIC_GuildSlider"]:GetValue())
 		end
-		_G["RIC_GuildSlider"]:SetMinMaxValues(0, newVal);
-		_G["RIC_GuildSlider"]:SetValue(_G["RIC_GuildSlider"]:GetValue());
+		_G["RIC_GuildSlider"]:SetMinMaxValues(0, newVal)
+		_G["RIC_GuildSlider"]:SetValue(_G["RIC_GuildSlider"]:GetValue())
 	else
-		guildOffset = 0;
-		_G["RIC_GuildSliderContainer"]:Hide();
-		_G["RIC_GuildSlider"]:SetValue(guildOffset);
+		guildOffset = 0
+		_G["RIC_GuildSliderContainer"]:Hide()
+		_G["RIC_GuildSlider"]:SetValue(guildOffset)
 	end
 
-	RIC_Guild_Browser.sortTable(currSortIndex);
-	RIC_Guild_Browser.updateListing();
+	RIC_Guild_Browser.sortTable(currSortIndex)
+	RIC_Guild_Browser.updateListing()
 end
 
 -- Function: updateListing
@@ -75,24 +75,24 @@ end
 --		scrolling table.
 function RIC_Guild_Browser.updateListing()
 	for ci = 1, 20 do
-		local theRow = guildList[ci+guildOffset];
+		local theRow = guildList[ci+guildOffset]
 		if theRow then
-			_G["RIC_GuildMemberFrameEntry"..ci.."Name"]:SetText(theRow[4] .. theRow[1]);
+			_G["RIC_GuildMemberFrameEntry"..ci.."Name"]:SetText(theRow[4] .. theRow[1])
 			if theRow[5] then
-				_G["RIC_GuildMemberFrameEntry"..ci.."Rank"]:SetText(theRow[2]);
+				_G["RIC_GuildMemberFrameEntry"..ci.."Rank"]:SetText(theRow[2])
 			else
-				_G["RIC_GuildMemberFrameEntry"..ci.."Rank"]:SetText(GRAY_FONT_COLOR_CODE .. theRow[2]);
+				_G["RIC_GuildMemberFrameEntry"..ci.."Rank"]:SetText(GRAY_FONT_COLOR_CODE .. theRow[2])
 			end
-			_G["RIC_GuildMemberFrameEntry"..ci]:Show();
-			local theName = theRow[1];
+			_G["RIC_GuildMemberFrameEntry"..ci]:Show()
+			local theName = theRow[1]
 			if selectedList[theName] ~= nil then
-				_G["RIC_GuildMemberFrameEntry"..ci.."Check"]:Show();
+				_G["RIC_GuildMemberFrameEntry"..ci.."Check"]:Show()
 			else
-				_G["RIC_GuildMemberFrameEntry"..ci.."Check"]:Hide();
+				_G["RIC_GuildMemberFrameEntry"..ci.."Check"]:Hide()
 			end
 
 		else
-			_G["RIC_GuildMemberFrameEntry"..ci]:Hide();
+			_G["RIC_GuildMemberFrameEntry"..ci]:Hide()
 		end
 	end
 end
@@ -111,17 +111,17 @@ function RIC_Guild_Browser.addSelectedToRoster()
 end
 
 function RIC_Guild_Browser.clearSelection()
-	selectedList = {};
+	selectedList = {}
 	RIC_Guild_Browser.updateListing()
 end
 
 function RIC_Guild_Browser.selectAll()
-	selectedList = {};
-	local guildMembers = RIC_Guild_Manager.getGuildMembers();
+	selectedList = {}
+	local guildMembers = RIC_Guild_Manager.getGuildMembers()
 	for name, data in pairs(guildMembers) do
 		if RIC_ShowOffline or data["online"] then
 			if RIC_displayRanks[data["rankIndex"]] then
-				selectedList[name] = 1;
+				selectedList[name] = 1
 			end
 		end
 	end
@@ -129,70 +129,70 @@ function RIC_Guild_Browser.selectAll()
 end
 
 function RIC_Guild_Browser.selectRow(rowNum)
-	local theRow = guildList[rowNum+guildOffset];
+	local theRow = guildList[rowNum+guildOffset]
 	if theRow then
-		local theName = theRow[1];
+		local theName = theRow[1]
 		if theName then
 			if selectedList[theName] ~= nil then
-				selectedList[theName] = nil;
+				selectedList[theName] = nil
 			else
-				selectedList[theName] = 1;
+				selectedList[theName] = 1
 			end
 		end
 	end
 
-	RIC_Guild_Browser.updateListing();
+	RIC_Guild_Browser.updateListing()
 end
 
 
 function RIC_Guild_Browser.rankBoxToggle(numID)
-	local toggleCheck = _G["RIC_ShowRank"..numID]:GetChecked();
-	RIC_displayRanks[numID] = toggleCheck;
-	RIC_Guild_Browser.buildGuildList();
+	local toggleCheck = _G["RIC_ShowRank"..numID]:GetChecked()
+	RIC_displayRanks[numID] = toggleCheck
+	RIC_Guild_Browser.buildGuildList()
 end
 
 function RIC_Guild_Browser.offlineBoxToggle()
-	local toggleCheck = _G["RIC_ShowOfflineBox"]:GetChecked();
+	local toggleCheck = _G["RIC_ShowOfflineBox"]:GetChecked()
 	RIC_ShowOffline = toggleCheck
-	RIC_Guild_Browser.buildGuildList();
+	RIC_Guild_Browser.buildGuildList()
 end
 
 function RIC_Guild_Browser.sliderButtonPushed(dir)
-	local currValue = math.floor(_G["RIC_GuildSlider"]:GetValue());
+	local currValue = math.floor(_G["RIC_GuildSlider"]:GetValue())
 	if (dir == 1) and currValue > 0 then
-		newVal = currValue-3;
+		newVal = currValue-3
 		if newVal < 0 then
-			newVal = 0;
+			newVal = 0
 		end
-		_G["RIC_GuildSlider"]:SetValue(newVal);
+		_G["RIC_GuildSlider"]:SetValue(newVal)
 	elseif (dir == 2) and (currValue < (totalGuildNumber-20)) then
-		newVal = currValue+3;
+		newVal = currValue+3
 		if newVal > (totalGuildNumber-20) then
-			newVal = (totalGuildNumber-20);
+			newVal = (totalGuildNumber-20)
 		end
-		_G["RIC_GuildSlider"]:SetValue(newVal);
+		_G["RIC_GuildSlider"]:SetValue(newVal)
 	end
 end
 
 function RIC_Guild_Browser.quickScroll(self, delta)
-	local currValue = math.floor(_G["RIC_GuildSlider"]:GetValue());
+	local currValue = math.floor(_G["RIC_GuildSlider"]:GetValue())
 	if (delta > 0) and currValue > 0 then
-		newVal = currValue-1;
+		newVal = currValue-1
 		if newVal < 0 then
-			newVal = 0;
+			newVal = 0
 		end
-		_G["RIC_GuildSlider"]:SetValue(newVal);
+		_G["RIC_GuildSlider"]:SetValue(newVal)
 	elseif (delta < 0) and (currValue < (totalGuildNumber-20)) then
-		newVal = currValue+1;
+		newVal = currValue+1
 		if newVal > (totalGuildNumber-20) then
-			newVal = (totalGuildNumber-20);
+			newVal = (totalGuildNumber-20)
 		end
-		_G["RIC_GuildSlider"]:SetValue(newVal);
+		_G["RIC_GuildSlider"]:SetValue(newVal)
 	end
 end
 
 function RIC_Guild_Browser.SystemFilter(chatFrame, event, message)
-	return true;
+	return true
 end
 
 function RIC_Guild_Browser.sortClicked(id)

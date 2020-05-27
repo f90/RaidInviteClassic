@@ -1,18 +1,18 @@
-local guildMembersLoginTime = {}; -- Track when guild members log in
-local guildMemberCameOnline = {}; -- Set to true when a guild member came online, set back to false as soon as we reset the invite state as a reaction to this
+local guildMembersLoginTime = {} -- Track when guild members log in
+local guildMemberCameOnline = {} -- Set to true when a guild member came online, set back to false as soon as we reset the invite state as a reaction to this
 
 function RIC_Guild_Manager.getGuildMembers()
-    GuildRoster();
-    local numMembers = GetNumGuildMembers(true);
-    local output = {};
+    GuildRoster()
+    local numMembers = GetNumGuildMembers(true)
+    local output = {}
     for ci=1, numMembers do
-        local name, rank, rankIndex, level, class, zone, note, officernote, online, status, classFileName = GetGuildRosterInfo(ci);
+        local name, rank, rankIndex, level, class, zone, note, officernote, online, status, classFileName = GetGuildRosterInfo(ci)
 
         if name ~= nil then -- When zoning, GetGuildRosterInfo sometimes returns nil for player names, then ignore this player!
             -- 1 if online, 0 if offline
-            local online_val = 0;
+            local online_val = 0
             if online then
-                online_val = 1;
+                online_val = 1
             end
 
             -- name contains "name-servername" but GetRaidRosterInfo does not give us server info. Since this is a classic addon, simply remove server name here and deal ONLY with char names
@@ -22,12 +22,12 @@ function RIC_Guild_Manager.getGuildMembers()
             if online_val == 1 then
                 if guildMembersLoginTime[name] == nil then
                     -- No entry found but player is online => Player has come online now!
-                    guildMembersLoginTime[name] = time();
-                    guildMemberCameOnline[name] = true;
+                    guildMembersLoginTime[name] = time()
+                    guildMemberCameOnline[name] = true
                 end
             else -- Player offline
-                guildMembersLoginTime[name] = nil; -- Player offline - return nil as login time
-                guildMemberCameOnline[name] = nil;
+                guildMembersLoginTime[name] = nil -- Player offline - return nil as login time
+                guildMemberCameOnline[name] = nil
             end
 
             output[name] = {
@@ -52,5 +52,5 @@ end
 
 function RIC_Guild_Manager.resetCameOnlineFlag(name)
     -- Called by roster browser when resetting invite status of a player because they came online
-    guildMemberCameOnline[name] = nil;
+    guildMemberCameOnline[name] = nil
 end
