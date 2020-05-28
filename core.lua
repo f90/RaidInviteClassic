@@ -23,9 +23,9 @@ SlashCmdList["RIC"] = function(msg)
 		RIC_MainFrame:Hide()
 		RIC_MainFrame:Show()
 	elseif cmd == "version" then
-		print("|cFFFF0000Raid Invite Classic|r: Version " .. RIC_Version)
+		printRIC("Version: " .. RIC_Version)
 	else
-		print("|cFFFF0000Raid Invite Classic|r:")
+		printRIC("") -- Print just our addon name first
 		print("prefix: /ric")
 		print(" - show - shows the main frame")
 		print(" - hide - hide the main frame")
@@ -92,7 +92,7 @@ function RIC_EventHandler(self, event, ...)
 		if author ~= nil then -- For some reason this can be nil sometimes?
 			RIC_Roster_Browser.inviteWhisper(removeServerFromName(author), msg) -- Remove server tag from name
 		else
-			print("WARNING: Author name of some message could not be parsed - you might have missed an invite whisper!")
+			printRIC("WARNING: Author of some incoming whisper could not be parsed - check if you missed an invite whisper!")
 		end
 	elseif event == "CHAT_MSG_SYSTEM" then
 		local msg = ...

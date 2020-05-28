@@ -67,6 +67,10 @@ function getClassColor(classFilename)
     return color
 end
 
+function printRIC(text)
+    print("|cFFFF0000Raid Invite Classic|r: " .. text)
+end
+
 function removeServerFromName(name)
     -- Removes server names from full names, e.g. "Tim-Patchwerk" -> "Tim"
     local dashPosStart, dashPosEnd = string.find(name, "-")

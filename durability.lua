@@ -27,8 +27,7 @@ function RIC_Durability_Manager.checkDurabilities()
 			else
 				-- Durability request is too old - get rid of it
 				playersNeedWarning[player] = nil
-				print("WARNING: Durability could not be determined for player " .. player .. " after multiple attempts. Player is offline or has DBM not installed?")
-				-- TODO Failed at this point likely because a) player is offline or b) DBM not installed. Maybe warn player now to install DBM?
+				printRIC("WARNING: Durability could not be determined for player " .. player .. ". Player is offline or doesnt have DBM installed?")
 			end
 		else
 			-- Player not in raid - doesnt need warning or durability info anymore!
@@ -63,13 +62,11 @@ function RIC_Durability_Manager.warnPlayer(player)
 
 	-- If we dont have durability info - cannot fulfil check request - just cancel
 	if durability[player] == nil then
-		-- print("Could not find durability for " .. player)
 		return
 	end
 
 	-- If durability info is too outdated - cannot fulfil check request - just cancel
 	if (time() - durability[player]["time"]) > 60 then
-		-- print("Durability info is too old for " .. player)
 		return
 	end
 
@@ -86,7 +83,7 @@ function RIC_Durability_Manager.warnPlayer(player)
 		if UnitAffectingCombat("player") then -- Only show popup when not in combat
 			message(warningText)
 		else
-			print(warningText)
+			printRIC(warningText)
 		end
 	else
 		-- This is someone else than us - send a message

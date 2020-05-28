@@ -6,7 +6,7 @@ end
 function RIC_Codewords_Handler.startInvitePhase()
 	RIC_Codewords_Handler.updateCodeWords()
 	if #RIC_CodeWords == 0 then
-		print("|cFFFF0000Cannot Start Automatic Invites|r - You haven't entered any codewords.")
+		printRIC("You haven't entered any codewords.")
 	else
 		if RIC_CodeWordNotifyStart then
 			local theMsg = "Raid invites started! Whisper me \""

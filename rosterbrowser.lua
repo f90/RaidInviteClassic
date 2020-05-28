@@ -153,8 +153,8 @@ function RIC_Roster_Browser.updateListing()
 			elseif row[5] == RIC_Status["OTHER"] then
 				_G["RIC_RosterFrameEntry"..ci.."Status"]:SetTexture("Interface\\AddOns\\RaidInviteClassic\\img\\question_mark")
 			else
-				print("ERROR: Could not find a symbol for this status!")
-				assert(False)
+				_G["RIC_RosterFrameEntry"..ci.."Status"]:SetTexture("Interface\\AddOns\\RaidInviteClassic\\img\\question_mark")
+				printRIC("ERROR: Could not find a status symbol for " .. theName)
 			end
 
 		else
@@ -322,7 +322,7 @@ function RIC_Roster_Browser.inviteWhisper(author, msg)
 	-- Event if message has sth like "invite" in it, probably unrelated message if we are currently completely alone (e.g. "invite person X to the guild please")
 	-- => Ignore request if we are alone. Also prevents people from pushing you into a group when you dont want to
 	if ((not IsInGroup()) and (not IsInRaid())) and RIC_CodewordOnlyInGroup then
-		print("A codeword whisper by " .. author .. " was ignored because you were alone.")
+		printRIC("A codeword whisper by " .. author .. " was ignored because you were alone.")
 		return
 	end
 
