@@ -208,7 +208,7 @@
 			<AbsDimension x="33" y="33"/>
 		</Size>
 		<Anchors>
-			<Anchor point="TOPLEFT"/>
+			<Anchor point="CENTER"/>
 		</Anchors>
 		<Layers>
 			<Layer level="BACKGROUND">
@@ -248,6 +248,8 @@
 		<HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight"/>
 		<Scripts>
 			<OnLoad>
+				self:SetFrameStrata("MEDIUM") -- Minimap icon should be above minimap
+				self:SetFrameLevel(8) -- Minimap icon should be above minimap
 				self:RegisterForClicks("LeftButtonUp","RightButtonUp")
 				self:RegisterForDrag("LeftButton","RightButton")
 			</OnLoad>

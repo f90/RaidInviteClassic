@@ -202,7 +202,42 @@ function RIC_OnUpdate()
 end
 
 function RIC_Mod_MinimapButton_Reposition()
-	RIC_Mod_MinimapButton:SetPoint("TOPLEFT","Minimap","TOPLEFT",52-(80*cos(RIC_MinimapPos)),(80*sin(RIC_MinimapPos))-52)
+	local minimapShapes = {
+		["ROUND"] = {true, true, true, true},
+		["SQUARE"] = {false, false, false, false},
+		["CORNER-TOPLEFT"] = {false, false, false, true},
+		["CORNER-TOPRIGHT"] = {false, false, true, false},
+		["CORNER-BOTTOMLEFT"] = {false, true, false, false},
+		["CORNER-BOTTOMRIGHT"] = {true, false, false, false},
+		["SIDE-LEFT"] = {false, true, false, true},
+		["SIDE-RIGHT"] = {true, false, true, false},
+		["SIDE-TOP"] = {false, false, true, true},
+		["SIDE-BOTTOM"] = {true, true, false, false},
+		["TRICORNER-TOPLEFT"] = {false, true, true, true},
+		["TRICORNER-TOPRIGHT"] = {true, false, true, true},
+		["TRICORNER-BOTTOMLEFT"] = {true, true, false, true},
+		["TRICORNER-BOTTOMRIGHT"] = {true, true, true, false},
+	}
+
+	local angle = math.rad(RIC_MinimapPos)
+	local x, y, q = math.cos(angle), math.sin(angle), 1
+	if x < 0 then q = q + 1 end
+	if y > 0 then q = q + 2 end
+	local minimapShape = GetMinimapShape and GetMinimapShape() or "ROUND"
+	local quadTable = minimapShapes[minimapShape]
+	local w = (Minimap:GetWidth() / 2)
+	local h = (Minimap:GetHeight() / 2)
+	if quadTable[q] then
+		x, y = x*w, y*h
+	else
+		local diagRadiusW = math.sqrt(2*(w)^2)-10
+		local diagRadiusH = math.sqrt(2*(h)^2)-10
+		x = math.max(-w, math.min(x*diagRadiusW, w))
+		y = math.max(-h, math.min(y*diagRadiusH, h))
+	end
+	x = (x * (-1)) -- Inverse x axis movement
+
+	RIC_Mod_MinimapButton:SetPoint("CENTER","Minimap","CENTER",x,y)
 end
 
 -- Only while the button is dragged this is called every frame
