@@ -22,14 +22,17 @@ SlashCmdList["RIC"] = function(msg)
 		RIC_ScaleInputThing:SetNumber(1)
 		RIC_MainFrame:Hide()
 		RIC_MainFrame:Show()
+		-- Reset minimap position
+		RIC_MinimapPos = 0
+		RIC_Mod_MinimapButton_Reposition()
 	elseif cmd == "version" then
 		printRIC("Version: " .. RIC_Version)
 	else
 		printRIC("") -- Print just our addon name first
-		print("prefix: /ric")
+		print("prefix: /ric - shows/hides main frame")
 		print(" - show - shows the main frame")
 		print(" - hide - hide the main frame")
-		print(" - reset - resets the scale / position of the main frame")
+		print(" - reset - resets interface elements and minimap icon")
 		print(" - version - shows the addon version")
 	end
 end

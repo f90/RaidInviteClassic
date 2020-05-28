@@ -30,7 +30,7 @@ RIC_RosterWhispersOnly = false
 RIC_Durability_Warning = true
 RIC_Durability_Threshold = 80
 
-RIC_MinimapPos = 315 -- default position of the minimap icon in degrees
+RIC_MinimapPos = 0 -- default position of the minimap icon in degrees
 RIC_MinimapShow = true
 RIC_NotifyInvitePhaseStart = true
 RIC_NotifyInvitePhaseEnd = false
