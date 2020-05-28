@@ -4,11 +4,13 @@ function RIC_Codewords_Handler.updateCodeWords()
 end
 
 function RIC_Codewords_Handler.startInvitePhase()
-	RIC_Codewords_Handler.updateCodeWords()
-	if #RIC_CodeWords == 0 then
-		printRIC("You haven't entered any codewords.")
-	else
-		if RIC_CodeWordNotifyStart then
+	RIC_Codewords_Handler.updateCodeWords() -- Parse codewords from text box
+
+	-- Notify guild now, if this is activated in the options
+	if RIC_CodeWordNotifyStart then
+		if #RIC_CodeWords == 0 then
+			printRIC("WARNING: You haven't set any codewords that could be announced to the guild now!")
+		else
 			local theMsg = "Raid invites started! Whisper me \""
 			for ci=1, (#RIC_CodeWords - 1) do
 				if (ci == 1) then
