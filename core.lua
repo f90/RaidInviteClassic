@@ -22,12 +22,15 @@ SlashCmdList["RIC"] = function(msg)
 		RIC_ScaleInputThing:SetNumber(1)
 		RIC_MainFrame:Hide()
 		RIC_MainFrame:Show()
+	elseif cmd == "version" then
+		print("|cFFFF0000Raid Invite Classic|r: Version " .. RIC_Version)
 	else
 		print("|cFFFF0000Raid Invite Classic|r:")
 		print("prefix: /ric")
 		print(" - show - shows the main frame")
 		print(" - hide - hide the main frame")
 		print(" - reset - resets the scale / position of the main frame")
+		print(" - version - shows the addon version")
 	end
 end
 
