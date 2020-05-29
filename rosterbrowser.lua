@@ -192,7 +192,10 @@ function RIC_Roster_Browser.generateRosterList()
 end
 
 function RIC_Roster_Browser.importRoster(rosterString)
-	local swapString = gsub(rosterString, "\n", "\186") -- Use newlines to separate characters
+	-- Use newlines, colons or comma to separate characters
+	local swapString = gsub(rosterString, "\n", "\186")
+	swapString = gsub(swapString, ";", "\186")
+	swapString = gsub(swapString, ",", "\186")
 	local parsedList = { strsplit("\186", swapString) }
 
 	-- Parse names one by one, add to temp list
