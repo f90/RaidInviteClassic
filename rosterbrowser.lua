@@ -502,6 +502,11 @@ function RIC_Roster_Browser.startInvitePhase()
 			-- Notify codewords via guild
 			RIC_Codewords_Handler.startInvitePhase()
 
+			-- Check gear durability of our own character - since we otherwise only check people joining our group/raid
+			if RIC_Durability_Warning then
+				RIC_Durability_Manager.setPlayerWarning(GetUnitName("player", false))
+			end
+
 			invitePhaseActive = true
 		else
 			-- We cannot activate invite phase because we are already in a group, but not leading it - give error message
