@@ -1,6 +1,6 @@
 -- Author      : Daniel Stoller
 
-RIC_Version = "0.3.0"
+RIC_Version = "0.3.1"
 
 -- MODULES
 RIC_Guild_Browser = {}
