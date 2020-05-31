@@ -38,7 +38,7 @@ function RIC_Guild_Manager.getGuildMembers()
                 zone=zone,
                 note=note,
                 officernote=officernote,
-                online=online_val,
+                online=online_val, -- 1 if online, 0 if offline
                 status=status,
                 cameOnlineAt=guildMembersLoginTime[name], -- nil if offline, otherwise shows time when they came online
                 justCameOnline=guildMemberCameOnline[name], -- true if this player has JUST come online AND invite status was not reset yet, otherwise nil

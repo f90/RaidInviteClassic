@@ -60,7 +60,7 @@ RIC_ColorTable = {
 }
 
 function getClassColor(classFilename)
-    local color = "|cffffffff"
+    local color = "|cffDA5151" -- Red-grey for unknown class
     if RIC_ColorTable[classFilename] then
         color = "|cFF" .. RIC_ColorTable[classFilename]
     end
