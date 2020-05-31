@@ -288,6 +288,7 @@ end
 function RIC_Roster_Browser.sendInvites()
 	if invitePhaseActive then
 		local raidMembers = getRaidMembers()
+		local guildMembers = RIC_Guild_Manager.getGuildMembers() -- Retrieve this so invite function can check if people are online
 
 		-- Go through roster list, invite players not yet in raid, update invite status
 		for name,present in pairs(RIC_RosterList) do
@@ -297,7 +298,7 @@ function RIC_Roster_Browser.sendInvites()
 				if (inviteStatusList[name] == nil) or (inviteStatusList[name] == RIC_InviteStatus["NOT_INVITED"]) then
 					-- Not invited before. Could have been in group and then left though, so check last invite date in case its there
 					if (inviteTimeList[name] == nil) or ((time() - inviteTimeList[name]) > RIC_InviteInterval) then
-						RIC_Roster_Browser.invite(name, false)
+						RIC_Roster_Browser.invite(name, false, guildMembers)
 					end
 				elseif inviteStatusList[name] == RIC_InviteStatus["INVITE_PENDING"] then
 					-- Check for how long invite was pending, if its too long set to failed
@@ -307,7 +308,7 @@ function RIC_Roster_Browser.sendInvites()
 				elseif inviteStatusList[name] == RIC_InviteStatus["INVITE_FAILED"] then
 					-- Check last invite time, if longer than invite frequency, try inviting again!
 					if (inviteTimeList[name] == nil) or ((time() - inviteTimeList[name]) > RIC_InviteInterval) then
-						RIC_Roster_Browser.invite(name, false)
+						RIC_Roster_Browser.invite(name, false, guildMembers)
 					end
 				end
 			end
@@ -342,8 +343,8 @@ function RIC_Roster_Browser.inviteWhisper(author, msg)
 	end
 
 	-- Check if person is guild member
+	local guildMembers = RIC_Guild_Manager.getGuildMembers()
 	if RIC_GuildWhispersOnly then
-		local guildMembers = RIC_Guild_Manager.getGuildMembers()
 		if guildMembers[author] == nil then
 			SendChatMessageRIC("You are not a guild member. Only guild members are invited automatically.", "WHISPER", nil, author)
 			return
@@ -351,11 +352,11 @@ function RIC_Roster_Browser.inviteWhisper(author, msg)
 	end
 
 	-- So far, all conditions met - try to invite person
-	RIC_Roster_Browser.invite(author, true)
+	RIC_Roster_Browser.invite(author, true, guildMembers)
 end
 
 -- Invites one particular person
-function RIC_Roster_Browser.invite(person, reactive)
+function RIC_Roster_Browser.invite(person, reactive, guildMembers)
 	-- Check if person is the character you are playing right now
 	if person == UnitName("player") then
 		return
@@ -371,7 +372,7 @@ function RIC_Roster_Browser.invite(person, reactive)
 	end
 
 	-- Check if raid full
-	if hashLength(raidMembers) == MAX_RAID_MEMBERS then
+	if hashLength(raidMembers) >= MAX_RAID_MEMBERS then
 		if reactive then
 			-- React to whisper that the raid is full, but dont change any invite status
 			SendChatMessageRIC("Raid already full - if you reserved a spot by registering for the raid in advance, contact the raid leader", "WHISPER", nil, author)
@@ -381,6 +382,17 @@ function RIC_Roster_Browser.invite(person, reactive)
 			inviteTimeList[person] = time()
 		end
 		return
+	end
+
+	-- Check if this is a guild member but offline - in this case we don't even need to try an invite, since this clogs up the chat with invite error messages :)
+	if not reactive then -- If reacting to invite request, the player is definitely online!
+		guildMembers = guildMembers or getGuildMembers() -- Retrieve guild member list if not given to us as argument
+		if (guildMembers[person] ~= nil) and (guildMembers[person]["online"] ~= 1) then
+			-- Invite for this person will fail because they are offline - dont invite, instead record invite attempt time and set to failed invite status
+			inviteStatusList[person] = RIC_InviteStatus["INVITE_FAILED"]
+			inviteTimeList[person] = time()
+			return
+		end
 	end
 
 	-- Check if we have assist or lead in raid so we can actually invite someone (or we are alone at the moment)
