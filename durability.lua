@@ -95,7 +95,7 @@ function RIC_Durability_Manager.warnPlayer(player)
 		end
 	else
 		-- This is someone else than us - send a message
-		 SendChatMessage(warningText, "WHISPER", nil, player)
+		 SendChatMessageRIC(warningText, "WHISPER", nil, player)
 	end
 	playersNeedWarning[player] = nil -- Clear up durability check request time
 end

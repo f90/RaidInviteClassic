@@ -71,6 +71,10 @@ function printRIC(text)
     print("|cFFFF0000Raid Invite Classic|r: " .. text)
 end
 
+function SendChatMessageRIC(msg, chatType, language, channel)
+    SendChatMessage("[RIC]: " .. msg, chatType, language, channel)
+end
+
 function removeServerFromName(name)
     -- Removes server names from full names, e.g. "Tim-Patchwerk" -> "Tim"
     local dashPosStart, dashPosEnd = string.find(name, "-")

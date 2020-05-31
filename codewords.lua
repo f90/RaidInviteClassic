@@ -28,14 +28,14 @@ function RIC_Codewords_Handler.startInvitePhase()
 			end
 
 			theMsg = theMsg .. "\" for an invite!"
-			SendChatMessage(theMsg ,"GUILD" ,nil ,nil)
+			SendChatMessageRIC(theMsg ,"GUILD" ,nil ,nil)
 		end
 	end
 end
 
 function RIC_Codewords_Handler.endInvitePhase()
 	if RIC_CodeWordNotifyEnd then
-		SendChatMessage("Invite by codeword stopped!" ,"GUILD" ,nil ,nil)
+		SendChatMessageRIC("Invite by codeword stopped!" ,"GUILD" ,nil ,nil)
 	end
 end
 

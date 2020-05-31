@@ -331,13 +331,13 @@ function RIC_Roster_Browser.inviteWhisper(author, msg)
 
 	-- Check if we are currently allowing invite requests
 	if RIC_CodewordOnlyDuringInvite and (not invitePhaseActive) then
-		SendChatMessage("Invite by codeword only possible during invite phase!", "WHISPER", nil, author)
+		SendChatMessageRIC("Invite by codeword only possible during invite phase!", "WHISPER", nil, author)
 		return
 	end
 
 	-- Check if author is in rosterList, otherwise deny request (send whisper back to person)
 	if RIC_RosterWhispersOnly and (RIC_RosterList[author] == nil) then
-		SendChatMessage("You are not in the roster - did you forget to register for the raid in advance?", "WHISPER", nil, author)
+		SendChatMessageRIC("You are not in the roster - did you forget to register for the raid in advance?", "WHISPER", nil, author)
 		return
 	end
 
@@ -345,7 +345,7 @@ function RIC_Roster_Browser.inviteWhisper(author, msg)
 	if RIC_GuildWhispersOnly then
 		local guildMembers = RIC_Guild_Manager.getGuildMembers()
 		if guildMembers[author] == nil then
-			SendChatMessage("You are not a guild member. Only guild members are invited automatically.", "WHISPER", nil, author)
+			SendChatMessageRIC("You are not a guild member. Only guild members are invited automatically.", "WHISPER", nil, author)
 			return
 		end
 	end
@@ -365,7 +365,7 @@ function RIC_Roster_Browser.invite(person, reactive)
 	local raidMembers = getRaidMembers()
 	if raidMembers[person] ~= nil then
 		if reactive then -- If we invite based on whisper, tell player he cant join
-			SendChatMessage("You can't be invited to the raid - you are already in it!", "WHISPER", nil, person)
+			SendChatMessageRIC("You can't be invited to the raid - you are already in it!", "WHISPER", nil, person)
 		end
 		return
 	end
@@ -374,7 +374,7 @@ function RIC_Roster_Browser.invite(person, reactive)
 	if hashLength(raidMembers) == MAX_RAID_MEMBERS then
 		if reactive then
 			-- React to whisper that the raid is full, but dont change any invite status
-			SendChatMessage("Raid already full - if you reserved a spot by registering for the raid in advance, contact the raid leader", "WHISPER", nil, author)
+			SendChatMessageRIC("Raid already full - if you reserved a spot by registering for the raid in advance, contact the raid leader", "WHISPER", nil, author)
 		else
 			-- Our invite failed because the raid was full - dont try again for now
 			inviteStatusList[person] = RIC_InviteStatus["INVITE_FAILED"]
@@ -405,7 +405,7 @@ function RIC_Roster_Browser.invite(person, reactive)
 	else
 		-- If we react to whisper, tell the person we cant invite them
 		if reactive then
-			SendChatMessage("I cannot invite you since I dont have assist rights. ", "WHISPER", nil, person)
+			SendChatMessageRIC("I cannot invite you since I dont have assist rights. ", "WHISPER", nil, person)
 		end
 	end
 end
@@ -417,7 +417,7 @@ function RIC_Roster_Browser.processSystemMessage(msg)
 		inviteStatusList[playerName] = RIC_InviteStatus["INVITE_FAILED"]
 		inviteTimeList[playerName] = time() -- We sent the invite just now, so save current time as last time we attempted invite
 		if invitePhaseActive then -- Only notify if we are in the invite phase
-			SendChatMessage("WARNING: You could not be invited to the raid that starts now since you are already in a group. Please leave it!", "WHISPER", nil, playerName)
+			SendChatMessageRIC("WARNING: You could not be invited to the raid that starts now since you are already in a group. Please leave it!", "WHISPER", nil, playerName)
 		end
 	elseif string.find(msg, string.gsub(ERR_JOINED_GROUP_S, "%%s", "%%S+")) then -- Player joined group
 		local playerName = string.match(msg, string.gsub(ERR_JOINED_GROUP_S, "%%s", "(%%S+)"))
@@ -496,7 +496,7 @@ function RIC_Roster_Browser.startInvitePhase()
 
 			-- Notify via guild message
 			if RIC_NotifyInvitePhaseStart then
-				SendChatMessage("INVITING NOW - If you are registered for the raid, please leave your groups now and standby!" ,"GUILD" ,nil ,nil)
+				SendChatMessageRIC("INVITING NOW - If you are registered for the raid, please leave your groups now and standby!" ,"GUILD" ,nil ,nil)
 			end
 
 			-- Notify codewords via guild
@@ -522,7 +522,7 @@ function RIC_Roster_Browser.endInvitePhase()
 
 		-- Notify via guild message
 		if RIC_NotifyInvitePhaseEnd then
-			SendChatMessage("Invite phase for raid ended!" ,"GUILD", nil ,nil)
+			SendChatMessageRIC("Invite phase for raid ended!" ,"GUILD", nil ,nil)
 		end
 
 		-- Notify codewords via guild
