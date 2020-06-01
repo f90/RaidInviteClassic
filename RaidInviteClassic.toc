@@ -3,7 +3,7 @@
 ## Author: Daniel Stoller
 ## Notes: Attempts to help guild and raid leaders automate the invitation process.
 ## Version: 0.3.1
-## SavedVariables: RIC_RosterList, RIC_displayRanks, RIC_CodeWordString, RIC_ShowOffline, RIC_CodewordOnlyInGroup, RIC_CodewordOnlyDuringInvite, RIC_CodeWordNotifyStart, RIC_CodeWordNotifyEnd, RIC_GuildWhispersOnly, RIC_RosterWhispersOnly, RIC_MinimapPos, RIC_MasterLooter, RIC_MinimapShow, RIC_MainFrameScale, RIC_NotifyInvitePhaseStart, RIC_NotifyInvitePhaseEnd, RIC_Durability_Warning, RIC_Durability_Threshold
+## SavedVariables: RIC_RosterList, RIC_displayRanks, RIC_CodeWordString, RIC_ShowOffline, RIC_CodewordOnlyInGroup, RIC_CodewordOnlyDuringInvite, RIC_CodewordNotifyStart, RIC_CodewordNotifyEnd, RIC_CodewordHide, RIC_GuildWhispersOnly, RIC_RosterWhispersOnly, RIC_MinimapPos, RIC_MasterLooter, RIC_MinimapShow, RIC_MainFrameScale, RIC_NotifyInvitePhaseStart, RIC_NotifyInvitePhaseEnd, RIC_Durability_Warning, RIC_Durability_Threshold
 
 libs.xml
 
@@ -15,5 +15,6 @@ rosterbrowser.lua
 codewords.lua
 utils.lua
 durability.lua
+chatfilter.lua
 
 MainFrame.xml

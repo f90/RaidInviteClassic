@@ -50,9 +50,10 @@ function RIC_EventHandler(self, event, ...)
 			_G["RIC_OnlyGuildMembersBox"]:SetChecked(RIC_GuildWhispersOnly)
 			_G["RIC_CodewordOnlyDuringInviteBox"]:SetChecked(RIC_CodewordOnlyDuringInvite)
 			_G["RIC_CodewordOnlyInGroupBox"]:SetChecked(RIC_CodewordOnlyInGroup)
-			_G["RIC_CodeWordNotifyStartBox"]:SetChecked(RIC_CodeWordNotifyStart)
-			_G["RIC_CodeWordNotifyEndBox"]:SetChecked(RIC_CodeWordNotifyEnd)
+			_G["RIC_CodewordNotifyStartBox"]:SetChecked(RIC_CodewordNotifyStart)
+			_G["RIC_CodewordNotifyEndBox"]:SetChecked(RIC_CodewordNotifyEnd)
 			_G["RIC_OnlyRosterMembersBox"]:SetChecked(RIC_RosterWhispersOnly)
+			_G["RIC_CodewordHideBox"]:SetChecked(RIC_CodewordHide)
 
 			_G["RIC_NotifyInvitePhaseStartBox"]:SetChecked(RIC_NotifyInvitePhaseStart)
 			_G["RIC_NotifyInvitePhaseEndBox"]:SetChecked(RIC_NotifyInvitePhaseEnd)
@@ -148,10 +149,11 @@ function RICMainFrame_OnLoad()
 	-- Set text fields
 	_G["RIC_CodewordOnlyInGroupBoxText"]:SetText("Only accept when in group")
 	_G["RIC_CodewordOnlyDuringInviteBoxText"]:SetText("Only accept during invite phase")
-	_G["RIC_CodeWordNotifyStartBoxText"]:SetText("Send guild message at start")
-	_G["RIC_CodeWordNotifyEndBoxText"]:SetText("Send guild message at end")
+	_G["RIC_CodewordNotifyStartBoxText"]:SetText("Send guild message at start")
+	_G["RIC_CodewordNotifyEndBoxText"]:SetText("Send guild message at end")
 	_G["RIC_OnlyGuildMembersBoxText"]:SetText("Only accept whispers from guild")
 	_G["RIC_OnlyRosterMembersBoxText"]:SetText("Only accept whispers from roster")
+	_G["RIC_CodewordHideBoxText"]:SetText("Hide whispers equalling a codeword")
 	_G["RIC_ShowOfflineBoxText"]:SetText("Show Offline")
 
 	-- Create player entry popup
@@ -180,6 +182,9 @@ function RICMainFrame_OnLoad()
 			RIC_Roster_Browser.addNameToRoster(text)
 		end,
 	}
+
+	-- Set up chat filters
+	RIC_Chat_Manager.setupFilter()
 end
 
 function RICMainFrame_OnShow()

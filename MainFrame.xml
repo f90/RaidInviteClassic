@@ -1149,7 +1149,7 @@
 							</OnClick>
 						</Scripts>
 					</CheckButton>
-					<CheckButton name="RIC_CodeWordNotifyStartBox" inherits="UICheckButtonTemplate" text="">
+					<CheckButton name="RIC_CodewordNotifyStartBox" inherits="UICheckButtonTemplate" text="">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
 								<Offset x="160" y="-100" />
@@ -1158,14 +1158,14 @@
 						<Scripts>
 							<OnClick>
 								if self:GetChecked() then
-									RIC_CodeWordNotifyStart = true
+									RIC_CodewordNotifyStart = true
 								else
-									RIC_CodeWordNotifyStart = false
+									RIC_CodewordNotifyStart = false
 								end
 							</OnClick>
 						</Scripts>
 					</CheckButton>
-					<CheckButton name="RIC_CodeWordNotifyEndBox" inherits="UICheckButtonTemplate" text="">
+					<CheckButton name="RIC_CodewordNotifyEndBox" inherits="UICheckButtonTemplate" text="">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
 								<Offset x="160" y="-130" />
@@ -1174,9 +1174,9 @@
 						<Scripts>
 							<OnClick>
 								if self:GetChecked() then
-									RIC_CodeWordNotifyEnd = true
+									RIC_CodewordNotifyEnd = true
 								else
-									RIC_CodeWordNotifyEnd = false
+									RIC_CodewordNotifyEnd = false
 								end
 							</OnClick>
 						</Scripts>
@@ -1209,6 +1209,22 @@
 									RIC_RosterWhispersOnly = true
 								else
 									RIC_RosterWhispersOnly = false
+								end
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+					<CheckButton name="RIC_CodewordHideBox" inherits="UICheckButtonTemplate" text="">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+								<Offset x="160" y="-220" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								if self:GetChecked() then
+									RIC_CodewordHide = true
+								else
+									RIC_CodewordHide = false
 								end
 							</OnClick>
 						</Scripts>

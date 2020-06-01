@@ -8,6 +8,7 @@ RIC_Roster_Browser = {}
 RIC_Codewords_Handler = {}
 RIC_Guild_Manager = {}
 RIC_Durability_Manager = {}
+RIC_Chat_Manager = {}
 
 -- SETTINGS
 RIC_displayRanks = {true, true, true, true, true, true, true, true, true, true}
@@ -21,8 +22,9 @@ RIC_CodeWords = {}
 RIC_ShowOffline = true
 RIC_CodewordOnlyDuringInvite = true
 RIC_CodewordOnlyInGroup = true
-RIC_CodeWordNotifyStart = true
-RIC_CodeWordNotifyEnd = false
+RIC_CodewordNotifyStart = true
+RIC_CodewordNotifyEnd = false
+RIC_CodewordHide = true
 
 RIC_GuildWhispersOnly = false
 RIC_RosterWhispersOnly = false
