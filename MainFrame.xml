@@ -1334,10 +1334,29 @@
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
-					<CheckButton name="RIC_DurabilityCheckBox" inherits="UICheckButtonTemplate" text="">
+					<CheckButton name="RIC_HideOutgoingWhispersBox" inherits="UICheckButtonTemplate" text="">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
 								<Offset x="16" y="-136" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								if self:GetChecked() then
+									RIC_HideOutgoingWhispers = true
+								else
+									RIC_HideOutgoingWhispers = false
+								end
+							</OnClick>
+							<OnLoad>
+								_G["RIC_HideOutgoingWhispersBoxText"]:SetText("Hide whispers sent to players (warnings)")
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+					<CheckButton name="RIC_DurabilityCheckBox" inherits="UICheckButtonTemplate" text="">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+								<Offset x="16" y="-166" />
 							</Anchor>
 						</Anchors>
 						<Scripts>
@@ -1359,7 +1378,7 @@
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="160" y="-165" />
+								<Offset x="160" y="-195" />
 							</Anchor>
 						</Anchors>
 						<Scripts>
@@ -1384,7 +1403,7 @@
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="122" y="-220" />
+								<Offset x="122" y="-250" />
 							</Anchor>
 						</Anchors>
 						<Scripts>
@@ -1412,7 +1431,7 @@
 							</Size>
 							<Anchors>
 								<Anchor point="TOPLEFT">
-									<Offset x="16" y="-165" />
+									<Offset x="16" y="-195" />
 								</Anchor>
 							</Anchors>
 						</FontString>
@@ -1422,7 +1441,7 @@
 							</Size>
 							<Anchors>
 								<Anchor point="TOPLEFT">
-									<Offset x="16" y="-220" />
+									<Offset x="16" y="-250" />
 								</Anchor>
 							</Anchors>
 						</FontString>

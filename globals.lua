@@ -37,7 +37,10 @@ RIC_MinimapShow = true
 RIC_NotifyInvitePhaseStart = true
 RIC_NotifyInvitePhaseEnd = false
 RIC_MasterLooter = false
+RIC_HideOutgoingWhispers = false
 RIC_MainFrameScale = 1
+
+RIC_ChatString = "[RIC]:"
 
 -- ROSTER LIST
 RIC_RosterList = {}

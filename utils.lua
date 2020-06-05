@@ -72,7 +72,7 @@ function printRIC(text)
 end
 
 function SendChatMessageRIC(msg, chatType, language, channel)
-    SendChatMessage("[RIC]: " .. msg, chatType, language, channel)
+    SendChatMessage(RIC_ChatString .. " " .. msg, chatType, language, channel)
 end
 
 function removeServerFromName(name)
