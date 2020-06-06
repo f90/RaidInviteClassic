@@ -107,6 +107,12 @@ function RIC_EventHandler(self, event, ...)
 		if (IsInGroup() or IsInRaid()) and (not UnitIsGroupLeader("player")) then
 			RIC_Roster_Browser.endInvitePhase()
 		end
+	elseif event == "PLAYER_LOGOUT" then
+		-- We are exiting/logging out/reloading UI.
+		-- In all of these cases, the invite phase cannot continue since player is offline and/or our internal addon variables are reset
+		-- Therefore, end invite phase now, so people are properly notified that invite phase is stopped
+		-- TODO doesnt seem to get triggered on exiting/logging out, just on /reloadui
+		RIC_Roster_Browser.endInvitePhase()
 	end
 end
 
@@ -118,6 +124,7 @@ function RICMainFrame_OnLoad()
 	RIC_MainFrame:RegisterEvent("CHAT_MSG_SYSTEM") -- To understand invite results
 	RIC_MainFrame:RegisterEvent("CHAT_MSG_WHISPER") -- To get codeword invites
 	RIC_MainFrame:RegisterEvent("PARTY_LEADER_CHANGED") -- To stop invite phase if we give away group/raid lead
+	RIC_MainFrame:RegisterEvent("PLAYER_LOGOUT") -- To properly end invite phase (with announcement) when player logs out/exits/reloads UI since invite phase is reset
 
 	-- Regularly call internal update function
 	C_Timer.NewTicker(RIC_UpdateInterval, RIC_OnUpdate)
