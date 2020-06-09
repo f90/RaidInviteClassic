@@ -111,7 +111,7 @@ function RIC_EventHandler(self, event, ...)
 		-- We are exiting/logging out/reloading UI.
 		-- In all of these cases, the invite phase cannot continue since player is offline and/or our internal addon variables are reset
 		-- Therefore, end invite phase now, so people are properly notified that invite phase is stopped
-		-- TODO doesnt seem to get triggered on exiting/logging out, just on /reloadui
+		-- TODO SendChatMessage does not seem to work here anymore (no guild message can be seen), on logout or exit. Reloadui works?
 		RIC_Roster_Browser.endInvitePhase()
 	end
 end

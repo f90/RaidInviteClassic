@@ -397,7 +397,7 @@ function RIC_Roster_Browser.invite(person, reactive, guildMembers)
 	end
 
 	-- Check if we have assist or lead in raid so we can actually invite someone (or we are alone at the moment)
-	if (hashLength(raidMembers)==0) or (raidMembers[UnitName("player")]["rank"] >= 1) then
+	if (hashLength(raidMembers)==0) or (UnitIsGroupAssistant("player") or UnitIsGroupLeader("player")) then
 		-- Either this is a reactive invite, so it's fine. It cannot be an active invite unless the raid leader does it, so thats also fine.
 		-- Now check if we are still in group/alone (not RAID) and have to delay some invitations because too many are pending!
 		local num_possible_invites_in_group = 5 - hashLength(raidMembers)
@@ -418,7 +418,7 @@ function RIC_Roster_Browser.invite(person, reactive, guildMembers)
 	else
 		-- If we react to whisper, tell the person we cant invite them
 		if reactive then
-			SendChatMessageRIC("I cannot invite you since I dont have assist rights. ", "WHISPER", nil, person)
+			SendChatMessageRIC("I cannot invite you since I don't have assist rights. ", "WHISPER", nil, person)
 		end
 	end
 end
