@@ -193,16 +193,15 @@ end
 
 function RIC_Roster_Browser.importRoster(rosterString)
 	-- Use newlines, colons or comma to separate characters
-	local swapString = gsub(rosterString, "\n", "\186")
-	swapString = gsub(swapString, ";", "\186")
-	swapString = gsub(swapString, ",", "\186")
-	local parsedList = { strsplit("\186", swapString) }
+	local swapString = gsub(rosterString, ";", "\n")
+	swapString = gsub(swapString, ",", "\n")
+	local parsedList = { strsplit("\n", swapString) }
 
 	-- Parse names one by one, add to temp list
 	local newList = {}
 	for i=1,#parsedList do
-		local name = trim_name(parsedList[i], "%s+", "")
-		if string.len(name) > 2 then -- Char names in WoW need to be at least 3 chars long
+		local name = trim_name(parsedList[i])
+		if string.utf8len(name) > 2 then -- Char names in WoW need to be at least 3 chars long
 			newList[name] = 1
 		end
 	end
@@ -570,7 +569,7 @@ end
 function RIC_Roster_Browser.addNameToRoster(name)
 	-- If name is empty, do nothing
 	local trimmed_name = trim_name(name)
-	if string.len(trimmed_name) > 2 then -- Char names must have at least 3 characters in WoW
+	if string.utf8len(trimmed_name) > 2 then -- Char names must have at least 3 characters in WoW
 		-- Add to roster list
 		RIC_RosterList[trimmed_name] = 1
 		-- Update list

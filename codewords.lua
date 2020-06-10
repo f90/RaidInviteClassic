@@ -1,6 +1,11 @@
 function RIC_Codewords_Handler.updateCodeWords()
-	local swapString = gsub(RIC_CodeWordString, "\n", "\186")
-	RIC_CodeWords = { strsplit("\186", swapString) }
+	RIC_CodeWords = {}
+	local codewords = { strsplit("\n", RIC_CodeWordString) }
+	for i=1,#codewords do
+		if string.utf8len(codewords[i]) > 0 then -- Check if line is empty
+			table.insert(RIC_CodeWords, codewords[i])
+		end
+	end
 end
 
 function RIC_Codewords_Handler.startInvitePhase()
@@ -40,10 +45,10 @@ function RIC_Codewords_Handler.endInvitePhase()
 end
 
 function RIC_Codewords_Handler.containsCodeword(msg)
-	msg = string.upper(msg)
+	msg = string.utf8upper(msg)
 	local numCodeWords = #RIC_CodeWords
 	for ci=1, numCodeWords do
-		if string.find(msg, string.upper(RIC_CodeWords[ci])) then
+		if string.find(msg, string.utf8upper(RIC_CodeWords[ci])) then
 			return true
 		end
 	end
@@ -51,10 +56,10 @@ function RIC_Codewords_Handler.containsCodeword(msg)
 end
 
 function RIC_Codewords_Handler.equalsCodeword(msg)
-	msg = string.upper(msg)
+	msg = string.utf8upper(msg)
 	local numCodeWords = #RIC_CodeWords
 	for ci=1, numCodeWords do
-		if msg == string.upper(RIC_CodeWords[ci]) then
+		if msg == string.utf8upper(RIC_CodeWords[ci]) then
 			return true
 		end
 	end
