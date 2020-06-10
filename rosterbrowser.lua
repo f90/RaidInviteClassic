@@ -200,7 +200,7 @@ function RIC_Roster_Browser.importRoster(rosterString)
 	-- Parse names one by one, add to temp list
 	local newList = {}
 	for i=1,#parsedList do
-		local name = trim_name(parsedList[i])
+		local name = trim_special_chars(parsedList[i])
 		if string.utf8len(name) > 2 then -- Char names in WoW need to be at least 3 chars long
 			newList[name] = 1
 		end
@@ -568,7 +568,7 @@ end
 
 function RIC_Roster_Browser.addNameToRoster(name)
 	-- If name is empty, do nothing
-	local trimmed_name = trim_name(name)
+	local trimmed_name = trim_special_chars(name)
 	if string.utf8len(trimmed_name) > 2 then -- Char names must have at least 3 characters in WoW
 		-- Add to roster list
 		RIC_RosterList[trimmed_name] = 1

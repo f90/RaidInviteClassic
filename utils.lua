@@ -16,7 +16,7 @@ RIC_InviteStatus = {
     INVITE_FAILED=3
 }
 
-function trim_name(char_name)
+function trim_special_chars(char_name)
     return char_name:gsub("[%c%p%s]", "")
 end
 

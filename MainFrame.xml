@@ -1247,6 +1247,11 @@
 						</FontString>
 					</Layer>
 				</Layers>
+				<Scripts>
+					<OnShow>
+						RIC_Codewords_Handler.updateCodeWords()
+					</OnShow>
+				</Scripts>
 			</Frame>
 			<Frame name="RIC_TabPage4">
 				<Anchors>

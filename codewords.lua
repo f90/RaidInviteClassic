@@ -1,11 +1,27 @@
 function RIC_Codewords_Handler.updateCodeWords()
 	RIC_CodeWords = {}
 	local codewords = { strsplit("\n", RIC_CodeWordString) }
+
+	-- Go through codewords, trim them and put into codeword table
 	for i=1,#codewords do
-		if string.utf8len(codewords[i]) > 0 then -- Check if line is empty
-			table.insert(RIC_CodeWords, codewords[i])
+		local c = trim_special_chars(codewords[i]) -- Trim codewords - no empty spaces no special chars
+		c = string.utf8lower(c) -- Put to lower case so people realise upper/lower case doesnt matter
+		if string.utf8len(c) > 0 then -- Check if line is empty
+			-- Add codeword!
+			table.insert(RIC_CodeWords, c)
 		end
 	end
+
+	-- Update codeword string and editbox according to cleaned-up codewords
+	local s = ""
+	for i=1,#RIC_CodeWords do
+		s = s .. RIC_CodeWords[i]
+		if i < #RIC_CodeWords then
+			s = s .. "\n"
+		end
+	end
+	RIC_CodeWordString = s
+	_G["RIC_CodeWordEditBox"]:SetText(RIC_CodeWordString)
 end
 
 function RIC_Codewords_Handler.startInvitePhase()
@@ -45,10 +61,9 @@ function RIC_Codewords_Handler.endInvitePhase()
 end
 
 function RIC_Codewords_Handler.containsCodeword(msg)
-	msg = string.utf8upper(msg)
 	local numCodeWords = #RIC_CodeWords
 	for ci=1, numCodeWords do
-		if string.find(msg, string.utf8upper(RIC_CodeWords[ci])) then
+		if string.find(string.utf8upper(msg), string.utf8upper(RIC_CodeWords[ci])) then
 			return true
 		end
 	end
@@ -56,10 +71,9 @@ function RIC_Codewords_Handler.containsCodeword(msg)
 end
 
 function RIC_Codewords_Handler.equalsCodeword(msg)
-	msg = string.utf8upper(msg)
 	local numCodeWords = #RIC_CodeWords
 	for ci=1, numCodeWords do
-		if msg == string.utf8upper(RIC_CodeWords[ci]) then
+		if string.utf8upper(msg) == string.utf8upper(RIC_CodeWords[ci]) then
 			return true
 		end
 	end
