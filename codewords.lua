@@ -30,9 +30,9 @@ function RIC_Codewords_Handler.startInvitePhase()
 	-- Notify guild now, if this is activated in the options
 	if RIC_CodewordNotifyStart then
 		if #RIC_CodeWords == 0 then
-			printRIC("WARNING: You haven't set any codewords that could be announced to the guild now!")
+			printRIC(RIC_MSG_Codewords_Not_Set)
 		else
-			local theMsg = "Raid invites started! Whisper me \""
+			local theMsg = "Raid invites started! Whisper me "
 			for ci=1, (#RIC_CodeWords - 1) do
 				if (ci == 1) then
 					theMsg = theMsg .. "\"" .. RIC_CodeWords[ci] .. "\""
@@ -48,7 +48,7 @@ function RIC_Codewords_Handler.startInvitePhase()
 				theMsg = theMsg ..  RIC_CodeWords[1]
 			end
 
-			theMsg = theMsg .. "\" for an invite!"
+			theMsg = theMsg .. " for an invite!"
 			SendChatMessageRIC(theMsg ,"GUILD" ,nil ,nil)
 		end
 	end
@@ -56,7 +56,7 @@ end
 
 function RIC_Codewords_Handler.endInvitePhase()
 	if RIC_CodewordNotifyEnd then
-		SendChatMessageRIC("Invite by codeword stopped!" ,"GUILD" ,nil ,nil)
+		SendChatMessageRIC(RIC_MSG_Codewords_End ,"GUILD" ,nil ,nil)
 	end
 end
 

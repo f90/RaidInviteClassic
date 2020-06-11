@@ -96,7 +96,7 @@ function RIC_EventHandler(self, event, ...)
 		if author ~= nil then -- For some reason this can be nil sometimes?
 			RIC_Roster_Browser.inviteWhisper(removeServerFromName(author), msg) -- Remove server tag from name
 		else
-			printRIC("WARNING: Author of some incoming whisper could not be parsed - check if you missed an invite whisper!")
+			printRIC(RIC_MSG_Whisper_Author_Unknown)
 		end
 	elseif event == "CHAT_MSG_SYSTEM" then
 		local msg = ...

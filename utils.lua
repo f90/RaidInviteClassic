@@ -68,11 +68,15 @@ function getClassColor(classFilename)
 end
 
 function printRIC(text)
-    print("|cFFFF0000Raid Invite Classic|r: " .. text)
+    if text ~= nil and string.utf8len(text) > 0 then -- Check if message is non-nil and not empty (disabled in settings)
+        print("|cFFFF0000Raid Invite Classic|r: " .. text)
+    end
 end
 
 function SendChatMessageRIC(msg, chatType, language, channel)
-    SendChatMessage(RIC_ChatString .. " " .. msg, chatType, language, channel)
+    if msg ~= nil and string.utf8len(msg) > 0 then -- Check if message is non-nil and not empty (disabled in settings)
+        SendChatMessage(RIC_ChatString .. " " .. msg, chatType, language, channel)
+    end
 end
 
 function removeServerFromName(name)
