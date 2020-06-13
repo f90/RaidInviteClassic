@@ -12,7 +12,6 @@ RIC_Chat_Manager = {}
 
 -- SETTINGS
 RIC_displayRanks = {true, true, true, true, true, true, true, true, true, true}
-RIC_hasLoaded = false
 RIC_UpdateInterval = 1.5
 RIC_InviteInterval = 120.0
 

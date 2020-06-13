@@ -161,6 +161,9 @@ function RIC_Roster_Browser.updateListing()
 			_G["RIC_RosterFrameEntry"..ci]:Hide()
 		end
 	end
+
+	-- Enable/disable remove button based on selection
+	_G["RIC_RemoveFromRoster"]:SetEnabled(hashLength(selectedList) > 0)
 end
 
 function RIC_Roster_Browser.showStatusSymbol(status)

@@ -49,6 +49,17 @@ function RIC_Guild_Browser.buildGuildList()
 		end
 	end
 
+	-- Clear selection from people who are not shown
+	local newSelectedList = {}
+	for i=1,#guildList do
+		if selectedList[guildList[i][1]] ~= nil then
+			assert(selectedList[guildList[i][1]] == 1)
+			newSelectedList[guildList[i][1]] = 1
+		end
+	end
+	selectedList = newSelectedList
+
+	-- Set up sliders
 	if totalGuildNumber > 20 then
 		local newVal = totalGuildNumber-20
 		_G["RIC_GuildSliderContainer"]:Show()
@@ -119,7 +130,7 @@ function RIC_Guild_Browser.selectAll()
 	selectedList = {}
 	local guildMembers = RIC_Guild_Manager.getGuildMembers()
 	for name, data in pairs(guildMembers) do
-		if RIC_ShowOffline or data["online"] then
+		if RIC_ShowOffline or (data["online"]==1) then
 			if RIC_displayRanks[data["rankIndex"]] then
 				selectedList[name] = 1
 			end
