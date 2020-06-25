@@ -33,7 +33,7 @@ function RIC_Codewords_Handler.startInvitePhase()
 		if #RIC_CodeWords == 0 then
 			printRIC(RIC_MSG_Codewords_Not_Set)
 		else
-			local theMsg = "Raid invites started! Whisper me "
+			local theMsg = "Whisper me "
 			for ci=1, (#RIC_CodeWords - 1) do
 				if (ci == 1) then
 					theMsg = theMsg .. "\"" .. RIC_CodeWords[ci] .. "\""
