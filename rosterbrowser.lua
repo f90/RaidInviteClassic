@@ -570,8 +570,9 @@ function RIC_Roster_Browser.addSelectedToRoster()
 end
 
 function RIC_Roster_Browser.addNameToRoster(name)
-	-- If name is empty, do nothing
-	local trimmed_name = trim_special_chars(name)
+	-- Remove server name from input text, then trim any special characters
+	local trimmed_name = removeServerFromName(name)
+	trimmed_name = trim_special_chars(trimmed_name)
 	if string.utf8len(trimmed_name) > 2 then -- Char names must have at least 3 characters in WoW
 		-- Add to roster list
 		RIC_RosterList[trimmed_name] = 1
