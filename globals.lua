@@ -13,7 +13,7 @@ RIC_Chat_Manager = {}
 -- SETTINGS
 RIC_displayRanks = {true, true, true, true, true, true, true, true, true, true}
 RIC_UpdateInterval = 1.5
-RIC_InviteInterval = 120.0
+RIC_InviteInterval = 120.0 --TODO make this customizable?
 
 RIC_CodeWordString = "Invite"
 RIC_CodeWords = {}

@@ -46,7 +46,7 @@ function RIC_Codewords_Handler.startInvitePhase()
 			elseif (#RIC_CodeWords) == 2 then
 				theMsg = theMsg .. " or \"" .. RIC_CodeWords[2] .. "\""
 			else
-				theMsg = theMsg ..  RIC_CodeWords[1]
+				theMsg = theMsg ..  "\"" .. RIC_CodeWords[1] .. "\""
 			end
 
 			theMsg = theMsg .. " for an invite!"
