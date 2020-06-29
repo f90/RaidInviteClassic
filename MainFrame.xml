@@ -203,7 +203,7 @@
 			<NormalFont style="GameFontHighlight"/>
 			<HighlightFont style="GameFontNormal" />
 		</Button>
-	<Button name="RIC_Mod_MinimapButton" parent="Minimap" enableMouse="true" movable="true" hidden="false">
+	<Button name="RIC_MinimapButton" parent="Minimap" enableMouse="true" movable="true" hidden="false">
 		<Size>
 			<AbsDimension x="33" y="33"/>
 		</Size>
@@ -212,7 +212,7 @@
 		</Anchors>
 		<Layers>
 			<Layer level="BACKGROUND">
-				<Texture name="RIC_Mod_MinimapButton_Icon" file="Interface\AddOns\RaidInviteClassic\img\minimap">
+				<Texture name="RIC_MinimapButton_Icon" file="Interface\AddOns\RaidInviteClassic\img\minimap">
 					<Size>
 						<AbsDimension x="21" y="21"/>
 					</Size>
@@ -237,10 +237,10 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<Frame name="RIC_Mod_MinimapButton_DraggingFrame" hidden="true">
+			<Frame name="RIC_MinimapButton_DraggingFrame" hidden="true">
 				<Scripts>
 					<OnUpdate>
-						RIC_Mod_MinimapButton_DraggingFrame_OnUpdate()
+						RIC_MinimapButton_DraggingFrame_OnUpdate()
 					</OnUpdate>
 				</Scripts>
 			</Frame>
@@ -255,17 +255,17 @@
 			</OnLoad>
 			<OnDragStart>
 				self:LockHighlight()
-				RIC_Mod_MinimapButton_DraggingFrame:Show()
+				RIC_MinimapButton_DraggingFrame:Show()
 			</OnDragStart>
 			<OnDragStop>
 				self:UnlockHighlight()
-				RIC_Mod_MinimapButton_DraggingFrame:Hide()
+				RIC_MinimapButton_DraggingFrame:Hide()
 			</OnDragStop>
 			<OnClick>
-				RIC_Mod_MinimapButton_OnClick(button) -- do your thing in here, arg1 is mouse button clicked
+				RIC_MinimapButton_OnClick(button) -- do your thing in here, arg1 is mouse button clicked
 			</OnClick>
 			<OnEnter>
-				RIC_Mod_MinimapButton_OnEnter(self)
+				RIC_MinimapButton_OnEnter(self)
 			</OnEnter>
 			<OnLeave>
 				GameTooltip:Hide()
@@ -1111,7 +1111,7 @@
 						<Scripts>
 							<OnClick>
 								RIC_CodeWordEditBox:ClearFocus()
-								RIC_CodeWordString=RIC_CodeWordEditBox:GetText()
+								RIC.db.profile.CodewordString=RIC_CodeWordEditBox:GetText()
 								RIC_Codewords_Handler.updateCodeWords()
 							</OnClick>
 						</Scripts>
@@ -1126,9 +1126,9 @@
 						<Scripts>
 							<OnClick>
 								if self:GetChecked() then
-									RIC_CodewordOnlyInGroup = true
+									RIC.db.profile.CodewordOnlyInGroup = true
 								else
-									RIC_CodewordOnlyInGroup = false
+									RIC.db.profile.CodewordOnlyInGroup = false
 								end
 							</OnClick>
 						</Scripts>
@@ -1142,9 +1142,9 @@
 						<Scripts>
 							<OnClick>
 								if self:GetChecked() then
-									RIC_CodewordOnlyDuringInvite = true
+									RIC.db.profile.CodewordOnlyDuringInvite = true
 								else
-									RIC_CodewordOnlyDuringInvite = false
+									RIC.db.profile.CodewordOnlyDuringInvite = false
 								end
 							</OnClick>
 						</Scripts>
@@ -1158,9 +1158,9 @@
 						<Scripts>
 							<OnClick>
 								if self:GetChecked() then
-									RIC_CodewordNotifyStart = true
+									RIC.db.profile.CodewordNotifyStart = true
 								else
-									RIC_CodewordNotifyStart = false
+									RIC.db.profile.CodewordNotifyStart = false
 								end
 							</OnClick>
 						</Scripts>
@@ -1174,9 +1174,9 @@
 						<Scripts>
 							<OnClick>
 								if self:GetChecked() then
-									RIC_CodewordNotifyEnd = true
+									RIC.db.profile.CodewordNotifyEnd = true
 								else
-									RIC_CodewordNotifyEnd = false
+									RIC.db.profile.CodewordNotifyEnd = false
 								end
 							</OnClick>
 						</Scripts>
@@ -1190,9 +1190,9 @@
 						<Scripts>
 							<OnClick>
 								if self:GetChecked() then
-									RIC_GuildWhispersOnly = true
+									RIC.db.profile.GuildWhispersOnly = true
 								else
-									RIC_GuildWhispersOnly = false
+									RIC.db.profile.GuildWhispersOnly = false
 								end
 							</OnClick>
 						</Scripts>
@@ -1206,9 +1206,9 @@
 						<Scripts>
 							<OnClick>
 								if self:GetChecked() then
-									RIC_RosterWhispersOnly = true
+									RIC.db.profile.RosterWhispersOnly = true
 								else
-									RIC_RosterWhispersOnly = false
+									RIC.db.profile.RosterWhispersOnly = false
 								end
 							</OnClick>
 						</Scripts>
@@ -1222,9 +1222,9 @@
 						<Scripts>
 							<OnClick>
 								if self:GetChecked() then
-									RIC_CodewordHide = true
+									RIC.db.profile.CodewordHide = true
 								else
-									RIC_CodewordHide = false
+									RIC.db.profile.CodewordHide = false
 								end
 							</OnClick>
 						</Scripts>
@@ -1253,206 +1253,6 @@
 					</OnShow>
 				</Scripts>
 			</Frame>
-			<Frame name="RIC_TabPage4">
-				<Anchors>
-						<Anchor point="TOPLEFT"/>
-						<Anchor point="BOTTOMRIGHT"/>
-				</Anchors>
-				<Frames>
-					<CheckButton name="RIC_ShowMinimapIconConfig" inherits="UICheckButtonTemplate" text="">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="16" y="-16" />
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								if self:GetChecked() then
-									RIC_MinimapShow = true
-									RIC_Mod_MinimapButton:Show()
-									RIC_Mod_MinimapButton_Reposition()
-								else
-									RIC_MinimapShow = false
-									RIC_Mod_MinimapButton:Hide()
-								end
-							</OnClick>
-							<OnLoad>
-								_G["RIC_ShowMinimapIconConfigText"]:SetText("Minimap Icon")
-								self:SetChecked(RIC_MinimapShow)
-							</OnLoad>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="RIC_NotifyInvitePhaseStartBox" inherits="UICheckButtonTemplate" text="">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="16" y="-46" />
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								if self:GetChecked() then
-									RIC_NotifyInvitePhaseStart = true
-								else
-									RIC_NotifyInvitePhaseStart = false
-								end
-							</OnClick>
-							<OnLoad>
-								_G["RIC_NotifyInvitePhaseStartBoxText"]:SetText("Announce start of invite phase to guild")
-							</OnLoad>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="RIC_NotifyInvitePhaseEndBox" inherits="UICheckButtonTemplate" text="">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="16" y="-76" />
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								if self:GetChecked() then
-									RIC_NotifyInvitePhaseEnd = true
-								else
-									RIC_NotifyInvitePhaseEnd = false
-								end
-							</OnClick>
-							<OnLoad>
-								_G["RIC_NotifyInvitePhaseEndBoxText"]:SetText("Announce end of invite phase to guild")
-							</OnLoad>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="RIC_AutoSetMasterLooterBox" inherits="UICheckButtonTemplate" text="">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="16" y="-106" />
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								if self:GetChecked() then
-									RIC_MasterLooter = true
-								else
-									RIC_MasterLooter = false
-								end
-							</OnClick>
-							<OnLoad>
-								_G["RIC_AutoSetMasterLooterBoxText"]:SetText("Automatically Set To |cFFFFFFFFMaster Looter|r")
-							</OnLoad>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="RIC_HideOutgoingWhispersBox" inherits="UICheckButtonTemplate" text="">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="16" y="-136" />
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								if self:GetChecked() then
-									RIC_HideOutgoingWhispers = true
-								else
-									RIC_HideOutgoingWhispers = false
-								end
-							</OnClick>
-							<OnLoad>
-								_G["RIC_HideOutgoingWhispersBoxText"]:SetText("Hide whispers sent to players (warnings)")
-							</OnLoad>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="RIC_DurabilityCheckBox" inherits="UICheckButtonTemplate" text="">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="16" y="-166" />
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								if self:GetChecked() then
-									RIC_Durability_Warning = true
-								else
-									RIC_Durability_Warning = false
-								end
-							</OnClick>
-							<OnLoad>
-								_G["RIC_DurabilityCheckBoxText"]:SetText("Whisper new raid members with low gear durability")
-							</OnLoad>
-						</Scripts>
-					</CheckButton>
-					<Editbox name="RIC_DurabilityThresholdInput" inherits="InputBoxTemplate" autoFocus="false">
-						<Size>
-							<AbsDimension x="38" y="30" />
-						</Size>
-						<Anchors>
-							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="160" y="-195" />
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								self:SetMaxLetters(3)
-							</OnLoad>
-							<OnEscapePressed>
-								self:ClearFocus()
-							</OnEscapePressed>
-							<OnEnterPressed>
-								self:ClearFocus()
-								RIC_Durability_Manager.setDurabilityThreshold(self:GetText())
-							</OnEnterPressed>
-							<OnTabPressed>
-								self:ClearFocus()
-							</OnTabPressed>
-						</Scripts>
-					</Editbox>
-					<Editbox name="RIC_ScaleInputThing" inherits="InputBoxTemplate" autoFocus="false">
-						<Size>
-							<AbsDimension x="38" y="30" />
-						</Size>
-						<Anchors>
-							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="122" y="-250" />
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								self:SetMaxLetters(4)
-							</OnLoad>
-							<OnEscapePressed>
-								self:ClearFocus()
-							</OnEscapePressed>		
-							<OnEnterPressed>
-								self:ClearFocus()
-								RIC_setScale()
-							</OnEnterPressed>
-							<OnTabPressed>
-								self:ClearFocus()
-							</OnTabPressed>
-						</Scripts>
-					</Editbox>
-				</Frames>
-				<Layers>
-					<Layer>
-						<FontString name="RIC_DurabilityThresholdLabel" inherits="GameFontNormal" justifyH="LEFT" text="Durability threshold (%):">
-							<Size>
-								<AbsDimension x="180" y="30" />
-							</Size>
-							<Anchors>
-								<Anchor point="TOPLEFT">
-									<Offset x="16" y="-195" />
-								</Anchor>
-							</Anchors>
-						</FontString>
-						<FontString name="RIC_ScaleInputThingLabel" inherits="GameFontNormal" justifyH="LEFT" text="Frame Scale:">
-							<Size>
-								<AbsDimension x="180" y="30" />
-							</Size>
-							<Anchors>
-								<Anchor point="TOPLEFT">
-									<Offset x="16" y="-250" />
-								</Anchor>
-							</Anchors>
-						</FontString>
-					</Layer>
-				</Layers>
-			</Frame>
 			<Button name="$parentTab1" text="Roster" inherits="CharacterFrameTabButtonTemplate" id="1">
 				<!--Size x="118" y="35" /-->
 				<Anchors>
@@ -1466,8 +1266,6 @@
 						RIC_TabPage1:Show()
                     	RIC_TabPage2:Hide()
 						RIC_TabPage3:Hide()
-                    	RIC_TabPage4:Hide()
-						RIC_selectTab(1)
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -1484,8 +1282,6 @@
 						RIC_TabPage1:Hide()
                     	RIC_TabPage2:Show()
 						RIC_TabPage3:Hide()
-                    	RIC_TabPage4:Hide()
-						RIC_selectTab(2)
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -1502,26 +1298,6 @@
 						RIC_TabPage1:Hide()
                     	RIC_TabPage2:Hide()
 						RIC_TabPage3:Show()
-                    	RIC_TabPage4:Hide()
-						RIC_selectTab(3)
-					</OnClick>
-				</Scripts>
-			</Button>
-			<Button name="$parentTab4" text="Options" inherits="CharacterFrameTabButtonTemplate" id="4">
-				<!--Size x="118" y="35" /-->
-				<Anchors>
-					<Anchor point="CENTER" relativePoint="BOTTOMLEFT">
-						<Offset x="328" y="-10" />
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnClick>
-                    	PanelTemplates_SetTab(RIC_MainFrame, 4)
-						RIC_TabPage1:Hide()
-                    	RIC_TabPage2:Hide()
-                    	RIC_TabPage3:Hide()
-						RIC_TabPage4:Show()
-						RIC_selectTab(4)
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -1533,6 +1309,26 @@
 						</Offset>
 					</Anchor>
 				</Anchors>
+			</Button>
+			<Button name="RIC_SettingsButton" inherits="UIPanelButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" relativeTo="RIC_MainFrame">
+						<Offset>
+							<AbsDimension x="-27" y="-6" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Size>
+					<AbsDimension x="24" y="24"/>
+				</Size>
+				<Scripts>
+					<OnClick>
+						InterfaceOptionsFrame_OpenToCategory(RIC.optionsFrame)
+						InterfaceOptionsFrame_OpenToCategory(RIC.optionsFrame)
+					</OnClick>
+				</Scripts>
+				<NormalTexture file="Interface\AddOns\RaidInviteClassic\img\dots_small"/>
+				<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
 			</Button>
 		</Frames>
 		<Layers>
@@ -1553,8 +1349,7 @@
 		</Layers>
 		<Scripts>
 			<OnLoad>
-				RICMainFrame_OnLoad()
-    	        PanelTemplates_SetNumTabs(RIC_MainFrame, 4)
+    	        PanelTemplates_SetNumTabs(RIC_MainFrame, 3)
 	            PanelTemplates_SetTab(RIC_MainFrame, 1)
 				self:RegisterForDrag("LeftButton")
 			</OnLoad>
@@ -1569,7 +1364,6 @@
     	        RIC_TabPage1:Show()
 				RIC_TabPage2:Hide()
         	    RIC_TabPage3:Hide()
-				RIC_TabPage4:Hide()
 				RICMainFrame_OnShow()
 			</OnShow>
 		</Scripts>
