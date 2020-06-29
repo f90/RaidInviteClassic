@@ -1254,10 +1254,9 @@
 				</Scripts>
 			</Frame>
 			<Button name="$parentTab1" text="Roster" inherits="CharacterFrameTabButtonTemplate" id="1">
-				<!--Size x="118" y="35" /-->
 				<Anchors>
 					<Anchor point="CENTER" relativePoint="BOTTOMLEFT">
-						<Offset x="70" y="-10" />
+						<Offset x="60" y="-10" />
 					</Anchor>
 				</Anchors>
 				<Scripts>
@@ -1270,10 +1269,9 @@
 				</Scripts>
 			</Button>
 			<Button name="$parentTab2" text="Add Guildies" inherits="CharacterFrameTabButtonTemplate" id="2">
-				<!--Size x="118" y="35" /-->
 				<Anchors>
 					<Anchor point="CENTER" relativePoint="BOTTOMLEFT">
-						<Offset x="150" y="-10" />
+						<Offset x="140" y="-10" />
 					</Anchor>
 				</Anchors>
 				<Scripts>
@@ -1286,10 +1284,9 @@
 				</Scripts>
 			</Button>
 			<Button name="$parentTab3" text="Codewords" inherits="CharacterFrameTabButtonTemplate" id="3">
-				<!--Size x="118" y="35" /-->
 				<Anchors>
 					<Anchor point="CENTER" relativePoint="BOTTOMLEFT">
-						<Offset x="245" y="-10" />
+						<Offset x="220" y="-10" />
 					</Anchor>
 				</Anchors>
 				<Scripts>
