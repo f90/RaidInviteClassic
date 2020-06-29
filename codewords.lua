@@ -1,6 +1,6 @@
 function RIC_Codewords_Handler.updateCodeWords()
 	RIC_CodeWords = {}
-	local codewords = { strsplit("\n", RIC_CodeWordString) }
+	local codewords = { strsplit("\n", RIC.db.profile.CodewordString) }
 
 	-- Go through codewords, trim them and put into codeword table
 	for i=1,#codewords do
@@ -21,43 +21,41 @@ function RIC_Codewords_Handler.updateCodeWords()
 			s = s .. "\n"
 		end
 	end
-	RIC_CodeWordString = s
-	_G["RIC_CodeWordEditBox"]:SetText(RIC_CodeWordString)
+	RIC.db.profile.CodewordString = s
+	_G["RIC_CodeWordEditBox"]:SetText(RIC.db.profile.CodewordString)
 end
 
 function RIC_Codewords_Handler.startInvitePhase()
 	RIC_Codewords_Handler.updateCodeWords() -- Parse codewords from text box
 
 	-- Notify guild now, if this is activated in the options
-	if RIC_CodewordNotifyStart then
+	if RIC.db.profile.CodewordNotifyStart then
 		if #RIC_CodeWords == 0 then
-			printRIC(RIC_MSG_Codewords_Not_Set)
+			RIC:Print(L["Codewords_Not_Set"])
 		else
-			local theMsg = "Whisper me "
+			local theMsg = L["Whisper_Me"]
 			for ci=1, (#RIC_CodeWords - 1) do
 				if (ci == 1) then
-					theMsg = theMsg .. "\"" .. RIC_CodeWords[ci] .. "\""
+					theMsg = theMsg .. " \"" .. RIC_CodeWords[ci] .. "\""
 				else
 					theMsg = theMsg .. ", " .. "\"" .. RIC_CodeWords[ci] .. "\""
 				end
 			end
-			if (#RIC_CodeWords) > 2 then
-				theMsg = theMsg .. ", or \"" .. RIC_CodeWords[#RIC_CodeWords] .. "\""
-			elseif (#RIC_CodeWords) == 2 then
-				theMsg = theMsg .. " or \"" .. RIC_CodeWords[2] .. "\""
+			if (#RIC_CodeWords) >= 2 then
+				theMsg = theMsg .. " " .. L["Or"] .. " \"" .. RIC_CodeWords[#RIC_CodeWords] .. "\""
 			else
-				theMsg = theMsg ..  "\"" .. RIC_CodeWords[1] .. "\""
+				theMsg = theMsg ..  " \"" .. RIC_CodeWords[1] .. "\""
 			end
 
-			theMsg = theMsg .. " for an invite!"
+			theMsg = theMsg .. " " .. L["For_An_Invite"]
 			SendChatMessageRIC(theMsg ,"GUILD" ,nil ,nil)
 		end
 	end
 end
 
 function RIC_Codewords_Handler.endInvitePhase()
-	if RIC_CodewordNotifyEnd then
-		SendChatMessageRIC(RIC_MSG_Codewords_End ,"GUILD" ,nil ,nil)
+	if RIC.db.profile.CodewordNotifyEnd then
+		SendChatMessageRIC(L["Codewords_End"] ,"GUILD" ,nil ,nil)
 	end
 end
 

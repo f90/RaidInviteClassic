@@ -43,7 +43,7 @@ function RIC_Roster_Browser.buildRosterRaidList()
 		inRaid[name] = 1
 
 		-- filter based on view selection
-		local status = getStatusSymbol(true, (RIC_RosterList[name] ~= nil), data["online"], inviteStatusList[name])
+		local status = getStatusSymbol(true, (RIC.db.realm.RosterList[name] ~= nil), data["online"], inviteStatusList[name])
 		if RIC_Roster_Browser.showStatusSymbol(status) then
 			table.insert(rosterRaidList, {
 				name,
@@ -55,8 +55,8 @@ function RIC_Roster_Browser.buildRosterRaidList()
 		end
 	end
 
-	-- Add all people on RIC_RosterList to the overall list, if they are not in raid. If possible, check their data in guild
-	for name,present in pairs(RIC_RosterList) do
+	-- Add all people on RosterList to the overall list, if they are not in raid. If possible, check their data in guild
+	for name,present in pairs(RIC.db.realm.RosterList) do
 		if inRaid[name] == nil then -- Only process people NOT in raid right now
 			if guildMembers[name] == nil then -- Person is not in guild
 				local status = getStatusSymbol(false, true, -1, inviteStatusList[name]) -- We dont know online status of non-raid non-guild members
@@ -95,7 +95,7 @@ function RIC_Roster_Browser.buildRosterRaidList()
 	selectedList = newSelectedList
 
 	-- Show current roster size as text
-	_G["RIC_RosterNumberText"]:SetText("In Roster: " .. hashLength(RIC_RosterList))
+	_G["RIC_RosterNumberText"]:SetText("In Roster: " .. hashLength(RIC.db.realm.RosterList))
 
 	-- Set up sliders
 	if #rosterRaidList > 20 then
@@ -154,7 +154,7 @@ function RIC_Roster_Browser.updateListing()
 				_G["RIC_RosterFrameEntry"..ci.."Status"]:SetTexture("Interface\\AddOns\\RaidInviteClassic\\img\\question_mark")
 			else
 				_G["RIC_RosterFrameEntry"..ci.."Status"]:SetTexture("Interface\\AddOns\\RaidInviteClassic\\img\\question_mark")
-				printRIC("ERROR: Could not find a status symbol for " .. theName)
+				RIC:Print("ERROR: Could not find a status symbol for " .. theName)
 			end
 
 		else
@@ -188,7 +188,7 @@ end
 function RIC_Roster_Browser.generateRosterList()
 	-- Generates a list of names based on current roster list
 	local rosterString = ""
-	for name, present in pairs(RIC_RosterList) do
+	for name, present in pairs(RIC.db.realm.RosterList) do
 		rosterString = rosterString .. name .. "\n"
 	end
 	return rosterString
@@ -211,7 +211,7 @@ function RIC_Roster_Browser.importRoster(rosterString)
 
 	-- If we have a non-empty list, we parsed successfully: Overwrite current roster list
 	if hashLength(newList) > 0 then
-		RIC_RosterList = newList
+		RIC.db.realm.RosterList = newList
 	end
 
 	-- Update roster view
@@ -293,13 +293,13 @@ function RIC_Roster_Browser.sendInvites()
 		local guildMembers = RIC_Guild_Manager.getGuildMembers() -- Retrieve this so invite function can check if people are online
 
 		-- Go through roster list, invite players not yet in raid, update invite status
-		for name,present in pairs(RIC_RosterList) do
+		for name,present in pairs(RIC.db.realm.RosterList) do
 			-- Check if already in raid group
 			if raidMembers[name] == nil then
 				-- If not in raid group, check if we already invited that person or not
 				if (inviteStatusList[name] == nil) or (inviteStatusList[name] == RIC_InviteStatus["NOT_INVITED"]) then
 					-- Not invited before. Could have been in group and then left though, so check last invite date in case its there
-					if (inviteTimeList[name] == nil) or ((time() - inviteTimeList[name]) > RIC_InviteInterval) then
+					if (inviteTimeList[name] == nil) or ((time() - inviteTimeList[name]) > RIC.db.profile.InviteInterval) then
 						RIC_Roster_Browser.invite(name, false, guildMembers)
 					end
 				elseif inviteStatusList[name] == RIC_InviteStatus["INVITE_PENDING"] then
@@ -309,7 +309,7 @@ function RIC_Roster_Browser.sendInvites()
 					end
 				elseif inviteStatusList[name] == RIC_InviteStatus["INVITE_FAILED"] then
 					-- Check last invite time, if longer than invite frequency, try inviting again!
-					if (inviteTimeList[name] == nil) or ((time() - inviteTimeList[name]) > RIC_InviteInterval) then
+					if (inviteTimeList[name] == nil) or ((time() - inviteTimeList[name]) > RIC.db.profile.InviteInterval) then
 						RIC_Roster_Browser.invite(name, false, guildMembers)
 					end
 				end
@@ -327,21 +327,21 @@ function RIC_Roster_Browser.inviteWhisper(author, msg)
 
 	-- Event if message has sth like "invite" in it, probably unrelated message if we are currently completely alone (e.g. "invite person X to the guild please")
 	-- => Ignore request if we are alone. Also prevents people from pushing you into a group when you dont want to
-	if ((not IsInGroup()) and (not IsInRaid())) and RIC_CodewordOnlyInGroup then
-		printRIC("A codeword whisper by " .. author .. " was ignored because you were alone.")
+	if ((not IsInGroup()) and (not IsInRaid())) and RIC.db.profile.CodewordOnlyInGroup then
+		RIC:Print("A codeword whisper by " .. author .. " was ignored because you were alone.")
 		PlaySound(846)
 		return
 	end
 
 	-- Check if we are currently allowing invite requests
-	if RIC_CodewordOnlyDuringInvite and (not invitePhaseActive) then
-		SendChatMessageRIC(RIC_MSG_Codewords_Invite_Phase, "WHISPER", nil, author)
+	if RIC.db.profile.CodewordOnlyDuringInvite and (not invitePhaseActive) then
+		SendChatMessageRIC(L["Codewords_Invite_Phase"], "WHISPER", nil, author)
 		return
 	end
 
 	-- Check if author is in rosterList, otherwise deny request (send whisper back to person)
-	if RIC_RosterWhispersOnly and (RIC_RosterList[author] == nil) then
-		SendChatMessageRIC(RIC_MSG_Codewords_Not_In_Roster, "WHISPER", nil, author)
+	if RIC_RosterWhispersOnly and (RIC.db.realm.RosterList[author] == nil) then
+		SendChatMessageRIC(L["Codewords_Not_In_Roster"], "WHISPER", nil, author)
 		return
 	end
 
@@ -349,7 +349,7 @@ function RIC_Roster_Browser.inviteWhisper(author, msg)
 	local guildMembers = RIC_Guild_Manager.getGuildMembers()
 	if RIC_GuildWhispersOnly then
 		if guildMembers[author] == nil then
-			SendChatMessageRIC(RIC_MSG_Codewords_Not_In_Guild, "WHISPER", nil, author)
+			SendChatMessageRIC(L["Codewords_Not_In_Guild"], "WHISPER", nil, author)
 			return
 		end
 	end
@@ -369,7 +369,7 @@ function RIC_Roster_Browser.invite(person, reactive, guildMembers)
 	local raidMembers = getRaidMembers()
 	if raidMembers[person] ~= nil then
 		if reactive then -- If we invite based on whisper, tell player he cant join
-			SendChatMessageRIC(RIC_MSG_Codewords_Already_In_Raid, "WHISPER", nil, person)
+			SendChatMessageRIC(L["Codewords_Already_In_Raid"], "WHISPER", nil, person)
 		end
 		return
 	end
@@ -378,7 +378,7 @@ function RIC_Roster_Browser.invite(person, reactive, guildMembers)
 	if hashLength(raidMembers) >= MAX_RAID_MEMBERS then
 		if reactive then
 			-- React to whisper that the raid is full, but dont change any invite status
-			SendChatMessageRIC(RIC_MSG_Codewords_Raid_Full, "WHISPER", nil, author)
+			SendChatMessageRIC(L["Codewords_Raid_Full"], "WHISPER", nil, author)
 		else
 			-- Our invite failed because the raid was full - dont try again for now
 			inviteStatusList[person] = RIC_InviteStatus["INVITE_FAILED"]
@@ -420,7 +420,7 @@ function RIC_Roster_Browser.invite(person, reactive, guildMembers)
 	else
 		-- If we react to whisper, tell the person we cant invite them
 		if reactive then
-			SendChatMessageRIC(RIC_MSG_Codewords_Invite_Rights, "WHISPER", nil, person)
+			SendChatMessageRIC(L["Codewords_Invite_Rights"], "WHISPER", nil, person)
 		end
 	end
 end
@@ -432,7 +432,7 @@ function RIC_Roster_Browser.processSystemMessage(msg)
 		inviteStatusList[playerName] = RIC_InviteStatus["INVITE_FAILED"]
 		inviteTimeList[playerName] = time() -- We sent the invite just now, so save current time as last time we attempted invite
 		if invitePhaseActive then -- Only notify if we are in the invite phase
-			SendChatMessageRIC(RIC_MSG_Already_In_Group, "WHISPER", nil, playerName)
+			SendChatMessageRIC(L["Already_In_Group"], "WHISPER", nil, playerName)
 		end
 	elseif string.find(msg, string.gsub(ERR_JOINED_GROUP_S, "%%s", "%%S+")) then -- Player joined group
 		local playerName = string.match(msg, string.gsub(ERR_JOINED_GROUP_S, "%%s", "(%%S+)"))
@@ -510,8 +510,8 @@ function RIC_Roster_Browser.startInvitePhase()
 			_G["RIC_SendMassInvites".."Text"]:SetText("Stop invites")
 
 			-- Notify via guild message
-			if RIC_NotifyInvitePhaseStart then
-				SendChatMessageRIC(RIC_MSG_Invite_Start ,"GUILD" ,nil ,nil)
+			if RIC.db.profile.NotifyInvitePhaseStart then
+				SendChatMessageRIC(L["Invite_Start"] ,"GUILD" ,nil ,nil)
 			end
 
 			-- Notify codewords via guild
@@ -536,8 +536,8 @@ function RIC_Roster_Browser.endInvitePhase()
 		_G["RIC_SendMassInvites".."Text"]:SetText("Start invites")
 
 		-- Notify via guild message
-		if RIC_NotifyInvitePhaseEnd then
-			SendChatMessageRIC(RIC_MSG_Invite_End ,"GUILD", nil ,nil)
+		if RIC.db.profile.NotifyInvitePhaseEnd then
+			SendChatMessageRIC(L["Invite_End"] ,"GUILD", nil ,nil)
 		end
 
 		-- Notify codewords via guild
@@ -558,7 +558,7 @@ function RIC_Roster_Browser.addSelectedToRoster()
 		StaticPopup_Show("ROSTER_PLAYER_ENTRY")
 	else -- Add selected people to roster. Some might already be in the roster, but that's fine
 		for name,present in pairs(selectedList) do
-			RIC_RosterList[name] = 1
+			RIC.db.realm.RosterList[name] = 1
 		end
 	end
 
@@ -575,7 +575,7 @@ function RIC_Roster_Browser.addNameToRoster(name)
 	trimmed_name = trim_special_chars(trimmed_name)
 	if string.utf8len(trimmed_name) > 2 then -- Char names must have at least 3 characters in WoW
 		-- Add to roster list
-		RIC_RosterList[trimmed_name] = 1
+		RIC.db.realm.RosterList[trimmed_name] = 1
 		-- Update list
 		RIC_Roster_Browser.buildRosterRaidList()
 	end
@@ -585,7 +585,7 @@ end
 function RIC_Roster_Browser.removeFromRoster()
 	if hashLength(selectedList) > 0 then
 		for name,present in pairs(selectedList) do
-			RIC_RosterList[name] = nil
+			RIC.db.realm.RosterList[name] = nil
 
 			-- Remove invite status info
 			inviteStatusList[name] = nil
@@ -603,9 +603,9 @@ end
 -- Add people that were selected in guild browser (if any)
 function RIC_Roster_Browser.addFromGuildBrowser(name)
 	-- Check if name is already in roster
-	if RIC_RosterList[name] == nil then
+	if RIC.db.realm.RosterList[name] == nil then
 		-- Add to roster
-		RIC_RosterList[name] = 1
+		RIC.db.realm.RosterList[name] = 1
 	end
 end
 

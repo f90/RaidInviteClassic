@@ -12,7 +12,7 @@ function RIC_Guild_Browser.setVisibleRanks()
 		if ci <= numRanks then
 			_G["RIC_ShowRank"..ci]:Show()
 			_G["RIC_ShowRank"..ci.."Text"]:SetText(GuildControlGetRankName(ci))
-			_G["RIC_ShowRank"..ci]:SetChecked(RIC_displayRanks[ci])
+			_G["RIC_ShowRank"..ci]:SetChecked(RIC.db.profile.DisplayRanks[ci])
 		else
 			_G["RIC_ShowRank"..ci]:Hide()
 		end
@@ -35,8 +35,8 @@ function RIC_Guild_Browser.buildGuildList()
 	local guildMembers = RIC_Guild_Manager.getGuildMembers()
 
 	for name, data in pairs(guildMembers) do
-		if RIC_ShowOffline or (data["online"]==1) then
-			if RIC_displayRanks[data["rankIndex"]] then
+		if RIC.db.profile.ShowOffline or (data["online"]==1) then
+			if RIC.db.profile.DisplayRanks[data["rankIndex"]] then
 				totalGuildNumber = totalGuildNumber+1
 				table.insert(guildList, {
 							 name,
@@ -130,8 +130,8 @@ function RIC_Guild_Browser.selectAll()
 	selectedList = {}
 	local guildMembers = RIC_Guild_Manager.getGuildMembers()
 	for name, data in pairs(guildMembers) do
-		if RIC_ShowOffline or (data["online"]==1) then
-			if RIC_displayRanks[data["rankIndex"]] then
+		if RIC.db.profile.ShowOffline or (data["online"]==1) then
+			if RIC.db.profile.DisplayRanks[data["rankIndex"]] then
 				selectedList[name] = 1
 			end
 		end
@@ -158,13 +158,13 @@ end
 
 function RIC_Guild_Browser.rankBoxToggle(numID)
 	local toggleCheck = _G["RIC_ShowRank"..numID]:GetChecked()
-	RIC_displayRanks[numID] = toggleCheck
+	RIC.db.profile.DisplayRanks[numID] = toggleCheck
 	RIC_Guild_Browser.buildGuildList()
 end
 
 function RIC_Guild_Browser.offlineBoxToggle()
 	local toggleCheck = _G["RIC_ShowOfflineBox"]:GetChecked()
-	RIC_ShowOffline = toggleCheck
+	RIC.db.profile.ShowOffline = toggleCheck
 	RIC_Guild_Browser.buildGuildList()
 end
 

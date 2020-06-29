@@ -1,6 +1,6 @@
 -- Hides incoming invite whispers, if they ONLY contain a codeword
 local function hideInviteWhispers(self, event, msg, author, ...)
-    if RIC_CodewordHide then
+    if RIC.db.profile.CodewordHide then
         return RIC_Codewords_Handler.equalsCodeword(msg) -- If incoming message exactly contains the codeword and nothing else, hide it!
     end
     return false -- Always show messages if we are not hiding codewords

@@ -33,7 +33,7 @@ function RIC_Durability_Manager.checkDurabilities()
 				-- Give warning message if the reason is a) or b) or c)
 				playersNeedWarning[player] = nil
 				if IsInRaid() and UnitIsGroupLeader("player") then -- We ARE the raid leader - so something special must have gone wrong!
-					printRIC("WARNING: Durability could not be checked for " .. player .. ". Player is offline or doesnt have RIC/DBM installed?")
+					RIC:Print("WARNING: Durability could not be checked for " .. player .. ". Player is offline or doesnt have RIC/DBM installed?")
 				end
 			end
 		else
@@ -89,7 +89,7 @@ function RIC_Durability_Manager.warnPlayer(player)
 	if player == GetUnitName("player", false) then
 		-- We forgot to repair ourselves!
 		if UnitAffectingCombat("player") then -- Only show popup when not in combat
-			printRIC(warningText)
+			RIC:Print(warningText)
 		else
 			message(warningText)
 		end
