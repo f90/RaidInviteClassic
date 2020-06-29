@@ -63,7 +63,6 @@ end
 
 function RIC_Codewords_Handler.containsCodeword(msg)
 	-- In case our addon is sending a message to us, ignore it!
-	print(string.find(msg, RIC_ChatString))
 	if string.find(msg, RIC_ChatString) ~= nil then
 		return false
 	end
