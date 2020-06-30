@@ -444,7 +444,7 @@ function RIC_Roster_Browser.processSystemMessage(msg)
 				ConvertToRaid()
 
 				-- Set master looter
-				if RIC_MasterLooter then
+				if RIC.db.profile.MasterLooter then
 					SetLootMethod("master", UnitName("player"))
 				end
 			end
