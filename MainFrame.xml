@@ -303,7 +303,7 @@
 				<Layers>
 					<Layer>
 						-- Roster number text
-						<FontString name="RIC_RosterNumberText" text="In Roster: 0" inherits="GameFontNormal" justifyV="MIDDLE" justifyH="LEFT">
+						<FontString name="RIC_RosterNumberText" text="Roster: 0" inherits="GameFontNormal" justifyV="MIDDLE" justifyH="LEFT">
 							<Size x="100" y="24"/>
 							<Anchors>
 								<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
@@ -1270,8 +1270,8 @@
 			</Button>
 			<Button name="$parentTab2" text="Add Guildies" inherits="CharacterFrameTabButtonTemplate" id="2">
 				<Anchors>
-					<Anchor point="CENTER" relativePoint="BOTTOMLEFT">
-						<Offset x="140" y="-10" />
+					<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parentTab1">
+						<Offset x="0" y="0" />
 					</Anchor>
 				</Anchors>
 				<Scripts>
@@ -1285,8 +1285,8 @@
 			</Button>
 			<Button name="$parentTab3" text="Codewords" inherits="CharacterFrameTabButtonTemplate" id="3">
 				<Anchors>
-					<Anchor point="CENTER" relativePoint="BOTTOMLEFT">
-						<Offset x="220" y="-10" />
+					<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parentTab2">
+						<Offset x="0" y="0" />
 					</Anchor>
 				</Anchors>
 				<Scripts>

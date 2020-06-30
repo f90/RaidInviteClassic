@@ -95,7 +95,7 @@ function RIC_Roster_Browser.buildRosterRaidList()
 	selectedList = newSelectedList
 
 	-- Show current roster size as text
-	_G["RIC_RosterNumberText"]:SetText("In Roster: " .. hashLength(RIC.db.realm.RosterList))
+	_G["RIC_RosterNumberText"]:SetText("Roster: " .. hashLength(RIC.db.realm.RosterList))
 
 	-- Set up sliders
 	if #rosterRaidList > 20 then
