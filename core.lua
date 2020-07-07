@@ -106,7 +106,7 @@ function RIC:OnEnable() -- Called when the addon is enabled
 		whileDead = true,
 		hideOnEscape = true, -- this doesnt work for some reason?
 		enterClicksFirstButton = true, -- this doesnt work for some reason?
-		--preferredIndex = 3,  -- avoid some UI taint, see http://www.wowace.com/announcements/how-to-avoid-some-ui-taint/
+		preferredIndex = 3,  -- avoid some UI taint, see http://www.wowace.com/announcements/how-to-avoid-some-ui-taint/
 		OnShow = function (self, data)
     		self.editBox:SetScript("OnEscapePressed", function(self)
 				StaticPopup_Hide("ROSTER_PLAYER_ENTRY")
