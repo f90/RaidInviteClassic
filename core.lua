@@ -213,6 +213,9 @@ function RIC_OnUpdate()
 	-- Update guild and roster views
 	RIC_Roster_Browser.buildRosterRaidList()
 	RIC_Guild_Browser.buildGuildList()
+
+	-- Update player tooltip every few seconds while hovering over player entry in roster
+	RIC_Roster_Browser.setPlayerTooltip()
 end
 
 function RIC_setScale()

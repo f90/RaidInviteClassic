@@ -18,3 +18,15 @@ L["Whisper_Author_Unknown"] = "Предупреждение: автор неко
 L["Whisper_Me"] = "Шепни мне"
 L["Or"] = "или"
 L["For_An_Invite"] = "для приглашения!"
+
+-- Player status tooltips --TODO translate
+L["Guild_Member_Came_Online"] = "Guild member came online"
+L["Invite_Failed_Expired"] = "Invite was not accepted in time and expired"
+L["Invite_Failed_Raid_Full"] = "Invite could not be sent because raid was full"
+L["Invite_Skipped_Not_Online"] = "Invite was not sent because player was offline"
+L["Invite_Pending"] = "Invite was sent out and is pending"
+L["Not_Invited_Converting_Raid"] = "Invite was postponed since we were still converting the group to a raid"
+L["Player_Joined"] = "Player joined the raid"
+L["Player_Left"] = "Player left the raid"
+L["Invite_Failed_Not_Online"] = "Invite failed because player was offline"
+L["Invite_Failed_Declined"] = "Invite failed because player declined it"

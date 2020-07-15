@@ -164,9 +164,11 @@
 			</OnLoad>
 			<OnEnter>
 				_G[self:GetName().."BG"]:Show()
+				RIC_Roster_Browser.showPlayerTooltip(self, self:GetID())
 			</OnEnter>
 			<OnLeave>
 				_G[self:GetName().."BG"]:Hide()
+				RIC_Roster_Browser.hidePlayerTooltip(self:GetID())
 			</OnLeave>
 			<OnClick>
 				RIC_Roster_Browser.selectRow(self:GetID())

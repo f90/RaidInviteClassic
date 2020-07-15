@@ -18,3 +18,15 @@ L["Whisper_Author_Unknown"] = "WARNUNG: Author einer Flüsternachricht konnte ni
 L["Whisper_Me"] = "Flüster mich mit"
 L["Or"] = "oder"
 L["For_An_Invite"] = "an für eine Einladung!"
+
+-- Player status tooltips
+L["Guild_Member_Came_Online"] = "Gildenmitglied ist online gekommen"
+L["Invite_Failed_Expired"] = "Einladung ist ausgelaufen"
+L["Invite_Failed_Raid_Full"] = "Einladung konnte nicht gesendet werden, da der Raid voll ist"
+L["Invite_Skipped_Not_Online"] = "Einladung nicht gesendet, da der Spieler offline ist"
+L["Invite_Pending"] = "Einladung gesendet, warte auf Antwort"
+L["Not_Invited_Converting_Raid"] = "Einladung verschoben bis die Gruppe zum Raid konvertiert wurde"
+L["Player_Joined"] = "Spieler trat dem Raid bei"
+L["Player_Left"] = "Spieler verließ den Raid"
+L["Invite_Failed_Not_Online"] = "Einladung gescheitert, da der Spieler offline war"
+L["Invite_Failed_Declined"] = "Einladung wurde abgelehnt"
