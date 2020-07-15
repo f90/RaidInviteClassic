@@ -428,11 +428,15 @@ end
 function RIC_Roster_Browser.processSystemMessage(msg)
 	if string.find(msg, string.gsub(ERR_ALREADY_IN_GROUP_S, "%%s", "(%%S+)")) then -- This person is already in a group
 		local playerName = string.match(msg, string.gsub(ERR_ALREADY_IN_GROUP_S, "%%s", "(%%S+)"))
-		-- Set invite status
-		inviteStatusList[playerName] = RIC_InviteStatus["INVITE_FAILED"]
-		inviteTimeList[playerName] = time() -- We sent the invite just now, so save current time as last time we attempted invite
-		if invitePhaseActive then -- Only notify if we are in the invite phase
-			SendChatMessageRIC(L["Already_In_Group"], "WHISPER", nil, playerName)
+		-- Check if player is already in raid. In that case, we accidentally tried to invite that player MANUALLY -> Ignore this message
+		local raidMembers = getRaidMembers()
+		if raidMembers[playerName] == nil then
+			-- Set invite status
+			inviteStatusList[playerName] = RIC_InviteStatus["INVITE_FAILED"]
+			inviteTimeList[playerName] = time() -- We sent the invite just now, so save current time as last time we attempted invite
+			if invitePhaseActive then -- Only notify if we are in the invite phase
+				SendChatMessageRIC(L["Already_In_Group"], "WHISPER", nil, playerName)
+			end
 		end
 	elseif string.find(msg, string.gsub(ERR_JOINED_GROUP_S, "%%s", "%%S+")) then -- Player joined group
 		local playerName = string.match(msg, string.gsub(ERR_JOINED_GROUP_S, "%%s", "(%%S+)"))
