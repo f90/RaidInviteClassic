@@ -507,8 +507,9 @@ function RIC_Roster_Browser.startInvitePhase()
 	local raidMembers = getRaidMembers()
 	if not invitePhaseActive then -- Check if invite phase was disabled before, otherwise do nothing
 		if ((hashLength(raidMembers)==0) or UnitIsGroupLeader("player")) then -- CHeck that we are alone or a raid/group leader
-			-- Reset variables that remember who was invited/declined invite etc
+			-- Reset variables that remember who was invited/declined invite and when
 			inviteStatusList = {}
+			inviteTimeList = {}
 
 			-- Change text of button
 			_G["RIC_SendMassInvites".."Text"]:SetText("Stop invites")
