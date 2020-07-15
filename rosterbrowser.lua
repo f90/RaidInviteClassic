@@ -204,7 +204,7 @@ function RIC_Roster_Browser.importRoster(rosterString)
 	local newList = {}
 	for i=1,#parsedList do
 		local name = trim_special_chars(parsedList[i])
-		if string.utf8len(name) > 2 then -- Char names in WoW need to be at least 3 chars long
+		if string.utf8len(name) > 1 then -- Char names in WoW need to be at least 2 chars long
 			newList[name] = 1
 		end
 	end
@@ -573,7 +573,7 @@ function RIC_Roster_Browser.addNameToRoster(name)
 	-- Remove server name from input text, then trim any special characters
 	local trimmed_name = removeServerFromName(name)
 	trimmed_name = trim_special_chars(trimmed_name)
-	if string.utf8len(trimmed_name) > 2 then -- Char names must have at least 3 characters in WoW
+	if string.utf8len(trimmed_name) > 1 then -- Char names must have at least 2 characters in WoW
 		-- Add to roster list
 		RIC.db.realm.RosterList[trimmed_name] = 1
 		-- Update list
