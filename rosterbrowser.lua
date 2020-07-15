@@ -368,7 +368,7 @@ function RIC_Roster_Browser.invite(person, reactive, guildMembers)
 	-- Check if person already in raid
 	local raidMembers = getRaidMembers()
 	if raidMembers[person] ~= nil then
-		if reactive then -- If we invite based on whisper, tell player he cant join
+		if reactive then -- If we invite based on whisper, tell player he is already in the raid!
 			SendChatMessageRIC(L["Codewords_Already_In_Raid"], "WHISPER", nil, person)
 		end
 		return

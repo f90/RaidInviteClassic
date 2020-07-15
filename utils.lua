@@ -24,8 +24,8 @@ function getStatusSymbol(in_raid, in_roster, online, invite_status)
     --Checkmark - In Raid + In Roster
     --Plus symbol - In Raid + Not In Roster
     --Neutral symbol - Not in Raid + Online + In Roster + NOT_INVITED
-    --Dots symbol - Not in Raid + Online + In Roster + INVITE_PENDING
-    --Cross symbol - Not in Raid + Online + In Roster + INVITE_FAILED
+    --Dots symbol - Not in Raid + Online/Unknown + In Roster + INVITE_PENDING
+    --Cross symbol - Not in Raid + Online/Unknown + In Roster + INVITE_FAILED
     --Red lightning symbol - Not in Raid + Offline + In Roster
     --Question mark symbol - Everything else
 
@@ -35,9 +35,9 @@ function getStatusSymbol(in_raid, in_roster, online, invite_status)
         return RIC_Status["EXTRA"]
     elseif (not in_raid) and (online==1) and in_roster and ((invite_status==RIC_InviteStatus["NOT_INVITED"]) or (invite_status == nil)) then
         return RIC_Status["NOT_INVITED"]
-    elseif (not in_raid) and (online==1) and in_roster and (invite_status==RIC_InviteStatus["INVITE_PENDING"]) then
+    elseif (not in_raid) and ((online==1) or (online==-1)) and in_roster and (invite_status==RIC_InviteStatus["INVITE_PENDING"]) then
         return RIC_Status["INVITE_PENDING"]
-    elseif (not in_raid) and (online==1) and in_roster and (invite_status==RIC_InviteStatus["INVITE_FAILED"]) then
+    elseif (not in_raid) and ((online==1) or (online==-1)) and in_roster and (invite_status==RIC_InviteStatus["INVITE_FAILED"]) then
         return RIC_Status["INVITE_FAILED"]
     elseif (not in_raid) and (online==0) and in_roster then
         return RIC_Status["MISSING"]
