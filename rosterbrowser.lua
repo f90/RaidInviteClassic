@@ -444,6 +444,7 @@ function RIC_Roster_Browser.processSystemMessage(msg)
 		if raidMembers[playerName] == nil then
 			-- Set invite status
 			inviteStatusList[playerName] = RIC_InviteStatus["INVITE_FAILED"]
+			inviteStatusInfoList[playerName] = {time(), L["Invite_Failed_Already_In_Group"]}
 			inviteTimeList[playerName] = time() -- We sent the invite just now, so save current time as last time we attempted invite
 			if invitePhaseActive then -- Only notify if we are in the invite phase
 				SendChatMessageRIC(L["Already_In_Group"], "WHISPER", nil, playerName)
