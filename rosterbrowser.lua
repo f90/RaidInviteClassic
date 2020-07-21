@@ -31,6 +31,11 @@ function RIC_Roster_Browser.buildRosterRaidList()
 			inviteTimeList[name] = nil -- Doesn't matter when we last invited that person since they just logged in
 			RIC_Guild_Manager.resetCameOnlineFlag(name)
 		end
+		if data["justWentOffline"] == true then
+			-- This player just went offline - update status information
+			inviteStatusInfoList[name] = {time(), L["Guild_Member_Went_Offline"]}
+			RIC_Guild_Manager.resetWentOfflineFlag(name)
+		end
 	end
 
 	-- Go through all raid members, add them to overall list if they are not in roster list

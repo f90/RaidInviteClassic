@@ -21,6 +21,7 @@ L["For_An_Invite"] = "an für eine Einladung!"
 
 -- Player status tooltips
 L["Guild_Member_Came_Online"] = "Gildenmitglied ist online gekommen"
+L["Guild_Member_Went_Offline"] = "Gildenmitglied ist offline gegangen"
 L["Invite_Failed_Expired"] = "Einladung ist ausgelaufen"
 L["Invite_Failed_Raid_Full"] = "Einladung konnte nicht gesendet werden, da der Raid voll ist"
 L["Invite_Failed_Already_In_Group"] = "Einladung gescheitert, da der Spieler schon in einer Gruppe war"
