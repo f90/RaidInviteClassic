@@ -108,14 +108,37 @@ function RIC:OnEnable() -- Called when the addon is enabled
 		enterClicksFirstButton = true, -- this doesnt work for some reason?
 		preferredIndex = 3,  -- avoid some UI taint, see http://www.wowace.com/announcements/how-to-avoid-some-ui-taint/
 		OnShow = function (self, data)
+			-- Set edit box scripts to hide popup on escape/enter, and to process name on enter
     		self.editBox:SetScript("OnEscapePressed", function(self)
-				StaticPopup_Hide("ROSTER_PLAYER_ENTRY")
+				if self.autoCompleteEscaped ~= true then -- Hide on escape, if we did not escape to cancel the autocomplete window
+					StaticPopup_Hide("ROSTER_PLAYER_ENTRY")
+				end
 			end)
 			self.editBox:SetScript("OnEnterPressed", function(self)
-				local text = self:GetText()
-				StaticPopup_Hide("ROSTER_PLAYER_ENTRY")
-				RIC_Roster_Browser.addNameToRoster(text)
+				if self.autoCompleted ~= true then -- Add player on enter, if enter was not meant for confirming autocomplete suggestion
+					local text = self:GetText()
+					StaticPopup_Hide("ROSTER_PLAYER_ENTRY")
+					RIC_Roster_Browser.addNameToRoster(text)
+				end
 			end)
+
+			-- Setup autocomplete suggestions for the player entry edit box
+			local guildMembers = RIC_Guild_Manager.getGuildMembers()
+			local nameLookup = {}
+			for name,v in pairs(guildMembers) do -- Add guild members
+				nameLookup[name] = true
+			end
+			for name,v in pairs(RIC_ReceivedWhisperAuthors) do -- Add people who whispered us during this session
+				nameLookup[name] = true
+			end
+			 -- Go through all names and filter them, and put them into the final list
+			local names = {}
+			for name,v in pairs(nameLookup) do
+				if RIC.db.realm.RosterList[name] == nil then -- Only add as suggestion if not on roster list yet
+					table.insert(names, name)
+				end
+			end
+			SetupAutoComplete(self.editBox, names, 10);
 		end,
 		OnAccept = function(self, data, data2)
 			local text = self.editBox:GetText()
