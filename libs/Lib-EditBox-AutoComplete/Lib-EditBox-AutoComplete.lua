@@ -248,9 +248,6 @@ end
 
 function EditBoxAutoComplete_OnEnterPressed(self)
 	local autoComplete = EditBoxAutoCompleteBox;
-	print(autoComplete:IsShown())
-	print(autoComplete.parent == self)
-	print((EditBoxAutoComplete_GetSelectedIndex(autoComplete) ~= 0) )
 	if ( autoComplete:IsShown() and (autoComplete.parent == self) and (EditBoxAutoComplete_GetSelectedIndex(autoComplete) ~= 0) ) then
 		EditBoxAutoCompleteButton_OnClick(GetAutoCompleteButton(EditBoxAutoComplete_GetSelectedIndex(autoComplete)));
 		return true;
