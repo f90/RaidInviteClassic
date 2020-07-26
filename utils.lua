@@ -97,8 +97,11 @@ function getRaidMembers()
     local output = {}
     for ci=1, MAX_RAID_MEMBERS do
         local name, rank, subgroup, level, class, classFileName, zone, online, isDead, role, isML = GetRaidRosterInfo(ci)
+        -- 0 if offline, 1 if online
         if online == nil then
-            online = 0 -- 0 if offline, 1 if online
+            online = 0
+        else
+            online = 1
         end
 
         if name ~= nil then
