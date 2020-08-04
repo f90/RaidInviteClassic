@@ -97,10 +97,9 @@ function RIC_Roster_Browser.buildRosterRaidList()
 
 	-- Clear selection from people who are not shown in rosterRaidList
 	local newSelectedList = {}
-	for i=1,#rosterRaidList do
-		if selectedList[rosterRaidList[i][1]] ~= nil then
-			assert(selectedList[rosterRaidList[i][1]] == 1)
-			newSelectedList[rosterRaidList[i][1]] = 1
+	for _, val in ipairs(rosterRaidList) do
+		if selectedList[val[1]] ~= nil then
+			newSelectedList[val[1]] = 1
 		end
 	end
 	selectedList = newSelectedList
@@ -213,8 +212,8 @@ function RIC_Roster_Browser.importRoster(rosterString)
 
 	-- Parse names one by one, add to temp list
 	local newList = {}
-	for i=1,#parsedList do
-		local name = trim_special_chars(parsedList[i])
+	for _, val in ipairs(parsedList) do
+		local name = trim_special_chars(val)
 		if string.utf8len(name) > 1 and string.utf8len(name) < 13 then -- Char names in WoW need to be between 2 and 12 (inclusive) chars long
 			newList[name] = 1
 		end
@@ -242,8 +241,8 @@ end
 
 function RIC_Roster_Browser.selectAll()
 	selectedList = {}
-	for ci=1, #rosterRaidList do
-		selectedList[rosterRaidList[ci][1]] = 1
+	for _, val in ipairs(rosterRaidList) do
+		selectedList[val[1]] = 1
 	end
 	RIC_Roster_Browser.updateListing()
 end
@@ -391,6 +390,7 @@ function RIC_Roster_Browser.invite(person, reactive, guildMembers)
 		if reactive then
 			-- React to whisper that the raid is full, but dont change any invite status
 			SendChatMessageRIC(L["Codewords_Raid_Full"], "WHISPER", nil, author)
+			inviteStatusInfoList[person] = {time(), L["Invite_Whisper_Failed_Raid_Full"]}
 		else
 			-- Our invite failed because the raid was full - dont try again for now
 			inviteStatusList[person] = RIC_InviteStatus["INVITE_FAILED"]

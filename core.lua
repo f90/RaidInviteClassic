@@ -104,8 +104,8 @@ function RIC:OnEnable() -- Called when the addon is enabled
 		timeout = 0,
 		hasEditBox = true,
 		whileDead = true,
-		hideOnEscape = true, -- this doesnt work for some reason?
-		enterClicksFirstButton = true, -- this doesnt work for some reason?
+		hideOnEscape = true,
+		enterClicksFirstButton = true,
 		preferredIndex = 3,  -- avoid some UI taint, see http://www.wowace.com/announcements/how-to-avoid-some-ui-taint/
 		OnShow = function (self, data)
 			-- Set edit box scripts to hide popup on escape/enter, and to process name on enter
@@ -150,8 +150,8 @@ function RIC:OnEnable() -- Called when the addon is enabled
 	RIC_Chat_Manager.setupFilter()
 
 	-- Set checkboxes according to config
-	for ci=1, 10 do
-		 _G["RIC_ShowRank"..ci]:SetChecked(RIC.db.profile.DisplayRanks[ci])
+	for i, val in ipairs(RIC.db.profile.DisplayRanks) do
+		 _G["RIC_ShowRank"..i]:SetChecked(val)
 	end
 	_G["RIC_ShowOfflineBox"]:SetChecked(RIC.db.profile.ShowOffline)
 	_G["RIC_CodeWordEditBox"]:SetText(RIC.db.profile.CodewordString)

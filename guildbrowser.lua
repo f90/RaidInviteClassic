@@ -8,13 +8,13 @@ local totalNumber = 0
 
 function RIC_Guild_Browser.setVisibleRanks()
 	local numRanks = GuildControlGetNumRanks()
-	for ci=1, 10 do
-		if ci <= numRanks then
-			_G["RIC_ShowRank"..ci]:Show()
-			_G["RIC_ShowRank"..ci.."Text"]:SetText(GuildControlGetRankName(ci))
-			_G["RIC_ShowRank"..ci]:SetChecked(RIC.db.profile.DisplayRanks[ci])
+	for i, val in ipairs(RIC.db.profile.DisplayRanks) do
+		if i <= numRanks then
+			_G["RIC_ShowRank"..i]:Show()
+			_G["RIC_ShowRank"..i.."Text"]:SetText(GuildControlGetRankName(i))
+			_G["RIC_ShowRank"..i]:SetChecked(val)
 		else
-			_G["RIC_ShowRank"..ci]:Hide()
+			_G["RIC_ShowRank"..i]:Hide()
 		end
 	end
 end
@@ -51,10 +51,10 @@ function RIC_Guild_Browser.buildGuildList()
 
 	-- Clear selection from people who are not shown
 	local newSelectedList = {}
-	for i=1,#guildList do
-		if selectedList[guildList[i][1]] ~= nil then
-			assert(selectedList[guildList[i][1]] == 1)
-			newSelectedList[guildList[i][1]] = 1
+	for _, val in ipairs(guildList) do
+		if selectedList[val[1]] ~= nil then
+			assert(selectedList[val[1]] == 1)
+			newSelectedList[val[1]] = 1
 		end
 	end
 	selectedList = newSelectedList
@@ -110,9 +110,9 @@ end
 
 function RIC_Guild_Browser.addSelectedToRoster()
 	-- Fetch names of selected people and add to roster
-	for ci = 1, #guildList do
-		if selectedList[guildList[ci][1]] ~= nil then
-			RIC_Roster_Browser.addFromGuildBrowser(guildList[ci][1])
+	for _, val in ipairs(guildList) do
+		if selectedList[val[1]] ~= nil then
+			RIC_Roster_Browser.addFromGuildBrowser(val[1])
 		end
 	end
 	-- Reset selection --TODO maybe dont show people at all in guild list that are already in roster

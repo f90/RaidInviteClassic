@@ -3,8 +3,8 @@ function RIC_Codewords_Handler.updateCodeWords()
 	local codewords = { strsplit("\n", RIC.db.profile.CodewordString) }
 
 	-- Go through codewords, trim them and put into codeword table
-	for i=1,#codewords do
-		local c = trim_special_chars(codewords[i]) -- Trim codewords - no empty spaces no special chars
+	for _, codeword in ipairs(codewords) do
+		local c = trim_special_chars(codeword) -- Trim codewords - no empty spaces no special chars
 		c = string.utf8lower(c) -- Put to lower case so people realise upper/lower case doesnt matter
 		-- Check if line is empty, and addon tag does not contain our codeword to avoid accidental triggers by other addon users
 		if (string.utf8len(c) > 0) and (string.find(string.utf8lower(RIC_ChatString), c) == nil) then
@@ -15,8 +15,8 @@ function RIC_Codewords_Handler.updateCodeWords()
 
 	-- Update codeword string and editbox according to cleaned-up codewords
 	local s = ""
-	for i=1,#RIC_CodeWords do
-		s = s .. RIC_CodeWords[i]
+	for i, codeword in ipairs(RIC_CodeWords) do
+		s = s .. codeword
 		if i < #RIC_CodeWords then
 			s = s .. "\n"
 		end
@@ -65,9 +65,8 @@ function RIC_Codewords_Handler.containsCodeword(msg)
 		return false
 	end
 	-- Go through codewords, check for each if its in the message
-	local numCodeWords = #RIC_CodeWords
-	for ci=1, numCodeWords do
-		if string.find(string.utf8upper(msg), string.utf8upper(RIC_CodeWords[ci])) then
+	for _, codeword in ipairs(RIC_CodeWords) do
+		if string.find(string.utf8upper(msg), string.utf8upper(codeword)) then
 			return true
 		end
 	end
