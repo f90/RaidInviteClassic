@@ -351,14 +351,14 @@ function RIC_Roster_Browser.inviteWhisper(author, msg)
 	end
 
 	-- Check if author is in rosterList, otherwise deny request (send whisper back to person)
-	if RIC_RosterWhispersOnly and (RIC.db.realm.RosterList[author] == nil) then
+	if RIC.db.profile.RosterWhispersOnly and (RIC.db.realm.RosterList[author] == nil) then
 		SendChatMessageRIC(L["Codewords_Not_In_Roster"], "WHISPER", nil, author)
 		return
 	end
 
 	-- Check if person is guild member
 	local guildMembers = RIC_Guild_Manager.getGuildMembers()
-	if RIC_GuildWhispersOnly then
+	if RIC.db.profile.GuildWhispersOnly then
 		if guildMembers[author] == nil then
 			SendChatMessageRIC(L["Codewords_Not_In_Guild"], "WHISPER", nil, author)
 			return

@@ -53,7 +53,6 @@ function RIC_Guild_Browser.buildGuildList()
 	local newSelectedList = {}
 	for _, val in ipairs(guildList) do
 		if selectedList[val[1]] ~= nil then
-			assert(selectedList[val[1]] == 1)
 			newSelectedList[val[1]] = 1
 		end
 	end
