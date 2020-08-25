@@ -10,17 +10,17 @@ function RIC_Guild_Manager.getGuildMembers()
         local name, rank, rankIndex, level, class, zone, note, officernote, online, status, classFileName = GetGuildRosterInfo(ci)
 
         if name ~= nil then -- When zoning, GetGuildRosterInfo sometimes returns nil for player names, then ignore this player!
-            -- 1 if online, 0 if offline
-            local online_val = 0
-            if online then
-                online_val = 1
+            -- Convert online status to boolean
+            local online_val = false
+            if (online == 1) or (online == true) then
+                online_val = true
             end
 
             -- name contains "name-servername" but GetRaidRosterInfo does not give us server info. Since this is a classic addon, simply remove server name here and deal ONLY with char names
             name = removeServerFromName(name)
 
             -- Update last-login/logoff time and set justCameOnline-flag
-            if online_val == 1 then
+            if online_val then
                 if guildMembersLoginTime[name] == nil then
                     -- No entry found but player is online => Player has come online now!
                     guildMembersLoginTime[name] = time()
@@ -43,7 +43,7 @@ function RIC_Guild_Manager.getGuildMembers()
                 zone=zone,
                 note=note,
                 officernote=officernote,
-                online=online_val, -- 1 if online, 0 if offline
+                online=online_val, -- true or false
                 status=status,
                 cameOnlineAt=guildMembersLoginTime[name], -- nil if offline, otherwise shows time when they came online
                 justCameOnline=guildMemberCameOnline[name], -- true if this player has JUST come online AND invite status was not reset yet, otherwise nil

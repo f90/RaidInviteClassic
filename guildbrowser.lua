@@ -35,7 +35,7 @@ function RIC_Guild_Browser.buildGuildList()
 	local guildMembers = RIC_Guild_Manager.getGuildMembers()
 
 	for name, data in pairs(guildMembers) do
-		if RIC.db.profile.ShowOffline or (data["online"]==1) then
+		if RIC.db.profile.ShowOffline or data["online"] then
 			if RIC.db.profile.DisplayRanks[data["rankIndex"]] then
 				totalGuildNumber = totalGuildNumber+1
 				table.insert(guildList, {
@@ -129,7 +129,7 @@ function RIC_Guild_Browser.selectAll()
 	selectedList = {}
 	local guildMembers = RIC_Guild_Manager.getGuildMembers()
 	for name, data in pairs(guildMembers) do
-		if RIC.db.profile.ShowOffline or (data["online"]==1) then
+		if RIC.db.profile.ShowOffline or data["online"] then
 			if RIC.db.profile.DisplayRanks[data["rankIndex"]] then
 				selectedList[name] = 1
 			end

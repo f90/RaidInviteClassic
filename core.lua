@@ -206,8 +206,12 @@ function RIC:CHAT_MSG_SYSTEM(event, msg)
 end
 
 function RIC:PARTY_LEADER_CHANGED()
-	-- Check if we have lead now. If not, we either gave it away or were not lead before either, so definitely stop any current invite phase
-	if (IsInGroup() or IsInRaid()) and (not UnitIsGroupLeader("player")) then
+	if (IsInGroup() or IsInRaid()) then
+		if not UnitIsGroupLeader("player") then -- Check if we have lead now. If not, we either gave it away or were not lead before either, so definitely stop any current invite phase
+			RIC_Roster_Browser.endInvitePhase()
+		end
+	else
+		-- We are not in a group/raid at all - definitely stop invite phase in that case!
 		RIC_Roster_Browser.endInvitePhase()
 	end
 end

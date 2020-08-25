@@ -70,7 +70,7 @@ function RIC_Roster_Browser.buildRosterRaidList()
 	for name,present in pairs(RIC.db.realm.RosterList) do
 		if inRaid[name] == nil then -- Only process people NOT in raid right now
 			if guildMembers[name] == nil then -- Person is not in guild
-				local status = getStatusSymbol(false, true, -1, inviteStatusList[name]) -- We dont know online status of non-raid non-guild members
+				local status = getStatusSymbol(false, true, nil, inviteStatusList[name]) -- We dont know online status of non-raid non-guild members
 				if RIC_Roster_Browser.showStatusSymbol(status) then -- Check if this status should be shown
 					table.insert(rosterRaidList, {
 						name,
@@ -403,7 +403,7 @@ function RIC_Roster_Browser.invite(person, reactive, guildMembers)
 	-- Check if this is a guild member but offline - in this case we don't even need to try an invite, since this clogs up the chat with invite error messages :)
 	if not reactive then -- If reacting to invite request, the player is definitely online!
 		guildMembers = guildMembers or getGuildMembers() -- Retrieve guild member list if not given to us as argument
-		if (guildMembers[person] ~= nil) and (guildMembers[person]["online"] ~= 1) then
+		if (guildMembers[person] ~= nil) and (not guildMembers[person]["online"]) then
 			-- Invite for this person will fail because they are offline - dont invite, instead record invite attempt time and set to failed invite status
 			inviteStatusList[person] = RIC_InviteStatus["INVITE_FAILED"]
 			inviteStatusInfoList[person] = {time(), L["Invite_Skipped_Not_Online"]}
@@ -607,7 +607,7 @@ function RIC_Roster_Browser.setPlayerTooltip()
 			local online = "Unknown"
 			local raidMembers = getRaidMembers()
 			if raidMembers[theName] ~= nil then
-				if raidMembers[theName]["online"] == 1 then
+				if raidMembers[theName]["online"] then
 					online = "Yes"
 				else
 					online = "No"
@@ -615,7 +615,7 @@ function RIC_Roster_Browser.setPlayerTooltip()
 			else
 				local guildMembers = RIC_Guild_Manager.getGuildMembers()
 				if guildMembers[theName] ~= nil then
-					if guildMembers[theName]["online"] == 1 then
+					if guildMembers[theName]["online"] then
 						online = "Yes"
 					else
 						online = "No"

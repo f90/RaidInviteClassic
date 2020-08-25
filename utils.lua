@@ -33,13 +33,13 @@ function getStatusSymbol(in_raid, in_roster, online, invite_status)
         return RIC_Status["READY"]
     elseif in_raid and (not in_roster) then
         return RIC_Status["EXTRA"]
-    elseif (not in_raid) and (online==1) and in_roster and ((invite_status==RIC_InviteStatus["NOT_INVITED"]) or (invite_status == nil)) then
+    elseif (not in_raid) and (online==true) and in_roster and ((invite_status==RIC_InviteStatus["NOT_INVITED"]) or (invite_status == nil)) then
         return RIC_Status["NOT_INVITED"]
-    elseif (not in_raid) and ((online==1) or (online==-1)) and in_roster and (invite_status==RIC_InviteStatus["INVITE_PENDING"]) then
+    elseif (not in_raid) and ((online==true) or (online==nil)) and in_roster and (invite_status==RIC_InviteStatus["INVITE_PENDING"]) then
         return RIC_Status["INVITE_PENDING"]
-    elseif (not in_raid) and ((online==1) or (online==-1)) and in_roster and (invite_status==RIC_InviteStatus["INVITE_FAILED"]) then
+    elseif (not in_raid) and ((online==true) or (online==nil)) and in_roster and (invite_status==RIC_InviteStatus["INVITE_FAILED"]) then
         return RIC_Status["INVITE_FAILED"]
-    elseif (not in_raid) and (online==0) and in_roster then
+    elseif (not in_raid) and (online==false) and in_roster then
         return RIC_Status["MISSING"]
     else
         return RIC_Status["OTHER"]
@@ -97,11 +97,11 @@ function getRaidMembers()
     local output = {}
     for ci=1, MAX_RAID_MEMBERS do
         local name, rank, subgroup, level, class, classFileName, zone, online, isDead, role, isML = GetRaidRosterInfo(ci)
-        -- 0 if offline, 1 if online
-        if online == nil then
-            online = 0
+        -- Set online to boolean variable
+        if (online == 1) or (online == true) then
+            online = true
         else
-            online = 1
+            online = false
         end
 
         if name ~= nil then
