@@ -552,9 +552,7 @@ function RIC_Roster_Browser.startInvitePhase()
 			RIC_Codewords_Handler.startInvitePhase()
 
 			-- Check gear durability of our own character - since we otherwise only check people joining our group/raid
-			if RIC_Durability_Warning then
-				RIC_Durability_Manager.setPlayerWarning(GetUnitName("player", false))
-			end
+			RIC_Durability_Manager.setPlayerWarning(GetUnitName("player", false))
 
 			invitePhaseActive = true
 		else

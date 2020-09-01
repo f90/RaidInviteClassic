@@ -49,15 +49,8 @@ function RIC_Durability_Manager.checkDurabilities()
 end
 
 function RIC_Durability_Manager.setPlayerWarning(player)
-	if RIC_Durability_Warning then -- Only initiate checks if that is activated in the options
+	if RIC.db.profile.Durability_Warning then -- Only initiate checks if that is activated in the options
 		playersNeedWarning[player] = time()
-	end
-end
-
-function RIC_Durability_Manager.setDurabilityThreshold(input)
-	local num = tonumber(input)
-	if (num ~= nil) and (num >= 0) and (num <= 100) then
-		RIC_Durability_Threshold = num
 	end
 end
 
@@ -79,7 +72,7 @@ function RIC_Durability_Manager.warnPlayer(player)
 	end
 
 	-- Check if durability is low
-	if durability[player]["percent"] > RIC_Durability_Threshold then
+	if durability[player]["percent"] > RIC.db.profile.Durability_Threshold then
 		playersNeedWarning[player] = nil -- Clear up durability check request time
 		return
 	end
