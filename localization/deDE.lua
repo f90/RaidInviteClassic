@@ -33,3 +33,7 @@ L["Player_Joined"] = "Spieler trat dem Raid bei"
 L["Player_Left"] = "Spieler verließ den Raid"
 L["Invite_Failed_Not_Online"] = "Einladung gescheitert, da der Spieler offline war"
 L["Invite_Failed_Declined"] = "Einladung wurde abgelehnt"
+
+-- Other warnings/errors
+L["Roster_Import_Name_Skip_Warning"] = "Skipped the following invalid names:"
+L["Roster_Import_Name_Fix_Warning"] = "Changed the following names to make them valid:"

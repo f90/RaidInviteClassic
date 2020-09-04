@@ -205,18 +205,41 @@ function RIC_Roster_Browser.generateRosterList()
 end
 
 function RIC_Roster_Browser.importRoster(rosterString)
-	-- Use newlines, colons or comma to separate characters
+	-- Use newlines, colons, comma or space to separate characters
 	local swapString = gsub(rosterString, ";", "\n")
 	swapString = gsub(swapString, ",", "\n")
+	swapString = gsub(swapString, " ", "\n")
 	local parsedList = { strsplit("\n", swapString) }
 
 	-- Parse names one by one, add to temp list
 	local newList = {}
+	local skippedNames = ""
+	local fixedNames = ""
 	for _, val in ipairs(parsedList) do
 		local name = trim_special_chars(val)
+		if name ~= val then
+			-- We removed special chars from the input in hopes of fixing the char name - notify user!
+			fixedNames = fixedNames .. val .. " -> " .. name .. "\n"
+		end
 		if string.utf8len(name) > 1 and string.utf8len(name) < 13 then -- Char names in WoW need to be between 2 and 12 (inclusive) chars long
 			newList[name] = 1
+		else
+			if string.utf8len(name) > 0 then -- Add to list of skipped names if they are faulty and are non empty
+				skippedNames = skippedNames .. val .. "\n"
+			end
 		end
+	end
+
+	-- If we skipped some names because they were faulty, show warning message on import
+	local warningMsg = ""
+	if string.utf8len(skippedNames) > 0 then
+		warningMsg = warningMsg .. L["Roster_Import_Name_Skip_Warning"] .. "\n" .. skippedNames
+	end
+	if string.utf8len(fixedNames) > 0 then
+		warningMsg = warningMsg .. L["Roster_Import_Name_Fix_Warning"] .. "\n" .. fixedNames
+	end
+	if string.utf8len(warningMsg) > 0 then
+		message(warningMsg)
 	end
 
 	-- If we have a non-empty list, we parsed successfully: Overwrite current roster list
