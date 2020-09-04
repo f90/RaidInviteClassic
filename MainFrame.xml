@@ -519,7 +519,7 @@
 							</OnClick>
 						</Scripts>
 					</Button>
-					<Button name="RIC_SelectAll" inherits="UIPanelButtonTemplate" text="Select All">
+					<Button name="RIC_RosterSelectAll" inherits="UIPanelButtonTemplate" text="Select All">
 						<Size>
 							<AbsDimension x="121" y="20" />
 						</Size>
@@ -534,7 +534,7 @@
 							</OnClick>
 						</Scripts>
 					</Button>
-					<Button name="RIC_SelectNone" inherits="UIPanelButtonTemplate" text="Select None">
+					<Button name="RIC_RosterSelectNone" inherits="UIPanelButtonTemplate" text="Select None">
 						<Size>
 							<AbsDimension x="121" y="20" />
 						</Size>
@@ -867,7 +867,7 @@
 						</Backdrop>
 					</Frame>
 
-					<Button name="RIC_SelectAll" inherits="UIPanelButtonTemplate" text="Select All">
+					<Button name="RIC_GuildSelectAll" inherits="UIPanelButtonTemplate" text="Select All">
 						<Size>
 							<AbsDimension x="121" y="20" />
 						</Size>
@@ -882,7 +882,7 @@
 							</OnClick>
 						</Scripts>
 					</Button>
-					<Button name="RIC_SelectNone" inherits="UIPanelButtonTemplate" text="Select None">
+					<Button name="RIC_GuildSelectNone" inherits="UIPanelButtonTemplate" text="Select None">
 						<Size>
 							<AbsDimension x="121" y="20" />
 						</Size>
