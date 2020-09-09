@@ -75,7 +75,7 @@ end
 
 function removeServerFromName(name)
     -- Removes server names from full names, e.g. "Tim-Patchwerk" -> "Tim"
-    local dashPosStart, dashPosEnd = string.find(name, "-")
+    local dashPosStart, dashPosEnd = string.find(name, "-", 1, true)
     if dashPosStart ~= nil then -- Check if name has a dash in it
         return strsub(name, 1, dashPosStart-1)
     else

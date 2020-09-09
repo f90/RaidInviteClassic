@@ -7,7 +7,7 @@ function RIC_Codewords_Handler.updateCodeWords()
 		local c = trim_special_chars(codeword) -- Trim codewords - no empty spaces no special chars
 		c = string.utf8lower(c) -- Put to lower case so people realise upper/lower case doesnt matter
 		-- Check if line is empty, and addon tag does not contain our codeword to avoid accidental triggers by other addon users
-		if (string.utf8len(c) > 0) and (string.find(string.utf8lower(RIC_ChatString), c) == nil) then
+		if (string.utf8len(c) > 0) and (string.find(string.utf8lower(RIC_ChatString), c, 1, true) == nil) then
 			-- Add codeword!
 			table.insert(RIC_CodeWords, c)
 		end
@@ -61,12 +61,12 @@ end
 
 function RIC_Codewords_Handler.containsCodeword(msg)
 	-- In case our addon is sending a message to us, ignore it!
-	if string.find(msg, RIC_ChatString) ~= nil then
+	if string.find(msg, RIC_ChatString, 1, true) ~= nil then
 		return false
 	end
 	-- Go through codewords, check for each if its in the message
 	for _, codeword in ipairs(RIC_CodeWords) do
-		if string.find(string.utf8upper(msg), string.utf8upper(codeword)) then
+		if string.find(string.utf8upper(msg), string.utf8upper(codeword), 1, true) then
 			return true
 		end
 	end
