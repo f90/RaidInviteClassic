@@ -14,7 +14,7 @@ end
 
 -- Hides outgoing whispers made by this addon to other users
 local function hideRICWhispers(self, event, msg, recipient, ...)
-    if RIC_HideOutgoingWhispers then
+    if RIC.db.profile.HideOutgoingWhispers then
         if msg:find(RIC_ChatString,1,true) then -- Search for the RIC string exactly, (no regex search)
             return true
         end

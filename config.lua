@@ -101,6 +101,17 @@ function getOptions()
 						end
 					},
 
+					hidenotifications = {
+						name = "Hide ALL outgoing notifications",
+						desc = "Hides ALL whispers sent by this addon to other players to notify them about various issues (invite failures etc.)",
+						type = "toggle",
+						set = function(info, val)
+							RIC.db.profile.HideOutgoingWhispers = val;
+						end,
+						get = function(info)
+							return RIC.db.profile.HideOutgoingWhispers
+						end
+					},
 				}
 			},
 
