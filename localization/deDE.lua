@@ -13,6 +13,8 @@ L["Invite_Start"] = "EINLADUNGEN GESTARTET - Wenn du für den Raid registriert b
 L["Invite_End"] = "Invite-Phase für den Raid beendet."
 L["Codewords_Not_Set"] = "WARNUNG: Es wurden keine Codewörter gesetzt, die für Einladungen zu diesem Raid verwendet werden können!"
 L["Whisper_Author_Unknown"] = "WARNUNG: Author einer Flüsternachricht konnte nicht erkannt werden - prüfe, ob du eine Einladungsanfrage verpasst hast!"
+L["Gear_Durability_Warning_1"] = "WARNUNG: Deine Ausrüstung hat nur noch"
+L["Gear_Durability_Warning_2"] = "% Haltbarkeit. Bitte repariere sie!"
 
 -- Codeword announcement
 L["Whisper_Me"] = "Flüster mich mit"

@@ -78,7 +78,7 @@ function RIC_Durability_Manager.warnPlayer(player)
 	end
 
 	-- All conditions met - warn the player now!
-	local warningText =  "WARNING: Your gear is at " .. durability[player]["percent"] .. "% durability. Please repair it!"
+	local warningText =  L["Gear_Durability_Warning_1"] .. " " .. durability[player]["percent"] .. L["Gear_Durability_Warning_2"]
 	if player == GetUnitName("player", false) then
 		-- We forgot to repair ourselves!
 		if UnitAffectingCombat("player") then -- Only show popup when not in combat

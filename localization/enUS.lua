@@ -13,6 +13,8 @@ L["Invite_Start"] = "INVITING NOW - If you are registered for the raid, please l
 L["Invite_End"] = "Invite phase for raid ended!"
 L["Codewords_Not_Set"] = "WARNING: You haven't set any codewords that could be announced to the guild now!"
 L["Whisper_Author_Unknown"] = "WARNING: Author of some incoming whisper could not be parsed - check if you missed an invite whisper!"
+L["Gear_Durability_Warning_1"] = "WARNING: Your gear is at"
+L["Gear_Durability_Warning_2"] = "% durability. Please repair it!"
 
 -- Codeword announcement
 L["Whisper_Me"] = "Whisper me"
