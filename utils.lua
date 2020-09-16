@@ -59,12 +59,64 @@ RIC_ColorTable = {
 	["WARRIOR"] = "C79C6E",
 }
 
-function getClassColor(classFilename)
-    local color = "|cffDA5151" -- Red-grey for unknown class
+local function getClassColorHex(classFilename)
+    local hex = "DA5151" -- Red-grey for unknown class
     if RIC_ColorTable[classFilename] then
-        color = "|cFF" .. RIC_ColorTable[classFilename]
+        hex = RIC_ColorTable[classFilename]
     end
-    return color
+    return hex
+end
+
+function getClassColor(classFilename, format)
+    if format == "RGB" then
+        local hex = getClassColorHex(classFilename)
+        return {r = tonumber("0x"..hex:sub(1,2)) / 255,
+                g = tonumber("0x"..hex:sub(3,4)) / 255,
+                b = tonumber("0x"..hex:sub(5,6)) / 255}
+    else -- Hex string to colorise text by default
+        return "|cFF" .. getClassColorHex(classFilename)
+    end
+end
+
+function charLength(str)
+	local b = string.byte(str, 1)
+	if b then
+		if b >= 194 and b < 224 then
+			return 2
+		elseif b >= 224 and b < 240 then
+			return 3
+		elseif b >= 240 and b < 245 then
+			return 4
+		end
+	end
+	return 1
+end
+
+function pairsByKeys(t, f)
+    local a = {}
+    for n in pairs(t) do table.insert(a, n) end
+    table.sort(a, f)
+    local i = 0
+    local iter = function()
+		i = i + 1
+		if a[i] == nil then return nil
+		else return a[i], t[a[i]]
+		end
+	end
+	return iter
+end
+
+function GetXY()
+	local x, y = GetCursorPosition()
+	local scale = UIParent:GetEffectiveScale()
+	return x / scale, y / scale
+end
+
+function IsRaidAssistant(player)
+	if not player then
+		player = "player"
+	end
+	return UnitIsGroupLeader(player) == true or UnitIsGroupAssistant(player) == true
 end
 
 function SendChatMessageRIC(msg, chatType, language, channel)
@@ -106,17 +158,27 @@ function getRaidMembers()
 
         if name ~= nil then
             output[name] = {
+            name=name,
             rank=rank,
             level=level,
             class=class,
             zone=zone,
             online=online,
             classFileName=classFileName,
-            color=getClassColor(classFileName)
+            subgroup=subgroup,
+            index=ci, --TODO how is this output behaving for half-empty groups?
             }
         end
     end
     return output
+end
+
+function reverseMap(assocTable)
+    local reversed = {}
+	for key, val in pairs(assocTable) do
+		reversed[val] = key
+	end
+    return reversed
 end
 
 function hashLength(assocTable)

@@ -24,5 +24,6 @@ codewords.lua
 utils.lua
 durability.lua
 chatfilter.lua
+groupassigns.lua
 
 MainFrame.xml

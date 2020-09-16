@@ -9,6 +9,7 @@ RIC_Codewords_Handler = {}
 RIC_Guild_Manager = {}
 RIC_Durability_Manager = {}
 RIC_Chat_Manager = {}
+RIC_Group_Manager = {}
 
 RIC_UpdateInterval = 1.0
 RIC_CodeWords = {}

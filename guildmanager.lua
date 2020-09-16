@@ -48,7 +48,6 @@ function RIC_Guild_Manager.getGuildMembers()
                 cameOnlineAt=guildMembersLoginTime[name], -- nil if offline, otherwise shows time when they came online
                 justCameOnline=guildMemberCameOnline[name], -- true if this player has JUST come online AND invite status was not reset yet, otherwise nil
                 classFileName=classFileName,
-                color=getClassColor(classFileName)
             }
         end
     end

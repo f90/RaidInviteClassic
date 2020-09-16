@@ -58,7 +58,7 @@ function RIC_Roster_Browser.buildRosterRaidList()
 		if RIC_Roster_Browser.showStatusSymbol(status) then
 			table.insert(rosterRaidList, {
 				name,
-				getClassColor(data["classFileName"]),
+				data["classFileName"],
 				guildRank,
 				guildRankIndex,
 				status
@@ -67,14 +67,14 @@ function RIC_Roster_Browser.buildRosterRaidList()
 	end
 
 	-- Add all people on RosterList to the overall list, if they are not in raid. If possible, check their data in guild
-	for name,present in pairs(RIC.db.realm.RosterList) do
+	for name,_ in pairs(RIC.db.realm.RosterList) do
 		if inRaid[name] == nil then -- Only process people NOT in raid right now
 			if guildMembers[name] == nil then -- Person is not in guild
 				local status = getStatusSymbol(false, true, nil, inviteStatusList[name]) -- We dont know online status of non-raid non-guild members
 				if RIC_Roster_Browser.showStatusSymbol(status) then -- Check if this status should be shown
 					table.insert(rosterRaidList, {
 						name,
-						getClassColor("UNKNOWN_CLASS"),
+						"UNKNOWN_CLASS",
 						"<Not in Guild>",
 						0, -- Rank 0 for non-guildies
 						status
@@ -85,7 +85,7 @@ function RIC_Roster_Browser.buildRosterRaidList()
 				if RIC_Roster_Browser.showStatusSymbol(status) then -- Check if this status should be shown
 					table.insert(rosterRaidList, {
 						name,
-						guildMembers[name]["color"],
+						guildMembers[name]["classFileName"],
 						guildMembers[name]["rank"],
 						guildMembers[name]["rankIndex"],
 						status
@@ -138,7 +138,7 @@ function RIC_Roster_Browser.updateListing()
 	for ci = 1, 20 do
 		local row = rosterRaidList[ci+rosterOffset]
 		if row then
-			_G["RIC_RosterFrameEntry"..ci.."Name"]:SetText(row[2] .. row[1])
+			_G["RIC_RosterFrameEntry"..ci.."Name"]:SetText(getClassColor(row[2]) .. row[1])
 			_G["RIC_RosterFrameEntry"..ci.."Rank"]:SetText(row[3])
 			_G["RIC_RosterFrameEntry"..ci]:Show()
 			local theName = row[1]
@@ -195,12 +195,40 @@ function RIC_Roster_Browser.showStatusSymbol(status)
 	end
 end
 
+-- Generates a list of names based on current roster list
 function RIC_Roster_Browser.generateRosterList()
-	-- Generates a list of names based on current roster list
+	-- Determine whether ANY players are assigned to a specific group/position
+	local positionToName = reverseMap(RIC.db.realm.RosterList)
 	local rosterString = ""
-	for name, present in pairs(RIC.db.realm.RosterList) do
-		rosterString = rosterString .. name .. "\n"
+	local useGroupPositions = false
+	for position=1,40 do
+		if positionToName[position] ~= nil then
+			rosterString = rosterString .. positionToName[position] .. "\n"
+			useGroupPositions = true
+		else
+			rosterString = rosterString .. "\n"
+		end
 	end
+
+	if useGroupPositions then
+		-- We already have the list except for the unassigned players
+		for name, position in pairs(RIC.db.realm.RosterList) do
+			if position == 0 then
+				rosterString = rosterString .. name .. "\n"
+			end
+		end
+	else
+		-- Don't use group positions at all - in this case, put single separator in the beginning, then normal dump
+		if hashLength(RIC.db.realm.RosterList) > 0 then
+			rosterString = "\n"
+			for name, _ in pairs(RIC.db.realm.RosterList) do
+				rosterString = rosterString .. name .. "\n"
+			end
+		else
+			rosterString = ""
+		end
+	end
+
 	return rosterString
 end
 
@@ -211,18 +239,30 @@ function RIC_Roster_Browser.importRoster(rosterString)
 	swapString = gsub(swapString, " ", "\n")
 	local parsedList = { strsplit("\n", swapString) }
 
+	-- Determine whether list is unordered (ONE separator in beginning) or not
+	local useGroupPositions = true
+	if (#parsedList > 1) -- We immediately encounter ONE separator - this means group positions are NOT used at all!
+			and (string.utf8len(trim_special_chars(parsedList[1])) == 0)
+			and (string.utf8len(trim_special_chars(parsedList[2])) > 0) then
+				print("DONT USE GROUP POSITIONS")
+				useGroupPositions = false
+	end
 	-- Parse names one by one, add to temp list
 	local newList = {}
 	local skippedNames = ""
 	local fixedNames = ""
-	for _, val in ipairs(parsedList) do
+	for i, val in ipairs(parsedList) do
 		local name = trim_special_chars(val)
 		if name ~= val then
 			-- We removed special chars from the input in hopes of fixing the char name - notify user!
 			fixedNames = fixedNames .. val .. " -> " .. name .. "\n"
 		end
 		if string.utf8len(name) > 1 and string.utf8len(name) < 13 then -- Char names in WoW need to be between 2 and 12 (inclusive) chars long
-			newList[name] = 1
+			if i <= 40 and useGroupPositions then -- Use group positions for first 40 raiders?
+				newList[name] = i
+			else
+				newList[name] = 0
+			end
 		else
 			if string.utf8len(name) > 0 then -- Add to list of skipped names if they are faulty and are non empty
 				skippedNames = skippedNames .. val .. "\n"
@@ -249,6 +289,9 @@ function RIC_Roster_Browser.importRoster(rosterString)
 
 	-- Update roster view
 	RIC_Roster_Browser.buildRosterRaidList()
+
+	-- Update groups view
+	RIC_Group_Manager.draw()
 end
 
 function RIC_Roster_Browser.updateOffset(val)
@@ -326,7 +369,7 @@ function RIC_Roster_Browser.sendInvites()
 		local guildMembers = RIC_Guild_Manager.getGuildMembers() -- Retrieve this so invite function can check if people are online
 
 		-- Go through roster list, invite players not yet in raid, update invite status
-		for name,present in pairs(RIC.db.realm.RosterList) do
+		for name,_ in pairs(RIC.db.realm.RosterList) do
 			-- Check if already in raid group
 			if raidMembers[name] == nil then
 				-- If not in raid group, check if we already invited that person or not
@@ -685,8 +728,8 @@ function RIC_Roster_Browser.addSelectedToRoster()
 		-- Show player entry popup window
 		StaticPopup_Show("ROSTER_PLAYER_ENTRY")
 	else -- Add selected people to roster. Some might already be in the roster, but that's fine
-		for name,present in pairs(selectedList) do
-			RIC.db.realm.RosterList[name] = 1
+		for name,_ in pairs(selectedList) do
+			RIC.db.realm.RosterList[name] = 0
 		end
 	end
 
@@ -695,6 +738,9 @@ function RIC_Roster_Browser.addSelectedToRoster()
 
 	-- Update list
 	RIC_Roster_Browser.buildRosterRaidList()
+
+	-- Redraw group view to reflect change
+	RIC_Group_Manager.draw()
 end
 
 function RIC_Roster_Browser.addNameToRoster(name)
@@ -703,16 +749,18 @@ function RIC_Roster_Browser.addNameToRoster(name)
 	trimmed_name = trim_special_chars(trimmed_name)
 	if string.utf8len(trimmed_name) > 1 and string.utf8len(trimmed_name) < 13 then -- -- Char names in WoW need to be between 2 and 12 (inclusive) chars long
 		-- Add to roster list
-		RIC.db.realm.RosterList[trimmed_name] = 1
+		RIC.db.realm.RosterList[trimmed_name] = 0
 		-- Update list
 		RIC_Roster_Browser.buildRosterRaidList()
+		-- Redraw group view to reflect change
+		RIC_Group_Manager.draw()
 	end
 end
 
 -- Remove people from roster selected in roster browser
 function RIC_Roster_Browser.removeFromRoster()
 	if hashLength(selectedList) > 0 then
-		for name,present in pairs(selectedList) do
+		for name,_ in pairs(selectedList) do
 			RIC.db.realm.RosterList[name] = nil
 
 			-- Remove invite status info
@@ -726,6 +774,9 @@ function RIC_Roster_Browser.removeFromRoster()
 
 	-- Update data and view
 	RIC_Roster_Browser.buildRosterRaidList()
+
+	-- Redraw group view to reflect change
+	RIC_Group_Manager.draw()
 end
 
 -- Add people that were selected in guild browser (if any)
@@ -733,8 +784,22 @@ function RIC_Roster_Browser.addFromGuildBrowser(name)
 	-- Check if name is already in roster
 	if RIC.db.realm.RosterList[name] == nil then
 		-- Add to roster
-		RIC.db.realm.RosterList[name] = 1
+		RIC.db.realm.RosterList[name] = 0
+		-- Update data and view
+		RIC_Roster_Browser.buildRosterRaidList()
+		-- Redraw group view to reflect change
+		RIC_Group_Manager.draw()
 	end
+end
+
+-- Can be called by other modules to ask for a players class and invite status information
+function RIC_Roster_Browser.getPlayerInfo(name)
+	for _, val in ipairs(rosterRaidList) do
+		if val[1] == name then
+			return {classColor = getClassColor(val[2], "RGB"), rank = val[3], rankIndex = val[4], status = val[5]} -- Return class color, guild rank, invite status etc
+		end
+	end
+	return nil -- Player not found in table, return nothing
 end
 
 function RIC_Roster_Browser.sortClicked(id)

@@ -42,7 +42,7 @@ function RIC_Guild_Browser.buildGuildList()
 							 name,
 							 data["rank"],
 							 data["rankIndex"],
-							 data["color"],
+							 data["classFileName"],
 							 data["online"]
 						})
 			end
@@ -87,7 +87,7 @@ function RIC_Guild_Browser.updateListing()
 	for ci = 1, 20 do
 		local theRow = guildList[ci+guildOffset]
 		if theRow then
-			_G["RIC_GuildMemberFrameEntry"..ci.."Name"]:SetText(theRow[4] .. theRow[1])
+			_G["RIC_GuildMemberFrameEntry"..ci.."Name"]:SetText(getClassColor(theRow[4]) .. theRow[1])
 			if theRow[5] then
 				_G["RIC_GuildMemberFrameEntry"..ci.."Rank"]:SetText(theRow[2])
 			else

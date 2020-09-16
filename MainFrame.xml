@@ -595,6 +595,22 @@
 						</Scripts>
 
 					</Button>
+					<Button name="RIC_OpenGroupWindow" inherits="UIPanelButtonTemplate" text="Manage groups">
+						<Size>
+							<AbsDimension x="121" y="25" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+								<Offset x="263" y="-350" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								RIC.groups:Show()
+							</OnClick>
+						</Scripts>
+
+					</Button>
 
 					-- View filter buttons
 					<CheckButton name="RIC_ReadyBox" inherits="UICheckButtonTemplate" text="">

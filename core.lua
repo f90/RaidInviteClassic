@@ -1,7 +1,10 @@
 -- Author      : Daniel Stoller
 
-RIC = LibStub("AceAddon-3.0"):NewAddon("Raid Invite Classic", "AceConsole-3.0", "AceEvent-3.0")
+RIC = LibStub("AceAddon-3.0"):NewAddon("Raid Invite Classic", "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceHook-3.0", "AceSerializer-3.0")
 L = LibStub("AceLocale-3.0"):GetLocale("Raid Invite Classic")
+local AceGUI = LibStub("AceGUI-3.0")
+local LSM = LibStub("LibSharedMedia-3.0")
+local DEFAULT_FONT = LSM.MediaTable.font[LSM:GetDefault('font')]
 
 function RIC:OnInitialize()
     -- Called when the addon is loaded
@@ -10,6 +13,10 @@ function RIC:OnInitialize()
 	options.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db) -- Add profile managment section to options table
 	LibStub("AceConfig-3.0"):RegisterOptionsTable("Raid Invite Classic", options) -- Create config menu
 	self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Raid Invite Classic") -- Add config menu to Blizzard options
+
+	-- Add console command listener
+	self:RegisterChatCommand("ric", "processConsoleCommand")
+	self:RegisterChatCommand("raidinviteclassic", "processConsoleCommand")
 end
 
 function RIC:processConsoleCommand(cmd)
@@ -55,9 +62,10 @@ function RIC:OnEnable() -- Called when the addon is enabled
 	self:RegisterEvent("PARTY_LEADER_CHANGED") -- To stop invite phase if we give away group/raid lead
 	self:RegisterEvent("PLAYER_LOGOUT") -- To properly end invite phase (with announcement) when player logs out/exits/reloads UI since invite phase is reset
 
-	-- Add console command listener
-	self:RegisterChatCommand("ric", "processConsoleCommand")
-	self:RegisterChatCommand("raidinviteclassic", "processConsoleCommand")
+	self:RegisterEvent("GROUP_ROSTER_UPDATE", function() RIC_Group_Manager.OnRosterUpdate() end)
+	self:RegisterEvent("PLAYER_REGEN_DISABLED", function() RIC_Group_Manager.CheckArrangable(true) end)
+	self:RegisterEvent("PLAYER_REGEN_ENABLED", function() RIC_Group_Manager.CheckArrangable(false) end)
+	self:RegisterComm("ricroster")
 
 	-- Regularly call internal update function
 	C_Timer.NewTicker(RIC_UpdateInterval, RIC_OnUpdate)
@@ -180,6 +188,117 @@ function RIC:OnEnable() -- Called when the addon is enabled
 	-- Update table views
 	RIC_Guild_Browser.buildGuildList()
 	RIC_Roster_Browser.buildRosterRaidList()
+
+	-- CREATE GROUP ASSIGNMENT FUNCTIONALITY!
+
+	self.groups = AceGUI:Create("Window")
+	self.groups:Hide()
+	self.groups:EnableResize(false)
+	self.groups:SetTitle("Group assignments")
+	self.groups:SetLayout("Flow")
+	_G["GroupFrame"] = self.groups.frame
+	table.insert(UISpecialFrames, "GroupFrame")
+	self:HookScript(self.groups.frame, "OnShow", function() RIC_Group_Manager.draw() end)
+
+	self.playerBank = AceGUI:Create("InlineGroup")
+	self.playerBank:SetWidth(200)
+	self.playerBank:SetTitle("Unassigned roster players")
+	self.playerBank:SetLayout("Fill")
+	self.playerBank.scroll = AceGUI:Create("ScrollFrame")
+	self.playerBank.scroll:SetLayout("Flow")
+	self.playerBank.scroll.playerLabels = {}
+	self.playerBank:AddChild(self.playerBank.scroll)
+
+	-- Raid overview, group-wise
+	self.raidView = AceGUI:Create("InlineGroup")
+	self.raidView:SetWidth(200)
+	self.raidView:SetTitle("Raid overview")
+	self.raidView:SetLayout("Fill")
+
+	-- Init player labels
+	self.raidPlayerLabels = {}
+	local raidGroups = {}
+	for row = 1, 8 do
+		local raidGroup = AceGUI:Create("InlineGroup")
+		raidGroup:SetWidth(160)
+		raidGroup:SetTitle("Group " .. row)
+		raidGroup.titletext:SetJustifyH("CENTER")
+		self.raidPlayerLabels[row] = {}
+		for col = 1, 5 do
+			self.raidPlayerLabels[row][col] = AceGUI:Create("InteractiveLabel")
+			local label = self.raidPlayerLabels[row][col]
+			label:SetFont(DEFAULT_FONT, 12)
+			label:SetJustifyH("CENTER")
+			label.row = row
+			label.col = col
+			label:SetWidth(161)
+			label:SetHeight(20)
+			label:SetText("Empty")
+			label.label:SetTextColor(0.35, 0.35, 0.35)
+			RIC_Group_Manager.assignLabelFunctionality(label)
+			raidGroup:AddChild(label)
+		end
+		AceGUI:RegisterLayout("RaidGroupLayout" .. row, function()
+			for col = 1, 5 do
+				local label = self.raidPlayerLabels[row][col]
+				label:ClearAllPoints()
+				label:SetPoint("TOPLEFT", raidGroup.frame, "TOPLEFT", 0, -1 * ((col - 1) * label.frame:GetHeight() + raidGroup.titletext:GetHeight() + 5 * (col - 1) + 4))
+			end
+			raidGroup:SetHeight(self.raidPlayerLabels[row][1].frame:GetHeight() * 5 + raidGroup.titletext:GetHeight() + 34)
+		end)
+		raidGroup:SetLayout("RaidGroupLayout" .. row)
+		raidGroup:DoLayout()
+
+		self.playerBank:AddChild(raidGroup)
+		table.insert(raidGroups, raidGroup)
+	end
+
+	self.unassignAll = AceGUI:Create("Button")
+	self.unassignAll:SetText("Unassign all players")
+	self.unassignAll.textColor = {}
+	self.unassignAll.textColor.r = r
+	self.unassignAll.textColor.g = g
+	self.unassignAll.textColor.b = b
+	self.unassignAll:SetCallback("OnClick", function() RIC_Group_Manager.unassignAll() end)
+
+	self.rearrangeRaid = AceGUI:Create("Button")
+	self.rearrangeRaid:SetText("REARRANGE RAID")
+	self.rearrangeRaid.textColor = {}
+	self.rearrangeRaid.textColor.r = r
+	self.rearrangeRaid.textColor.g = g
+	self.rearrangeRaid.textColor.b = b
+	self.rearrangeRaid:SetCallback("OnClick", function() RIC_Group_Manager.RearrangeRaid() end)
+
+	AceGUI:RegisterLayout("MainLayout", function()
+		self.playerBank:SetPoint("TOPLEFT", self.groups.frame, "TOPLEFT", 10, -28)
+		self.playerBank:SetHeight(raidGroups[1].frame:GetHeight() * 4)
+
+		self.groups:SetWidth(544)
+		self.groups:SetHeight(520)
+		raidGroups[1]:SetPoint("TOPLEFT", self.playerBank.frame, "TOPRIGHT", 2, 0)
+		raidGroups[2]:SetPoint("TOPLEFT", raidGroups[1].frame, "TOPRIGHT", 2, 0)
+		raidGroups[3]:SetPoint("TOPLEFT", raidGroups[1].frame, "BOTTOMLEFT", 0, 0)
+		raidGroups[4]:SetPoint("TOPLEFT", raidGroups[3].frame, "TOPRIGHT", 2, 0)
+		raidGroups[5]:SetPoint("TOPLEFT", raidGroups[3].frame, "BOTTOMLEFT", 0, 0)
+		raidGroups[6]:SetPoint("TOPLEFT", raidGroups[5].frame, "TOPRIGHT", 2, 0)
+		raidGroups[7]:SetPoint("TOPLEFT", raidGroups[5].frame, "BOTTOMLEFT", 0, 0)
+		raidGroups[8]:SetPoint("TOPLEFT", raidGroups[7].frame, "TOPRIGHT", 2, 0)
+
+		self.unassignAll:SetPoint("TOPLEFT", self.playerBank.frame, "BOTTOMLEFT", 0, -7)
+		self.unassignAll:SetWidth(self.playerBank.frame:GetWidth())
+
+		self.rearrangeRaid:SetPoint("TOPLEFT", raidGroups[7].frame, "BOTTOMLEFT", 0, -7)
+		self.rearrangeRaid:SetWidth(raidGroups[7].frame:GetWidth() * 2 + 2)
+	end)
+
+	self.groups:AddChild(self.playerBank)
+	self.groups:AddChild(self.rearrangeRaid)
+	self.groups:AddChild(self.unassignAll)
+
+	self.groups:SetLayout("MainLayout")
+	self.groups:DoLayout()
+
+	RIC_Group_Manager.OnRosterUpdate()
 end
 
 function RIC:OnDisable()
