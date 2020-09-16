@@ -20,10 +20,12 @@ minimap.lua
 guildbrowser.lua
 guildmanager.lua
 rosterbrowser.lua
+rostermanager.lua
 codewords.lua
 utils.lua
 durability.lua
 chatfilter.lua
 groupassigns.lua
+comms.lua
 
 MainFrame.xml

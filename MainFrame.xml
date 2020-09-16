@@ -503,13 +503,28 @@
 						</Backdrop>
 					</Frame>
 
-					<Button name="RIC_ImportList" inherits="UIPanelButtonTemplate" text="Import List">
+					<Button name="RIC_ManageRosters" inherits="UIPanelButtonTemplate" text="Manage rosters">
 						<Size>
 							<AbsDimension x="121" y="20" />
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
 								<Offset x="263" y="-30" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								RIC.rosters:Show()
+							</OnClick>
+						</Scripts>
+					</Button>
+					<Button name="RIC_ImportList" inherits="UIPanelButtonTemplate" text="Import List">
+						<Size>
+							<AbsDimension x="121" y="20" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+								<Offset x="263" y="-51" />
 							</Anchor>
 						</Anchors>
 						<Scripts>
@@ -525,7 +540,7 @@
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="263" y="-51" />
+								<Offset x="263" y="-72" />
 							</Anchor>
 						</Anchors>
 						<Scripts>
@@ -540,7 +555,7 @@
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="263" y="-72" />
+								<Offset x="263" y="-93" />
 							</Anchor>
 						</Anchors>
 						<Scripts>
@@ -555,7 +570,7 @@
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="263" y="-93" />
+								<Offset x="263" y="-114" />
 							</Anchor>
 						</Anchors>
 						<Scripts>
@@ -570,7 +585,7 @@
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="324" y="-93" />
+								<Offset x="324" y="-114" />
 							</Anchor>
 						</Anchors>
 						<Scripts>
@@ -595,7 +610,7 @@
 						</Scripts>
 
 					</Button>
-					<Button name="RIC_OpenGroupWindow" inherits="UIPanelButtonTemplate" text="Manage groups">
+					<Button name="RIC_OpenGroupWindow" inherits="UIPanelButtonTemplate" text="View groups">
 						<Size>
 							<AbsDimension x="121" y="25" />
 						</Size>

@@ -5,6 +5,7 @@ RIC_Version = "1.3.4"
 -- MODULES
 RIC_Guild_Browser = {}
 RIC_Roster_Browser = {}
+RIC_Roster_Manager = {}
 RIC_Codewords_Handler = {}
 RIC_Guild_Manager = {}
 RIC_Durability_Manager = {}

@@ -3,7 +3,6 @@ local LD = LibStub("LibDeflate")
 local LSM = LibStub("LibSharedMedia-3.0")
 local DEFAULT_FONT = LSM.MediaTable.font[LSM:GetDefault('font')]
 
-local shouldPrint = false
 local inSwap = false
 local remoteInSwap = false
 local swapCounter = 0
@@ -11,9 +10,121 @@ local swapCounter = 0
 local isDraggingLabel = false
 local shouldUpdatePlayerBank = false
 
+function RIC:OnEnableGroupview()
+	-- CREATE GROUP ASSIGNMENT FUNCTIONALITY!
+	self.groups = AceGUI:Create("Window")
+	self.groups:Hide()
+	self.groups:EnableResize(false)
+	self.groups:SetTitle("Group assignments")
+	self.groups:SetLayout("Flow")
+	_G["GroupFrame"] = self.groups.frame
+	table.insert(UISpecialFrames, "GroupFrame")
+	self:HookScript(self.groups.frame, "OnShow", function() RIC_Group_Manager.draw() end)
+
+	self.playerBank = AceGUI:Create("InlineGroup")
+	self.playerBank:SetWidth(200)
+	self.playerBank:SetTitle("Unassigned roster players")
+	self.playerBank:SetLayout("Fill")
+	self.playerBank.scroll = AceGUI:Create("ScrollFrame")
+	self.playerBank.scroll:SetLayout("Flow")
+	self.playerBank.scroll.playerLabels = {}
+	self.playerBank:AddChild(self.playerBank.scroll)
+
+	-- Raid overview, group-wise
+	self.raidView = AceGUI:Create("InlineGroup")
+	self.raidView:SetWidth(200)
+	self.raidView:SetTitle("Raid overview")
+	self.raidView:SetLayout("Fill")
+
+	-- Init player labels
+	self.raidPlayerLabels = {}
+	local raidGroups = {}
+	for row = 1, 8 do
+		local raidGroup = AceGUI:Create("InlineGroup")
+		raidGroup:SetWidth(160)
+		raidGroup:SetTitle("Group " .. row)
+		raidGroup.titletext:SetJustifyH("CENTER")
+		self.raidPlayerLabels[row] = {}
+		for col = 1, 5 do
+			self.raidPlayerLabels[row][col] = AceGUI:Create("InteractiveLabel")
+			local label = self.raidPlayerLabels[row][col]
+			label:SetFont(DEFAULT_FONT, 12)
+			label:SetJustifyH("CENTER")
+			label.row = row
+			label.col = col
+			label:SetWidth(161)
+			label:SetHeight(20)
+			label:SetText("Empty")
+			label.label:SetTextColor(0.35, 0.35, 0.35)
+			RIC_Group_Manager.assignLabelFunctionality(label)
+			raidGroup:AddChild(label)
+		end
+		AceGUI:RegisterLayout("RaidGroupLayout" .. row, function()
+			for col = 1, 5 do
+				local label = self.raidPlayerLabels[row][col]
+				label:ClearAllPoints()
+				label:SetPoint("TOPLEFT", raidGroup.frame, "TOPLEFT", 0, -1 * ((col - 1) * label.frame:GetHeight() + raidGroup.titletext:GetHeight() + 5 * (col - 1) + 4))
+			end
+			raidGroup:SetHeight(self.raidPlayerLabels[row][1].frame:GetHeight() * 5 + raidGroup.titletext:GetHeight() + 34)
+		end)
+		raidGroup:SetLayout("RaidGroupLayout" .. row)
+		raidGroup:DoLayout()
+
+		self.playerBank:AddChild(raidGroup)
+		table.insert(raidGroups, raidGroup)
+	end
+
+	self.unassignAll = AceGUI:Create("Button")
+	self.unassignAll:SetText("Unassign all players")
+	self.unassignAll.textColor = {}
+	self.unassignAll.textColor.r = r
+	self.unassignAll.textColor.g = g
+	self.unassignAll.textColor.b = b
+	self.unassignAll:SetCallback("OnClick", function() RIC_Group_Manager.unassignAll() end)
+
+	self.rearrangeRaid = AceGUI:Create("Button")
+	self.rearrangeRaid:SetText("REARRANGE RAID")
+	self.rearrangeRaid.textColor = {}
+	self.rearrangeRaid.textColor.r = r
+	self.rearrangeRaid.textColor.g = g
+	self.rearrangeRaid.textColor.b = b
+	self.rearrangeRaid:SetCallback("OnClick", function() RIC_Group_Manager.RearrangeRaid() end)
+
+	AceGUI:RegisterLayout("GroupLayout", function()
+		self.playerBank:SetPoint("TOPLEFT", self.groups.frame, "TOPLEFT", 10, -28)
+		self.playerBank:SetHeight(raidGroups[1].frame:GetHeight() * 4)
+
+		self.groups:SetWidth(544)
+		self.groups:SetHeight(520)
+		raidGroups[1]:SetPoint("TOPLEFT", self.playerBank.frame, "TOPRIGHT", 2, 0)
+		raidGroups[2]:SetPoint("TOPLEFT", raidGroups[1].frame, "TOPRIGHT", 2, 0)
+		raidGroups[3]:SetPoint("TOPLEFT", raidGroups[1].frame, "BOTTOMLEFT", 0, 0)
+		raidGroups[4]:SetPoint("TOPLEFT", raidGroups[3].frame, "TOPRIGHT", 2, 0)
+		raidGroups[5]:SetPoint("TOPLEFT", raidGroups[3].frame, "BOTTOMLEFT", 0, 0)
+		raidGroups[6]:SetPoint("TOPLEFT", raidGroups[5].frame, "TOPRIGHT", 2, 0)
+		raidGroups[7]:SetPoint("TOPLEFT", raidGroups[5].frame, "BOTTOMLEFT", 0, 0)
+		raidGroups[8]:SetPoint("TOPLEFT", raidGroups[7].frame, "TOPRIGHT", 2, 0)
+
+		self.unassignAll:SetPoint("TOPLEFT", self.playerBank.frame, "BOTTOMLEFT", 0, -7)
+		self.unassignAll:SetWidth(self.playerBank.frame:GetWidth())
+
+		self.rearrangeRaid:SetPoint("TOPLEFT", raidGroups[7].frame, "BOTTOMLEFT", 0, -7)
+		self.rearrangeRaid:SetWidth(raidGroups[7].frame:GetWidth() * 2 + 2)
+	end)
+
+	self.groups:AddChild(self.playerBank)
+	self.groups:AddChild(self.rearrangeRaid)
+	self.groups:AddChild(self.unassignAll)
+
+	self.groups:SetLayout("GroupLayout")
+	self.groups:DoLayout()
+
+	RIC_Group_Manager.OnRosterUpdate()
+end
+
 function RIC_Group_Manager.flattenGroups()
 	local groupNames = {}
-	for name, position in pairs(RIC.db.realm.RosterList) do
+	for name, position in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 		if position > 0 then
 			local row = math.ceil(position/5)
 			if groupNames[row] == nil then
@@ -25,7 +136,7 @@ function RIC_Group_Manager.flattenGroups()
 	for row=1,8 do
 		if groupNames[row] ~= nil then
 			for col, name in ipairs(groupNames[row]) do
-				RIC.db.realm.RosterList[name] = (row-1)*5 + col
+				RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] = (row-1)*5 + col
 			end
 		end
 	end
@@ -109,24 +220,24 @@ end
 function RIC_Group_Manager.setGroupPosition(name, position)
 	-- Position is zero => Simply put player on bank, no replacement
 	if position == 0 then
-		RIC.db.realm.RosterList[name] = 0
+		RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] = 0
 	else
 		-- Put this character on a certain spot in the raid. Check whether this spot was filled. In that case, swap!
-		for currName, currPos in pairs(RIC.db.realm.RosterList) do
+		for currName, currPos in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 			if currPos == position then
 				-- Set position of old person to the one that will be freed now
-				RIC.db.realm.RosterList[currName] = RIC.db.realm.RosterList[name]
+				RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][currName] = RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name]
 				break
 			end
 		end
-		RIC.db.realm.RosterList[name] = position
+		RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] = position
 	end
 	-- Finally, compress groups
 	RIC_Group_Manager.flattenGroups()
 end
 
 function RIC_Group_Manager.drawAllLabels()
-	local filledPositions = reverseMap(RIC.db.realm.RosterList)
+	local filledPositions = reverseMap(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster])
 	for row = 1, 8 do
 		for col = 1, 5 do
 			RIC_Group_Manager.SetLabel(RIC.raidPlayerLabels[row][col], filledPositions[(row-1)*5 + col])
@@ -142,8 +253,7 @@ function RIC_Group_Manager.showPlayerBank()
 	end
 
 	local index = 0
-	for name, val in pairs(RIC.db.realm.RosterList) do
-		print(name, val)
+	for name, val in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 		if val == 0 then
 			index = index + 1
 			local playerLabel
@@ -219,7 +329,6 @@ function RIC_Group_Manager.showPlayerBank()
 		end
 	end
 
-	print(#RIC.playerBank.scroll.playerLabels)
 	while index < #RIC.playerBank.scroll.playerLabels do
 		index = index + 1
 		RIC.playerBank.scroll.playerLabels[index].name = nil
@@ -232,22 +341,22 @@ function RIC_Group_Manager.showPlayerBank()
 end
 
 function RIC_Group_Manager.unassignAll()
-	for name, _ in pairs(RIC.db.realm.RosterList) do
-		RIC.db.realm.RosterList[name] = 0
+	for name, _ in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
+		RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] = 0
 	end
 	RIC_Group_Manager.draw()
 end
 
 function RIC_Group_Manager.DoSwap()
 	if swapCounter > 40 then
-		print("|cFFFF0000ERROR: Something went wrong, we are still stuck rearranging after 40 swaps. Terminating...|r")
+		RIC:Print("|cFFFF0000ERROR: Something went wrong, we are still stuck rearranging after 40 swaps. Terminating...|r")
 		RIC_Group_Manager.StopSwap()
 		return
 	end
 
 	local errorMessage = RIC_Group_Manager.CheckArrangable()
 	if errorMessage then
-		print("|cFFFF0000ERROR: " .. errorMessage .. "|r")
+		RIC:Print("|cFFFF0000ERROR: " .. errorMessage .. "|r")
 		RIC_Group_Manager.StopSwap()
 		return
 	end
@@ -257,7 +366,7 @@ function RIC_Group_Manager.DoSwap()
 
 	local raidPlayers = getRaidMembers()
 	-- Go through roster list and check which people are in the raid but not in the right group
-	for name, targetPosition in pairs(RIC.db.realm.RosterList) do
+	for name, targetPosition in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 		if raidPlayers[name] ~= nil then -- If player is not in raid, we ignore that player
 			local currGroup = raidPlayers[name].subgroup
 			local targetGroup = math.ceil(targetPosition/5)
@@ -267,7 +376,7 @@ function RIC_Group_Manager.DoSwap()
 				local targetGroupSize = 0
 				for otherName, otherData in pairs(raidPlayers) do
 					if otherData["subgroup"] == targetGroup then -- Potential swap partner?
-						local otherTargetPosition = RIC.db.realm.RosterList[otherName]
+						local otherTargetPosition = RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][otherName]
 						targetGroupSize = targetGroupSize + 1
 						if otherTargetPosition ~= nil then
 							-- Swap candidate is also on the roster
@@ -286,21 +395,23 @@ function RIC_Group_Manager.DoSwap()
 				-- We have the priority for all swap candidates, now choose the best action
 				table.sort(targetGroupPlayersPrio, function(a,b) return a[1] < b[1] end)
 				if #targetGroupPlayersPrio > 0 and targetGroupPlayersPrio[1][1] == 1 then
-					print("PRIO 1: Swapping " .. name .. " with " .. targetGroupPlayersPrio[1][2]["name"])
+					--print("PRIO 1: Swapping " .. name .. " with " .. targetGroupPlayersPrio[1][2]["name"])
 					SwapRaidSubgroup(raidPlayers[name]["index"], targetGroupPlayersPrio[1][2]["index"])
 					swapCounter = swapCounter + 1
 					return
 				elseif targetGroupSize < 5 then -- Empty space in target group!
-					print("PRIO 2: Putting " .. name .. " into empty slot in group " .. tostring(targetGroup))
+					--print("PRIO 2: Putting " .. name .. " into empty slot in group " .. tostring(targetGroup))
 					SetRaidSubgroup(raidPlayers[name]["index"], targetGroup)
 					swapCounter = swapCounter + 1
 					return
 				elseif #targetGroupPlayersPrio > 0 and targetGroupPlayersPrio[1][1] == 3 then
-					print("PRIO 3: Swapping " .. name .. " with " .. targetGroupPlayersPrio[1][2]["name"])
+					--print("PRIO 3: Swapping " .. name .. " with " .. targetGroupPlayersPrio[1][2]["name"])
+					SwapRaidSubgroup(raidPlayers[name]["index"], targetGroupPlayersPrio[1][2]["index"])
 					swapCounter = swapCounter + 1
 					return
 				elseif #targetGroupPlayersPrio > 0 and targetGroupPlayersPrio[1][1] == 4 then
-					print("PRIO 4: Swapping " .. name .. " with non-roster player " .. targetGroupPlayersPrio[1][2]["name"])
+					--print("PRIO 4: Swapping " .. name .. " with non-roster player " .. targetGroupPlayersPrio[1][2]["name"])
+					SwapRaidSubgroup(raidPlayers[name]["index"], targetGroupPlayersPrio[1][2]["index"])
 					swapCounter = swapCounter + 1
 					return
 				end
@@ -316,10 +427,6 @@ function RIC_Group_Manager.StopSwap()
 	swapCounter = 0
 	RIC_Group_Manager.SendEndProgress()
 	RIC_Group_Manager.flattenGroups()
-	if shouldPrint then
-		print("DONE!")
-		shouldPrint = false
-	end
 end
 
 function RIC_Group_Manager.OnRosterUpdate()
@@ -378,58 +485,22 @@ function RIC_Group_Manager.SendInProgress()
 	local message = {
 		key = "SWAP_IN_PROGRESS",
 	}
-	RIC_Group_Manager.SendComm(message)
+	SendComm(message)
 end
 
 function RIC_Group_Manager.SendEndProgress()
 	local message = {
 		key = "SWAP_END",
 	}
-	RIC_Group_Manager.SendComm(message)
+	SendComm(message)
 end
 
-function RIC_Group_Manager.SendComm(message)
-	local messageSerialized = LD:EncodeForWoWAddonChannel(LD:CompressDeflate(RIC:Serialize(message)))
-	RIC:SendCommMessage("ricroster", messageSerialized, "RAID")
+function RIC_Group_Manager.ReceiveInProgress(sender)
+	remoteInSwap = true
+	RIC_Group_Manager.SetUnarrangable("REARRANGEMENT IN PROGRESS BY " .. sender)
 end
 
-function RIC:OnCommReceived(prefix, message, distribution, sender)
-	if prefix ~= "ricroster" or sender == UnitName("player") or not message then
-		return
-	end
-
-	local decoded = LD:DecodeForWoWAddonChannel(message)
-	if not decoded then
-		print("Could not decode addon message. Sender needs to update to the latest version of cleangroupassigns!")
-		return
-	end
-	local decompressed = LD:DecompressDeflate(decoded)
-	if not decompressed then
-		print("Failed to decompress addon message. Sender needs to update to the latest version of cleangroupassigns!")
-		return
-	end
-
-	local didDeserialize, message = RIC:Deserialize(decompressed)
-	if not didDeserialize then
-		print("Failed to deserialize sync: " .. message)
-		return
-	end
-
-	local key = message["key"]
-	if not key then
-		print("Failed to parse deserialized comm.")
-		return
-	end
-
-	if key == "SWAP_IN_PROGRESS" then
-		remoteInSwap = true
-		RIC_Group_Manager.SetUnarrangable("REARRANGEMENT IN PROGRESS BY " .. sender)
-		return
-	end
-
-	if key == "SWAP_END" then
-		remoteInSwap = false
-		RIC_Group_Manager.CheckArrangable()
-		return
-	end
+function RIC_Group_Manager.ReceiveEndProgress()
+	remoteInSwap = false
+	RIC_Group_Manager.CheckArrangable()
 end

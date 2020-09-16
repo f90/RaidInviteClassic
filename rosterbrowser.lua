@@ -54,7 +54,7 @@ function RIC_Roster_Browser.buildRosterRaidList()
 		inRaid[name] = 1
 
 		-- filter based on view selection
-		local status = getStatusSymbol(true, (RIC.db.realm.RosterList[name] ~= nil), data["online"], inviteStatusList[name])
+		local status = getStatusSymbol(true, (RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] ~= nil), data["online"], inviteStatusList[name])
 		if RIC_Roster_Browser.showStatusSymbol(status) then
 			table.insert(rosterRaidList, {
 				name,
@@ -67,7 +67,7 @@ function RIC_Roster_Browser.buildRosterRaidList()
 	end
 
 	-- Add all people on RosterList to the overall list, if they are not in raid. If possible, check their data in guild
-	for name,_ in pairs(RIC.db.realm.RosterList) do
+	for name,_ in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 		if inRaid[name] == nil then -- Only process people NOT in raid right now
 			if guildMembers[name] == nil then -- Person is not in guild
 				local status = getStatusSymbol(false, true, nil, inviteStatusList[name]) -- We dont know online status of non-raid non-guild members
@@ -105,7 +105,7 @@ function RIC_Roster_Browser.buildRosterRaidList()
 	selectedList = newSelectedList
 
 	-- Show current roster size as text
-	_G["RIC_RosterNumberText"]:SetText("Roster: " .. hashLength(RIC.db.realm.RosterList))
+	_G["RIC_RosterNumberText"]:SetText("Roster: " .. hashLength(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]))
 
 	-- Set up sliders
 	if #rosterRaidList > 20 then
@@ -198,7 +198,7 @@ end
 -- Generates a list of names based on current roster list
 function RIC_Roster_Browser.generateRosterList()
 	-- Determine whether ANY players are assigned to a specific group/position
-	local positionToName = reverseMap(RIC.db.realm.RosterList)
+	local positionToName = reverseMap(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster])
 	local rosterString = ""
 	local useGroupPositions = false
 	for position=1,40 do
@@ -212,16 +212,16 @@ function RIC_Roster_Browser.generateRosterList()
 
 	if useGroupPositions then
 		-- We already have the list except for the unassigned players
-		for name, position in pairs(RIC.db.realm.RosterList) do
+		for name, position in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 			if position == 0 then
 				rosterString = rosterString .. name .. "\n"
 			end
 		end
 	else
 		-- Don't use group positions at all - in this case, put single separator in the beginning, then normal dump
-		if hashLength(RIC.db.realm.RosterList) > 0 then
+		if hashLength(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) > 0 then
 			rosterString = "\n"
-			for name, _ in pairs(RIC.db.realm.RosterList) do
+			for name, _ in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 				rosterString = rosterString .. name .. "\n"
 			end
 		else
@@ -284,7 +284,7 @@ function RIC_Roster_Browser.importRoster(rosterString)
 
 	-- If we have a non-empty list, we parsed successfully: Overwrite current roster list
 	if hashLength(newList) > 0 then
-		RIC.db.realm.RosterList = newList
+		RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster] = newList
 	end
 
 	-- Update roster view
@@ -369,7 +369,7 @@ function RIC_Roster_Browser.sendInvites()
 		local guildMembers = RIC_Guild_Manager.getGuildMembers() -- Retrieve this so invite function can check if people are online
 
 		-- Go through roster list, invite players not yet in raid, update invite status
-		for name,_ in pairs(RIC.db.realm.RosterList) do
+		for name,_ in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 			-- Check if already in raid group
 			if raidMembers[name] == nil then
 				-- If not in raid group, check if we already invited that person or not
@@ -417,7 +417,7 @@ function RIC_Roster_Browser.inviteWhisper(author, msg)
 	end
 
 	-- Check if author is in rosterList, otherwise deny request (send whisper back to person)
-	if RIC.db.profile.RosterWhispersOnly and (RIC.db.realm.RosterList[author] == nil) then
+	if RIC.db.profile.RosterWhispersOnly and (RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][author] == nil) then
 		SendChatMessageRIC(L["Codewords_Not_In_Roster"], "WHISPER", nil, author)
 		return
 	end
@@ -729,7 +729,7 @@ function RIC_Roster_Browser.addSelectedToRoster()
 		StaticPopup_Show("ROSTER_PLAYER_ENTRY")
 	else -- Add selected people to roster. Some might already be in the roster, but that's fine
 		for name,_ in pairs(selectedList) do
-			RIC.db.realm.RosterList[name] = 0
+			RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] = 0
 		end
 	end
 
@@ -749,7 +749,7 @@ function RIC_Roster_Browser.addNameToRoster(name)
 	trimmed_name = trim_special_chars(trimmed_name)
 	if string.utf8len(trimmed_name) > 1 and string.utf8len(trimmed_name) < 13 then -- -- Char names in WoW need to be between 2 and 12 (inclusive) chars long
 		-- Add to roster list
-		RIC.db.realm.RosterList[trimmed_name] = 0
+		RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][trimmed_name] = 0
 		-- Update list
 		RIC_Roster_Browser.buildRosterRaidList()
 		-- Redraw group view to reflect change
@@ -761,7 +761,7 @@ end
 function RIC_Roster_Browser.removeFromRoster()
 	if hashLength(selectedList) > 0 then
 		for name,_ in pairs(selectedList) do
-			RIC.db.realm.RosterList[name] = nil
+			RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] = nil
 
 			-- Remove invite status info
 			inviteStatusList[name] = nil
@@ -782,9 +782,9 @@ end
 -- Add people that were selected in guild browser (if any)
 function RIC_Roster_Browser.addFromGuildBrowser(name)
 	-- Check if name is already in roster
-	if RIC.db.realm.RosterList[name] == nil then
+	if RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] == nil then
 		-- Add to roster
-		RIC.db.realm.RosterList[name] = 0
+		RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] = 0
 		-- Update data and view
 		RIC_Roster_Browser.buildRosterRaidList()
 		-- Redraw group view to reflect change
@@ -799,6 +799,7 @@ function RIC_Roster_Browser.getPlayerInfo(name)
 			return {classColor = getClassColor(val[2], "RGB"), rank = val[3], rankIndex = val[4], status = val[5]} -- Return class color, guild rank, invite status etc
 		end
 	end
+	warningMsg("COULD NOT FIND " .. name .. " IN ROSTERRAIDLIST")
 	return nil -- Player not found in table, return nothing
 end
 
