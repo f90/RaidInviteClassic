@@ -32,7 +32,9 @@ function RIC:processConsoleCommand(cmd)
 	elseif cmd == "hide" then
 		RIC_MainFrame:Hide()
 	elseif cmd == "reset" then
-		RIC_MainFrame:SetPoint("CENTER", "UIParent", "CENTER", 0, 0)
+		RIC_MainFrame:SetPoint("CENTER", "UIParent", "CENTER", 0, 0) --TODO this doesnt really work as expected?
+		RIC.groups.frame:SetPoint("CENTER", "UIParent", "CENTER", 0, 0)
+		RIC.rosters.frame:SetPoint("CENTER", "UIParent", "CENTER", 0, 0)
 		RIC.db.profile.MainFrameScale = 1
 		RIC_setScale()
 		-- Reset minimap position
@@ -180,7 +182,6 @@ function RIC:OnEnable() -- Called when the addon is enabled
 	_G["RIC_MissingBox"]:SetChecked(true)
 	_G["RIC_OtherBox"]:SetChecked(true)
 
-	RIC_MainFrame:SetScale(RIC.db.profile.MainFrameScale)
 	RIC_Codewords_Handler.updateCodeWords()
 
 	RIC_MinimapButton_Update()
@@ -192,6 +193,8 @@ function RIC:OnEnable() -- Called when the addon is enabled
 	RIC:OnEnableGroupview()
 
 	RIC:OnEnableRosterManagerView()
+
+	RIC_setScale()
 end
 
 function RIC:OnDisable()
@@ -262,6 +265,6 @@ end
 
 function RIC_setScale()
 	RIC_MainFrame:SetScale(RIC.db.profile.MainFrameScale)
-	RIC_MainFrame:Hide()
-	RIC_MainFrame:Show()
+	RIC.groups.frame:SetScale(RIC.db.profile.MainFrameScale)
+	RIC.rosters.frame:SetScale(RIC.db.profile.MainFrameScale)
 end

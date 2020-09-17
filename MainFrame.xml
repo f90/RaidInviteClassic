@@ -514,7 +514,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC.rosters:Show()
+								RIC_Roster_Manager.toggle()
 							</OnClick>
 						</Scripts>
 					</Button>

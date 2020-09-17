@@ -277,6 +277,15 @@ function RIC_Roster_Manager.confirm()
 	RIC_Group_Manager.draw()
 end
 
+function RIC_Roster_Manager.toggle()
+	if RIC.rosters:IsShown() == true then
+		RIC.rosters:Hide()
+	else
+		RIC.rosters:Show()
+		RIC_Roster_Manager.draw()
+	end
+end
+
 function RIC_Roster_Manager.requestRosters()
 	local message = {
 		key = "ASK_ROSTERS",
