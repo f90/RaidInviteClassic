@@ -215,17 +215,14 @@ function RIC_Group_Manager.assignGroupLabelFunctionality(label)
 	label.frame:SetScript("OnDragStop", function(self)
 		self:StopMovingOrSizing()
 		self:SetFrameStrata("FULLSCREEN_DIALOG")
-		local x, y = GetXY()
-		local left, top, width, height = RIC.playerBank.frame:GetRect()
-		if x >= left and x <= left + width and y >= top and y <= y + height then
+		if MouseIsOver(RIC.playerBank.frame) then
 			RIC_Group_Manager.MovedToPlayerBank(label)
 		else
 			local putToGroup = function()
 				for iRow = 1, 8 do
 					if label.row ~= iRow then
 						for iCol = 1, 5 do
-							local cLeft, cTop, cWidth, cHeight = RIC.raidPlayerLabels[iRow][iCol].frame:GetRect()
-							if x >= cLeft and x <= cLeft + cWidth and y >= cTop and y <= cTop + cHeight then
+							if MouseIsOver(RIC.raidPlayerLabels[iRow][iCol].frame) then
 								RIC_Group_Manager.setGroupPosition(label.name, (iRow-1)*5 + iCol)
 								return
 							end
@@ -315,17 +312,6 @@ function RIC_Group_Manager.showPlayerBank()
 				playerLabel.frame:RegisterForDrag("LeftButton")
 				playerLabel.frame:SetScript("OnDragStart", function(self)
 					isDraggingLabel = true
-					for row = 1, 8 do
-						for col = 1, 5 do
-							local label = RIC.raidPlayerLabels[row][col]
-							local left, top, width, height = label.frame:GetRect()
-							label.savedRect = {}
-							label.savedRect.left = left
-							label.savedRect.top = top
-							label.savedRect.width = width
-							label.savedRect.height = height
-						end
-					end
 					anchorPoint, parentFrame, relativeTo, ptX, ptY = self:GetPoint()
 					self:SetParent(RIC.groups.frame)
 					self:SetFrameStrata("TOOLTIP")
@@ -334,12 +320,11 @@ function RIC_Group_Manager.showPlayerBank()
 
 				playerLabel.frame:SetScript("OnDragStop", function(self)
 					self:StopMovingOrSizing()
-					local x, y = GetXY()
 					local putToGroup = function()
 						for row = 1, 8 do
 							for col = 1, 5 do
 								local label = RIC.raidPlayerLabels[row][col]
-								if x >= label.savedRect.left and x <= label.savedRect.left + label.savedRect.width and y >= label.savedRect.top and y <= label.savedRect.top + label.savedRect.height then
+								if MouseIsOver(label.frame) then
 									-- Found raid position where this label was moved to - setting new position!
 									RIC_Group_Manager.setGroupPosition(playerLabel.name, (row-1)*5 + col)
 									RIC_Group_Manager.showPlayerBank()

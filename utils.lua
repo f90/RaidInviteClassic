@@ -126,10 +126,12 @@ function pairsByKeys(t, f)
 	return iter
 end
 
-function GetXY()
-	local x, y = GetCursorPosition()
-	local scale = UIParent:GetEffectiveScale()
-	return x / scale, y / scale
+function MouseIsOver(frame)
+    local x, y = GetCursorPosition();
+    local s = frame:GetEffectiveScale();
+    x, y = x/s, y/s;
+    return ((x >= frame:GetLeft()) and (x <= frame:GetRight())
+          and (y >= frame:GetBottom()) and (y <= frame:GetTop()));
 end
 
 function IsRaidAssistant(player)
