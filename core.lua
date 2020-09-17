@@ -255,6 +255,9 @@ function RIC_OnUpdate()
 
 	-- Update player tooltip every few seconds while hovering over player entry in roster
 	RIC_Roster_Browser.setPlayerTooltip()
+
+	-- Update status icons in group view
+	RIC_Group_Manager.draw()
 end
 
 function RIC_setScale()

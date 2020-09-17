@@ -46,6 +46,26 @@ function getStatusSymbol(in_raid, in_roster, online, invite_status)
     end
 end
 
+function getStatusSymbolImagePath(status)
+    if status == RIC_Status["READY"] then
+        return "Interface\\AddOns\\RaidInviteClassic\\img\\checkmark"
+    elseif status == RIC_Status["EXTRA"] then
+        return "Interface\\AddOns\\RaidInviteClassic\\img\\plus"
+    elseif status == RIC_Status["NOT_INVITED"] then
+        return "Interface\\AddOns\\RaidInviteClassic\\img\\dash"
+    elseif status == RIC_Status["INVITE_PENDING"] then
+        return "Interface\\AddOns\\RaidInviteClassic\\img\\dots"
+    elseif status == RIC_Status["INVITE_FAILED"] then
+        return "Interface\\AddOns\\RaidInviteClassic\\img\\red_cross"
+    elseif status == RIC_Status["MISSING"] then
+        return "Interface\\AddOns\\RaidInviteClassic\\img\\lightning"
+    elseif status == RIC_Status["OTHER"] then
+        return "Interface\\AddOns\\RaidInviteClassic\\img\\question_mark"
+    else
+        return nil
+    end
+end
+
 RIC_ColorTable = {
 	["DEATH KNIGHT"] = "C41F36",
 	["DRUID"] = "FF7D0A",

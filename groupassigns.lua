@@ -28,6 +28,7 @@ function RIC:OnEnableGroupview()
 	self.playerBank.scroll = AceGUI:Create("ScrollFrame")
 	self.playerBank.scroll:SetLayout("Flow")
 	self.playerBank.scroll.playerLabels = {}
+	self.playerBank.scroll.playerStatusLabels = {}
 	self.playerBank:AddChild(self.playerBank.scroll)
 
 	-- Raid overview, group-wise
@@ -38,6 +39,7 @@ function RIC:OnEnableGroupview()
 
 	-- Init player labels
 	self.raidPlayerLabels = {}
+	self.raidPlayerStatusLabels = {}
 	local raidGroups = {}
 	for row = 1, 8 do
 		local raidGroup = AceGUI:Create("InlineGroup")
@@ -45,6 +47,7 @@ function RIC:OnEnableGroupview()
 		raidGroup:SetTitle("Group " .. row)
 		raidGroup.titletext:SetJustifyH("CENTER")
 		self.raidPlayerLabels[row] = {}
+		self.raidPlayerStatusLabels[row] = {}
 		for col = 1, 5 do
 			self.raidPlayerLabels[row][col] = AceGUI:Create("InteractiveLabel")
 			local label = self.raidPlayerLabels[row][col]
@@ -58,12 +61,25 @@ function RIC:OnEnableGroupview()
 			label.label:SetTextColor(0.35, 0.35, 0.35)
 			RIC_Group_Manager.assignLabelFunctionality(label)
 			raidGroup:AddChild(label)
+
+			local statusLabel = AceGUI:Create("Label")
+			statusLabel:SetWidth(20)
+			statusLabel:SetHeight(20)
+			statusLabel:SetImage("Interface\\AddOns\\RaidInviteClassic\\img\\empty")
+			statusLabel:SetImageSize(18,18)
+			statusLabel:SetJustifyH("CENTER")
+			statusLabel:SetJustifyV("CENTER")
+			raidGroup:AddChild(statusLabel)
+			self.raidPlayerStatusLabels[row][col] = statusLabel
 		end
 		AceGUI:RegisterLayout("RaidGroupLayout" .. row, function()
 			for col = 1, 5 do
 				local label = self.raidPlayerLabels[row][col]
 				label:ClearAllPoints()
-				label:SetPoint("TOPLEFT", raidGroup.frame, "TOPLEFT", 0, -1 * ((col - 1) * label.frame:GetHeight() + raidGroup.titletext:GetHeight() + 5 * (col - 1) + 4))
+				local dist = -1 * ((col - 1) * label.frame:GetHeight() + raidGroup.titletext:GetHeight() + 5 * (col - 1) + 4)
+				label:SetPoint("TOPLEFT", raidGroup.frame, "TOPLEFT", 0, dist)
+				self.raidPlayerStatusLabels[row][col]:ClearAllPoints()
+				self.raidPlayerStatusLabels[row][col]:SetPoint("TOPLEFT", raidGroup.frame, "TOPLEFT", 140, dist+1)
 			end
 			raidGroup:SetHeight(self.raidPlayerLabels[row][1].frame:GetHeight() * 5 + raidGroup.titletext:GetHeight() + 34)
 		end)
@@ -140,7 +156,7 @@ function RIC_Group_Manager.flattenGroups()
 			end
 		end
 	end
-	RIC_Group_Manager.drawAllLabels()
+	RIC_Group_Manager.drawGroupLabels()
 	RIC_Group_Manager.CheckArrangable()
 end
 
@@ -150,16 +166,21 @@ function RIC_Group_Manager.MovedToPlayerBank(label)
 	RIC_Group_Manager.showPlayerBank()
 end
 
-function RIC_Group_Manager.SetLabel(label, name)
+function RIC_Group_Manager.SetLabel(label, statusLabel, name)
 	if name then
 		-- Set label
 		label.name = name
 		label:SetText(name)
-		-- label:SetImage("Interface\\AddOns\\RaidInviteClassic\\img\\checkmark") -- TODO put invite status image onto labels
 		local playerInfo = RIC_Roster_Browser.getPlayerInfo(name)
 		label.label:SetTextColor(playerInfo.classColor.r, playerInfo.classColor.g, playerInfo.classColor.b)
 		label.frame:EnableMouse(true)
 		label.frame:SetMovable(true)
+		local statusLabelPath = getStatusSymbolImagePath(playerInfo.status)
+		if statusLabelPath ~= nil then
+			statusLabel:SetImage(statusLabelPath)
+		else
+			statusLabel:SetImage("Interface\\AddOns\\RaidInviteClassic\\img\\question_mark")
+		end
 	else
 		-- Clear label
 		label.name = nil
@@ -167,6 +188,7 @@ function RIC_Group_Manager.SetLabel(label, name)
 		label.label:SetTextColor(0.35, 0.35, 0.35)
 		label.frame:EnableMouse(false)
 		label.frame:SetMovable(false)
+		statusLabel:SetImage("Interface\\AddOns\\RaidInviteClassic\\img\\empty")
 	end
 end
 
@@ -214,6 +236,7 @@ end
 function RIC_Group_Manager.draw()
 	RIC_Group_Manager.showPlayerBank()
 	RIC_Group_Manager.flattenGroups()
+	RIC_Group_Manager.drawGroupLabels()
 end
 
 -- Set player name to a certain raid position, possibly swapping positions with already existing player on this position
@@ -236,11 +259,11 @@ function RIC_Group_Manager.setGroupPosition(name, position)
 	RIC_Group_Manager.flattenGroups()
 end
 
-function RIC_Group_Manager.drawAllLabels()
+function RIC_Group_Manager.drawGroupLabels()
 	local filledPositions = reverseMap(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster])
 	for row = 1, 8 do
 		for col = 1, 5 do
-			RIC_Group_Manager.SetLabel(RIC.raidPlayerLabels[row][col], filledPositions[(row-1)*5 + col])
+			RIC_Group_Manager.SetLabel(RIC.raidPlayerLabels[row][col], RIC.raidPlayerStatusLabels[row][col], filledPositions[(row-1)*5 + col])
 		end
 	end
 end
@@ -257,14 +280,23 @@ function RIC_Group_Manager.showPlayerBank()
 		if val == 0 then
 			index = index + 1
 			local playerLabel
+			local statusLabel
 			if RIC.playerBank.scroll.playerLabels[index] then
 				playerLabel = RIC.playerBank.scroll.playerLabels[index]
 				playerLabel.frame:EnableMouse(true)
+				statusLabel = RIC.playerBank.scroll.playerStatusLabels[index]
 			else
 				playerLabel = AceGUI:Create("InteractiveLabel")
 				playerLabel:SetFont(DEFAULT_FONT, 12)
 				playerLabel:SetHighlight("Interface\\BUTTONS\\UI-Listbox-Highlight.blp")
-				playerLabel:SetFullWidth(true)
+				playerLabel:SetWidth(140)
+				playerLabel:SetHeight(12)
+
+				statusLabel = AceGUI:Create("Label")
+				statusLabel:SetWidth(12)
+				statusLabel:SetHeight(12)
+				statusLabel:SetImage("Interface\\AddOns\\RaidInviteClassic\\img\\checkmark")
+				--statusLabel:SetImageSize(18,18)
 
 				local anchorPoint, parentFrame, relativeTo, ptX, ptY
 				playerLabel.frame:EnableMouse(true)
@@ -319,13 +351,13 @@ function RIC_Group_Manager.showPlayerBank()
 				end)
 
 				RIC.playerBank.scroll:AddChild(playerLabel)
+				RIC.playerBank.scroll:AddChild(statusLabel)
 				table.insert(RIC.playerBank.scroll.playerLabels, playerLabel)
+				table.insert(RIC.playerBank.scroll.playerStatusLabels, statusLabel)
 			end
 
-			playerLabel.name = name
-			playerLabel:SetText(name)
-			local classColor = RIC_Roster_Browser.getPlayerInfo(name).classColor
-			playerLabel.label:SetTextColor(classColor.r, classColor.g, classColor.b)
+			-- Set player label
+			RIC_Group_Manager.SetLabel(playerLabel, statusLabel, name)
 		end
 	end
 
@@ -334,6 +366,8 @@ function RIC_Group_Manager.showPlayerBank()
 		RIC.playerBank.scroll.playerLabels[index].name = nil
 		RIC.playerBank.scroll.playerLabels[index]:SetText(nil)
 		RIC.playerBank.scroll.playerLabels[index].frame:EnableMouse(false)
+
+		RIC.playerBank.scroll.playerStatusLabels[index]:SetImage(nil)
 	end
 
 	-- RIC.playerBank.scroll:SetScroll(newlyAddedNameIndex / (#playerTableNames - 1) * 1000) -- TODO possibly set scroll pos

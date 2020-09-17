@@ -148,20 +148,9 @@ function RIC_Roster_Browser.updateListing()
 				_G["RIC_RosterFrameEntry"..ci.."Check"]:Hide()
 			end
 
-			if row[5] == RIC_Status["READY"] then
-				_G["RIC_RosterFrameEntry"..ci.."Status"]:SetTexture("Interface\\AddOns\\RaidInviteClassic\\img\\checkmark")
-			elseif row[5] == RIC_Status["EXTRA"] then
-				_G["RIC_RosterFrameEntry"..ci.."Status"]:SetTexture("Interface\\AddOns\\RaidInviteClassic\\img\\plus")
-			elseif row[5] == RIC_Status["NOT_INVITED"] then
-				_G["RIC_RosterFrameEntry"..ci.."Status"]:SetTexture("Interface\\AddOns\\RaidInviteClassic\\img\\dash")
-			elseif row[5] == RIC_Status["INVITE_PENDING"] then
-				_G["RIC_RosterFrameEntry"..ci.."Status"]:SetTexture("Interface\\AddOns\\RaidInviteClassic\\img\\dots")
-			elseif row[5] == RIC_Status["INVITE_FAILED"] then
-				_G["RIC_RosterFrameEntry"..ci.."Status"]:SetTexture("Interface\\AddOns\\RaidInviteClassic\\img\\red_cross")
-			elseif row[5] == RIC_Status["MISSING"] then
-				_G["RIC_RosterFrameEntry"..ci.."Status"]:SetTexture("Interface\\AddOns\\RaidInviteClassic\\img\\lightning")
-			elseif row[5] == RIC_Status["OTHER"] then
-				_G["RIC_RosterFrameEntry"..ci.."Status"]:SetTexture("Interface\\AddOns\\RaidInviteClassic\\img\\question_mark")
+			local texturePath = getStatusSymbolImagePath(row[5])
+			if texturePath ~= nil then
+				_G["RIC_RosterFrameEntry"..ci.."Status"]:SetTexture(texturePath)
 			else
 				_G["RIC_RosterFrameEntry"..ci.."Status"]:SetTexture("Interface\\AddOns\\RaidInviteClassic\\img\\question_mark")
 				RIC:Print("ERROR: Could not find a status symbol for " .. theName)
