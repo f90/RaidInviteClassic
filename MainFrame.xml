@@ -318,7 +318,7 @@
 							<Size x="100" y="24"/>
 							<Anchors>
 								<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-									<Offset x="295" y="-145" />
+									<Offset x="295" y="-166" />
 								</Anchor>
 							</Anchors>
 						</FontString>
@@ -326,7 +326,7 @@
 							<Size x="100" y="24"/>
 							<Anchors>
 								<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-									<Offset x="295" y="-175" />
+									<Offset x="295" y="-196" />
 								</Anchor>
 							</Anchors>
 						</FontString>
@@ -334,7 +334,7 @@
 							<Size x="100" y="24"/>
 							<Anchors>
 								<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-									<Offset x="295" y="-205" />
+									<Offset x="295" y="-226" />
 								</Anchor>
 							</Anchors>
 						</FontString>
@@ -342,7 +342,7 @@
 							<Size x="100" y="24"/>
 							<Anchors>
 								<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-									<Offset x="295" y="-235" />
+									<Offset x="295" y="-256" />
 								</Anchor>
 							</Anchors>
 						</FontString>
@@ -350,7 +350,7 @@
 							<Size x="100" y="24"/>
 							<Anchors>
 								<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-									<Offset x="295" y="-265" />
+									<Offset x="295" y="-286" />
 								</Anchor>
 							</Anchors>
 						</FontString>
@@ -358,7 +358,7 @@
 							<Size x="100" y="24"/>
 							<Anchors>
 								<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-									<Offset x="295" y="-295" />
+									<Offset x="295" y="-316" />
 								</Anchor>
 							</Anchors>
 						</FontString>
@@ -366,7 +366,7 @@
 							<Size x="100" y="24"/>
 							<Anchors>
 								<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-									<Offset x="295" y="-325" />
+									<Offset x="295" y="-346" />
 								</Anchor>
 							</Anchors>
 						</FontString>
@@ -594,6 +594,21 @@
 							</OnClick>
 						</Scripts>
 					</Button>
+					<Button name="RIC_OpenGroupWindow" inherits="UIPanelButtonTemplate" text="View groups">
+						<Size>
+							<AbsDimension x="121" y="20" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+								<Offset x="263" y="-135" />
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								RIC_Group_Manager.toggle()
+							</OnClick>
+						</Scripts>
+					</Button>
 					<Button name="RIC_SendMassInvites" inherits="UIPanelButtonTemplate" text="Start Invites">
 						<Size>
 							<AbsDimension x="121" y="30" />
@@ -608,23 +623,6 @@
 								RIC_Roster_Browser.toggleInvitePhase()
 							</OnClick>
 						</Scripts>
-
-					</Button>
-					<Button name="RIC_OpenGroupWindow" inherits="UIPanelButtonTemplate" text="View groups">
-						<Size>
-							<AbsDimension x="121" y="25" />
-						</Size>
-						<Anchors>
-							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="263" y="-350" />
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								RIC.groups:Show()
-							</OnClick>
-						</Scripts>
-
 					</Button>
 
 					-- View filter buttons
@@ -634,7 +632,7 @@
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="260" y="-145" />
+								<Offset x="260" y="-166" />
 							</Anchor>
 						</Anchors>
 						<Scripts>
@@ -654,7 +652,7 @@
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="260" y="-175" />
+								<Offset x="260" y="-196" />
 							</Anchor>
 						</Anchors>
 						<Scripts>
@@ -674,7 +672,7 @@
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="260" y="-205" />
+								<Offset x="260" y="-226" />
 							</Anchor>
 						</Anchors>
 						<Scripts>
@@ -694,7 +692,7 @@
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="260" y="-235" />
+								<Offset x="260" y="-256" />
 							</Anchor>
 						</Anchors>
 						<Scripts>
@@ -714,7 +712,7 @@
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="260" y="-265" />
+								<Offset x="260" y="-286" />
 							</Anchor>
 						</Anchors>
 						<Scripts>
@@ -734,7 +732,7 @@
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="260" y="-295" />
+								<Offset x="260" y="-316" />
 							</Anchor>
 						</Anchors>
 						<Scripts>
@@ -754,7 +752,7 @@
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="260" y="-325" />
+								<Offset x="260" y="-346" />
 							</Anchor>
 						</Anchors>
 						<Scripts>

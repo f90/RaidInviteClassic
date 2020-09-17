@@ -23,7 +23,7 @@ function RIC:OnEnableRosterManagerView()
 	local rosterList = AceGUI:Create("InlineGroup")
 	rosterList:SetWidth(200)
 	rosterList:SetHeight(200)
-	rosterList:SetTitle("Choose the roster to use")
+	rosterList:SetTitle("Select roster")
 	rosterList:SetLayout("Fill")
 	rosterList.scroll = AceGUI:Create("ScrollFrame")
 	rosterList.scroll:SetLayout("Flow")
@@ -140,7 +140,6 @@ function RIC_Roster_Manager.draw()
 	-- Show all available rosters
 	local rosterNum = 1
 	for rosterName, _ in pairs(RIC.db.realm.RosterList) do
-		print(rosterName)
 		local label
 		if rosterNum <= #RIC.rosters.rosterList.labels then
 			-- Fetch already existing label

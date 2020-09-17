@@ -20,6 +20,7 @@ function RIC:OnEnableGroupview()
 	_G["GroupFrame"] = self.groups.frame
 	table.insert(UISpecialFrames, "GroupFrame")
 	self:HookScript(self.groups.frame, "OnShow", function() RIC_Group_Manager.draw() end)
+	self:HookScript(self.groups.frame, "OnHide", function() _G["RIC_OpenGroupWindow"]:SetText("View groups") end)
 
 	self.playerBank = AceGUI:Create("InlineGroup")
 	self.playerBank:SetWidth(200)
@@ -136,6 +137,17 @@ function RIC:OnEnableGroupview()
 	self.groups:DoLayout()
 
 	RIC_Group_Manager.OnRosterUpdate()
+end
+
+function RIC_Group_Manager.toggle()
+	if RIC.groups:IsShown() == true then
+		RIC.groups:Hide()
+		_G["RIC_OpenGroupWindow"]:SetText("View groups")
+	else
+		RIC.groups:Show()
+		RIC_Group_Manager.draw()
+		_G["RIC_OpenGroupWindow"]:SetText("Hide groups")
+	end
 end
 
 function RIC_Group_Manager.flattenGroups()
@@ -344,6 +356,7 @@ function RIC_Group_Manager.showPlayerBank()
 					playerLabel:SetPoint(anchorPoint, parentFrame, relativeTo, ptX, ptY)
 					playerLabel.frame:SetFrameStrata("TOOLTIP")
 					isDraggingLabel = false
+
 					if putToGroup() or shouldUpdatePlayerBank then
 						shouldUpdatePlayerBank = false
 						RIC_Group_Manager.showPlayerBank()
