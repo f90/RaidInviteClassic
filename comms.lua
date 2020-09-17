@@ -48,9 +48,9 @@ function RIC:OnCommReceived(prefix, message, distribution, sender)
 		return
 	end
 
-	if key == "ASK_ARRANGEMENTS" then
+	if key == "ASK_ROSTERS" then
 		local response = {
-			key = "ARRANGEMENTS",
+			key = "ROSTERS",
 			asker = sender,
 			value = RIC.db.realm.RosterList,
 		}
@@ -58,8 +58,12 @@ function RIC:OnCommReceived(prefix, message, distribution, sender)
 		return
 	end
 
-	if key == "ARRANGEMENTS" and message["asker"] == UnitName("player") and message["value"] then
+	if key == "ROSTERS" and message["asker"] == UnitName("player") and message["value"] then
 		RIC_Roster_Manager.addReceivedRosters(message["value"])
 		return
+	end
+
+	if key == "OVERWRITE_ROSTERS" and message["asker"] ~= UnitName("player") and message["value"] then
+		RIC_Roster_Manager.setReceivedRosters(message["value"]) -- TODO maybe ask recipient if he wants to get this update and discard his own data
 	end
 end

@@ -65,6 +65,11 @@ function RIC:OnEnableRosterManagerView()
 	self.rosters.rosterControls.fetch:SetCallback("OnClick", function() RIC_Roster_Manager.requestRosters() end)
 	self.rosters.rosterControls:AddChild(self.rosters.rosterControls.fetch)
 
+	self.rosters.rosterControls.send = AceGUI:Create("Button")
+	self.rosters.rosterControls.send:SetText("Send rosters")
+	self.rosters.rosterControls.send:SetCallback("OnClick", function() StaticPopup_Show("SEND_ROSTERS_WARNING") end)
+	self.rosters.rosterControls:AddChild(self.rosters.rosterControls.send)
+
 	self.rosters.confirm = AceGUI:Create("Button")
 	self.rosters.confirm:SetText("Use selected roster")
 	self.rosters.confirm:SetCallback("OnClick", function() RIC_Roster_Manager.confirm() end)
@@ -132,6 +137,22 @@ function RIC:OnEnableRosterManagerView()
 		OnAccept = function(self, data, data2)
 			local text = self.editBox:GetText()
 			RIC_Roster_Manager.rename(text)
+		end,
+	}
+
+		-- Rename roster popup entry
+	StaticPopupDialogs["SEND_ROSTERS_WARNING"] = {
+		text = "This will overwrite ALL roster lists of ALL recipients! Do you want to continue?",
+		button1 = "OK",
+		button2 = "Cancel",
+		timeout = 0,
+		hasEditBox = false,
+		whileDead = true,
+		hideOnEscape = true,
+		enterClicksFirstButton = true,
+		preferredIndex = 3,  -- avoid some UI taint, see http://www.wowace.com/announcements/how-to-avoid-some-ui-taint/
+		OnAccept = function(self, data, data2)
+			RIC_Roster_Manager.send()
 		end,
 	}
 end
@@ -258,7 +279,7 @@ end
 
 function RIC_Roster_Manager.requestRosters()
 	local message = {
-		key = "ASK_ARRANGEMENTS",
+		key = "ASK_ROSTERS",
 	}
 	SendComm(message)
 end
@@ -270,4 +291,13 @@ function RIC_Roster_Manager.addReceivedRosters(rosterLists)
 	end
 	RIC_Roster_Manager.draw()
 	RIC_Group_Manager.draw()
+end
+
+function RIC_Roster_Manager.send()
+	local msg = {
+		key = "OVERWRITE_ROSTERS",
+		asker = UnitName("player"),
+		value = RIC.db.realm.RosterList,
+	}
+	SendComm(msg)
 end
