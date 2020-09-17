@@ -60,7 +60,7 @@ function RIC:OnEnableGroupview()
 			label:SetHeight(20)
 			label:SetText("Empty")
 			label.label:SetTextColor(0.35, 0.35, 0.35)
-			RIC_Group_Manager.assignLabelFunctionality(label)
+			RIC_Group_Manager.assignGroupLabelFunctionality(label)
 			raidGroup:AddChild(label)
 
 			local statusLabel = AceGUI:Create("Label")
@@ -204,7 +204,7 @@ function RIC_Group_Manager.SetLabel(label, statusLabel, name)
 	end
 end
 
-function RIC_Group_Manager.assignLabelFunctionality(label)
+function RIC_Group_Manager.assignGroupLabelFunctionality(label)
 	local anchorPoint, parentFrame, relativeTo, ptX, ptY
 	label.frame:RegisterForDrag("LeftButton")
 	label.frame:SetScript("OnDragStart", function(self)
@@ -308,7 +308,6 @@ function RIC_Group_Manager.showPlayerBank()
 				statusLabel:SetWidth(12)
 				statusLabel:SetHeight(12)
 				statusLabel:SetImage("Interface\\AddOns\\RaidInviteClassic\\img\\checkmark")
-				--statusLabel:SetImageSize(18,18)
 
 				local anchorPoint, parentFrame, relativeTo, ptX, ptY
 				playerLabel.frame:EnableMouse(true)
@@ -328,7 +327,7 @@ function RIC_Group_Manager.showPlayerBank()
 						end
 					end
 					anchorPoint, parentFrame, relativeTo, ptX, ptY = self:GetPoint()
-					self:SetParent(UIParent)
+					self:SetParent(RIC.groups.frame)
 					self:SetFrameStrata("TOOLTIP")
 					self:StartMoving()
 				end)

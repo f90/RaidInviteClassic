@@ -788,7 +788,7 @@ function RIC_Roster_Browser.getPlayerInfo(name)
 			return {classColor = getClassColor(val[2], "RGB"), rank = val[3], rankIndex = val[4], status = val[5]} -- Return class color, guild rank, invite status etc
 		end
 	end
-	warningMsg("COULD NOT FIND " .. name .. " IN ROSTERRAIDLIST")
+	message("COULD NOT FIND " .. name .. " IN ROSTERRAIDLIST")
 	return nil -- Player not found in table, return nothing
 end
 
