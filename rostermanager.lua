@@ -168,9 +168,10 @@ function RIC_Roster_Manager.draw()
 		label.rosterName = rosterName
 		if rosterName == selectedRoster then
 			label:SetText(">> " .. rosterName .. " <<")
-			-- TODO make it perma-highlighted
+			label:SetColor(1.0, 1.0, 0.0)
 		else
 			label:SetText(rosterName)
+			label:SetColor(1.0, 1.0, 1.0)
 		end
 		rosterNum = rosterNum + 1
 	end
