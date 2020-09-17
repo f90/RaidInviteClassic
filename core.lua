@@ -217,7 +217,7 @@ end
 
 function RIC:CHAT_MSG_SYSTEM(event, msg)
 	RIC_Roster_Browser.processSystemMessage(msg)
-	RIC_Guild_Browser.updateListing()
+	RIC_Guild_Browser.drawTable()
 end
 
 function RIC:PARTY_LEADER_CHANGED()

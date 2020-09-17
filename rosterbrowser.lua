@@ -2,7 +2,8 @@ local sortMethod = "asc"
 local currSortIndex = 1
 local rosterOffset = 0
 
-local rosterRaidList = {} -- Table view of raid + roster list
+local rosterRaidList = {} -- Raid+roster list
+local rosterRaidListVisible = {} -- Subset of rosterRaidList people that we actually want to show in the table atm
 local selectedList = {}
 
 -- Invite handling
@@ -53,51 +54,49 @@ function RIC_Roster_Browser.buildRosterRaidList()
 
 		inRaid[name] = 1
 
-		-- filter based on view selection
-		local status = getStatusSymbol(true, (RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] ~= nil), data["online"], inviteStatusList[name])
-		if RIC_Roster_Browser.showStatusSymbol(status) then
-			table.insert(rosterRaidList, {
-				name,
-				data["classFileName"],
-				guildRank,
-				guildRankIndex,
-				status
-			})
-		end
+		table.insert(rosterRaidList, {
+			name,
+			data["classFileName"],
+			guildRank,
+			guildRankIndex,
+			getStatusSymbol(true, (RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] ~= nil), data["online"], inviteStatusList[name])
+		})
 	end
 
 	-- Add all people on RosterList to the overall list, if they are not in raid. If possible, check their data in guild
 	for name,_ in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 		if inRaid[name] == nil then -- Only process people NOT in raid right now
 			if guildMembers[name] == nil then -- Person is not in guild
-				local status = getStatusSymbol(false, true, nil, inviteStatusList[name]) -- We dont know online status of non-raid non-guild members
-				if RIC_Roster_Browser.showStatusSymbol(status) then -- Check if this status should be shown
-					table.insert(rosterRaidList, {
-						name,
-						"UNKNOWN_CLASS",
-						"<Not in Guild>",
-						0, -- Rank 0 for non-guildies
-						status
-					})
-				end
-			else
-				local status = getStatusSymbol(false, true, guildMembers[name]["online"], inviteStatusList[name])
-				if RIC_Roster_Browser.showStatusSymbol(status) then -- Check if this status should be shown
-					table.insert(rosterRaidList, {
-						name,
-						guildMembers[name]["classFileName"],
-						guildMembers[name]["rank"],
-						guildMembers[name]["rankIndex"],
-						status
-					})
-				end
+				table.insert(rosterRaidList, {
+					name,
+					"UNKNOWN_CLASS",
+					"<Not in Guild>",
+					0, -- Rank 0 for non-guildies
+					getStatusSymbol(false, true, nil, inviteStatusList[name]) -- We dont know online status of non-raid non-guild members
+				})
+			else -- Person IS in guild
+				table.insert(rosterRaidList, {
+					name,
+					guildMembers[name]["classFileName"],
+					guildMembers[name]["rank"],
+					guildMembers[name]["rankIndex"],
+					getStatusSymbol(false, true, guildMembers[name]["online"], inviteStatusList[name])
+				})
 			end
 		end
 	end
 
-	-- Clear selection from people who are not shown in rosterRaidList
+	-- Subset of rosterRaidList that we actually want to display (status filters)
+	rosterRaidListVisible = {}
+	for _, data in ipairs(rosterRaidList) do
+		if RIC_Roster_Browser.showStatusSymbol(data[5]) == true then
+			table.insert(rosterRaidListVisible, data)
+		end
+	end
+
+	-- Clear selection from people who are not shown in rosterRaidListVisible
 	local newSelectedList = {}
-	for _, val in ipairs(rosterRaidList) do
+	for _, val in ipairs(rosterRaidListVisible) do
 		if selectedList[val[1]] ~= nil then
 			newSelectedList[val[1]] = 1
 		end
@@ -107,9 +106,19 @@ function RIC_Roster_Browser.buildRosterRaidList()
 	-- Show current roster size as text
 	_G["RIC_RosterNumberText"]:SetText("Roster: " .. hashLength(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]))
 
-	-- Set up sliders
-	if #rosterRaidList > 20 then
-		local newVal = #rosterRaidList-20
+	-- Sort according to current sorting index
+	RIC_Roster_Browser.sortTable(rosterRaidListVisible, currSortIndex)
+
+	-- Display entries
+	RIC_Roster_Browser.drawTable()
+end
+
+-- Function: drawTable
+-- Purpose: Displays the data for the scrolling table
+function RIC_Roster_Browser.drawTable()
+	-- Set up table sliders
+	if #rosterRaidListVisible > 20 then
+		local newVal = #rosterRaidListVisible-20
 		_G["RIC_RosterSliderContainer"]:Show()
 		_G["RIC_RosterSlider"]:SetValueStep(1)
 		if rosterOffset > newVal then
@@ -125,18 +134,8 @@ function RIC_Roster_Browser.buildRosterRaidList()
 		_G["RIC_RosterSlider"]:SetValue(rosterOffset)
 	end
 
-	-- Sort according to current sorting index
-	RIC_Roster_Browser.sortTable(currSortIndex)
-
-	-- Display entries
-	RIC_Roster_Browser.updateListing()
-end
-
--- Function: updateListing
--- Purpose: Displays the data for the scrolling table
-function RIC_Roster_Browser.updateListing()
 	for ci = 1, 20 do
-		local row = rosterRaidList[ci+rosterOffset]
+		local row = rosterRaidListVisible[ci+rosterOffset]
 		if row then
 			_G["RIC_RosterFrameEntry"..ci.."Name"]:SetText(getClassColor(row[2]) .. row[1])
 			_G["RIC_RosterFrameEntry"..ci.."Rank"]:SetText(row[3])
@@ -233,7 +232,6 @@ function RIC_Roster_Browser.importRoster(rosterString)
 	if (#parsedList > 1) -- We immediately encounter ONE separator - this means group positions are NOT used at all!
 			and (string.utf8len(trim_special_chars(parsedList[1])) == 0)
 			and (string.utf8len(trim_special_chars(parsedList[2])) > 0) then
-				print("DONT USE GROUP POSITIONS")
 				useGroupPositions = false
 	end
 	-- Parse names one by one, add to temp list
@@ -286,24 +284,24 @@ end
 function RIC_Roster_Browser.updateOffset(val)
 	-- Activates when slider is dragged, gives continuous value -> change to integer
 	rosterOffset = math.floor(val)
-	RIC_Roster_Browser.updateListing()
+	RIC_Roster_Browser.drawTable()
 end
 
 function RIC_Roster_Browser.clearSelection()
 	selectedList = {}
-	RIC_Roster_Browser.updateListing()
+	RIC_Roster_Browser.drawTable()
 end
 
 function RIC_Roster_Browser.selectAll()
 	selectedList = {}
-	for _, val in ipairs(rosterRaidList) do
+	for _, val in ipairs(rosterRaidListVisible) do
 		selectedList[val[1]] = 1
 	end
-	RIC_Roster_Browser.updateListing()
+	RIC_Roster_Browser.drawTable()
 end
 
 function RIC_Roster_Browser.selectRow(rowNum)
-	local theRow = rosterRaidList[rowNum+rosterOffset]
+	local theRow = rosterRaidListVisible[rowNum+rosterOffset]
 	if theRow then
 		local theName = theRow[1]
 		if theName then
@@ -315,7 +313,7 @@ function RIC_Roster_Browser.selectRow(rowNum)
 		end
 	end
 
-	RIC_Roster_Browser.updateListing()
+	RIC_Roster_Browser.drawTable()
 end
 
 function RIC_Roster_Browser.sliderButtonPushed(dir)
@@ -326,10 +324,10 @@ function RIC_Roster_Browser.sliderButtonPushed(dir)
 			newVal = 0
 		end
 		_G["RIC_RosterSlider"]:SetValue(newVal)
-	elseif (dir == 2) and (currValue < (#rosterRaidList-20)) then
+	elseif (dir == 2) and (currValue < (#rosterRaidListVisible-20)) then
 		newVal = currValue+3
-		if newVal > (#rosterRaidList-20) then
-			newVal = (#rosterRaidList-20)
+		if newVal > (#rosterRaidListVisible-20) then
+			newVal = (#rosterRaidListVisible-20)
 		end
 		_G["RIC_RosterSlider"]:SetValue(newVal)
 	end
@@ -343,10 +341,10 @@ function RIC_Roster_Browser.quickScroll(self, delta)
 			newVal = 0
 		end
 		_G["RIC_RosterSlider"]:SetValue(newVal)
-	elseif (delta < 0) and (currValue < (#rosterRaidList-20)) then
+	elseif (delta < 0) and (currValue < (#rosterRaidListVisible-20)) then
 		newVal = currValue+1
-		if newVal > (#rosterRaidList-20) then
-			newVal = (#rosterRaidList-20)
+		if newVal > (#rosterRaidListVisible-20) then
+			newVal = (#rosterRaidListVisible-20)
 		end
 		_G["RIC_RosterSlider"]:SetValue(newVal)
 	end
@@ -636,7 +634,7 @@ end
 
 function RIC_Roster_Browser.showPlayerTooltip(rowElement, rowNum)
 	GameTooltip:SetOwner(rowElement, "ANCHOR_RIGHT")
-	local theRow = rosterRaidList[rowNum+rosterOffset]
+	local theRow = rosterRaidListVisible[rowNum+rosterOffset]
 	if theRow then
 		local theName = theRow[1]
 		if theName then
@@ -652,7 +650,7 @@ function RIC_Roster_Browser.setPlayerTooltip()
 		return
 	end
 
-	local theRow = rosterRaidList[tooltipRow+rosterOffset]
+	local theRow = rosterRaidListVisible[tooltipRow+rosterOffset]
 	if theRow then
 		local theName = theRow[1]
 		if theName then
@@ -695,8 +693,8 @@ function RIC_Roster_Browser.setPlayerTooltip()
 	end
 end
 
-function RIC_Roster_Browser.hidePlayerTooltip( rowNum)
-	local theRow = rosterRaidList[rowNum+rosterOffset]
+function RIC_Roster_Browser.hidePlayerTooltip(rowNum)
+	local theRow = rosterRaidListVisible[rowNum+rosterOffset]
 	if theRow then
 		local theName = theRow[1]
 		if theName then
@@ -788,7 +786,7 @@ function RIC_Roster_Browser.getPlayerInfo(name)
 			return {classColor = getClassColor(val[2], "RGB"), rank = val[3], rankIndex = val[4], status = val[5]} -- Return class color, guild rank, invite status etc
 		end
 	end
-	message("COULD NOT FIND " .. name .. " IN ROSTERRAIDLIST")
+	RIC:Print("ERROR: COULD NOT FIND " .. name .. " IN ROSTERRAIDLIST")
 	return nil -- Player not found in table, return nothing
 end
 
@@ -805,20 +803,21 @@ function RIC_Roster_Browser.sortClicked(id)
 		sortMethod = "asc" -- and the order we're sorting in
 	end
 
-	-- Sort Table
-	RIC_Roster_Browser.sortTable(currSortIndex)
+	-- Sort Tables
+	RIC_Roster_Browser.sortTable(rosterRaidList, currSortIndex)
+	RIC_Roster_Browser.sortTable(rosterRaidListVisible, currSortIndex)
 
 	-- Update listing
-	RIC_Roster_Browser.updateListing()
+	RIC_Roster_Browser.drawTable()
 end
 
 -- Function: sortTable
 -- Input: Column Header to sort by
 -- Purpose: Sorts the guild member listing table
 --		so that it's easily viewable
-function RIC_Roster_Browser.sortTable(id)
+function RIC_Roster_Browser.sortTable(t, id)
 	if (id == 1) then -- Char Name sorting (alphabetically)
-		table.sort(rosterRaidList, function(v1, v2)
+		table.sort(t, function(v1, v2)
 			if sortMethod == "desc" then
 				return v1 and v1[1] > v2[1]
 			else
@@ -826,7 +825,7 @@ function RIC_Roster_Browser.sortTable(id)
 			end
 		end)
 	elseif (id == 2) then -- Guild Rank sorting (numerically)
-		table.sort(rosterRaidList, function(v1, v2)
+		table.sort(t, function(v1, v2)
 			if sortMethod == "desc" then
 				return v1 and v1[4] > v2[4]
 			else
@@ -834,7 +833,7 @@ function RIC_Roster_Browser.sortTable(id)
 			end
 		end)
 	elseif (id == 3) then -- Selected sorting
-		table.sort(rosterRaidList, function(v1, v2)
+		table.sort(t, function(v1, v2)
 				if v1 == nil then return false end
 				if v2 == nil then return true end
 				if sortMethod == "asc" then
@@ -844,7 +843,7 @@ function RIC_Roster_Browser.sortTable(id)
 				end
 		end)
 	elseif (id == 4) then -- Status sorting
-				table.sort(rosterRaidList, function(v1, v2)
+				table.sort(t, function(v1, v2)
 			if sortMethod == "desc" then
 				return v1 and v1[5] > v2[5]
 			else

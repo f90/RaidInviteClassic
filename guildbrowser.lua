@@ -22,7 +22,7 @@ end
 function RIC_Guild_Browser.updateOffset(val)
 	-- Activates when slider is dragged, gives continuous value -> change to integer
 	guildOffset = math.floor(val)
-	RIC_Guild_Browser.updateListing()
+	RIC_Guild_Browser.drawTable()
 end
 
 -- Function: buildGuildList
@@ -77,13 +77,13 @@ function RIC_Guild_Browser.buildGuildList()
 	end
 
 	RIC_Guild_Browser.sortTable(currSortIndex)
-	RIC_Guild_Browser.updateListing()
+	RIC_Guild_Browser.drawTable()
 end
 
--- Function: updateListing
+-- Function: drawTable
 -- Purpose: Displays the data for the faux
 --		scrolling table.
-function RIC_Guild_Browser.updateListing()
+function RIC_Guild_Browser.drawTable()
 	for ci = 1, 20 do
 		local theRow = guildList[ci+guildOffset]
 		if theRow then
@@ -122,7 +122,7 @@ end
 
 function RIC_Guild_Browser.clearSelection()
 	selectedList = {}
-	RIC_Guild_Browser.updateListing()
+	RIC_Guild_Browser.drawTable()
 end
 
 function RIC_Guild_Browser.selectAll()
@@ -135,7 +135,7 @@ function RIC_Guild_Browser.selectAll()
 			end
 		end
 	end
-	RIC_Guild_Browser.updateListing()
+	RIC_Guild_Browser.drawTable()
 end
 
 function RIC_Guild_Browser.selectRow(rowNum)
@@ -151,7 +151,7 @@ function RIC_Guild_Browser.selectRow(rowNum)
 		end
 	end
 
-	RIC_Guild_Browser.updateListing()
+	RIC_Guild_Browser.drawTable()
 end
 
 
@@ -222,7 +222,7 @@ function RIC_Guild_Browser.sortClicked(id)
 	RIC_Guild_Browser.sortTable(currSortIndex)
 
 	-- Update listing
-	RIC_Guild_Browser.updateListing()
+	RIC_Guild_Browser.drawTable()
 end
 
 -- Function: sortTable
