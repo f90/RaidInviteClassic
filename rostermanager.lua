@@ -302,10 +302,17 @@ function RIC_Roster_Manager.addReceivedRosters(rosterLists)
 	RIC_Group_Manager.draw(true)
 end
 
+function RIC_Roster_Manager.setReceivedRosters(rosterLists)
+	-- Overwrite our own roster lists with the received ones -- TODO maybe ask user for permission before overwriting
+	RIC.db.realm.RosterList = rosterLists
+	RIC_Roster_Manager.draw()
+	RIC_Group_Manager.draw(true)
+end
+
 function RIC_Roster_Manager.send()
 	local msg = {
 		key = "OVERWRITE_ROSTERS",
-		asker = UnitName("player"),
+		sender = UnitName("player"),
 		value = RIC.db.realm.RosterList,
 	}
 	SendComm(msg)

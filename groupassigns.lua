@@ -502,7 +502,7 @@ function RIC_Group_Manager.OnRosterUpdate()
 
 		-- Check if we can continue swapping
 		local errorMessage = RIC_Group_Manager.checkArrangable()
-		if errorMessage then
+		if errorMessage and errorMessage ~= "REARRANGING..." then -- Stop if we have some problem, except if the "problem" is that we are currently swapping
 			RIC_Group_Manager.StopSwap()
 			return
 		end
@@ -540,6 +540,12 @@ function RIC_Group_Manager.checkArrangable()
 
 	if InCombatLockdown() then
 		errorMessage = "CANNOT REARRANGE - IN COMBAT"
+		RIC_Group_Manager.setUnarrangable(errorMessage)
+		return errorMessage
+	end
+
+	if inSwap then
+		errorMessage = "REARRANGING..."
 		RIC_Group_Manager.setUnarrangable(errorMessage)
 		return errorMessage
 	end
