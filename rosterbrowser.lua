@@ -744,15 +744,20 @@ function RIC_Roster_Browser.addNameToRoster(name)
 	end
 end
 
+-- Remove person from roster -- WARNING: Does not update any GUI afterwards!
+function RIC_Roster_Browser.remove(name)
+	RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] = nil
+
+	-- Remove invite status info
+	inviteStatusList[name] = nil
+	inviteTimeList[name] = nil
+end
+
 -- Remove people from roster selected in roster browser
 function RIC_Roster_Browser.removeFromRoster()
 	if hashLength(selectedList) > 0 then
 		for name,_ in pairs(selectedList) do
-			RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] = nil
-
-			-- Remove invite status info
-			inviteStatusList[name] = nil
-			inviteTimeList[name] = nil
+			RIC_Roster_Browser.remove(name)
 		end
 	end
 

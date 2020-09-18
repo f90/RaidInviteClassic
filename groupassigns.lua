@@ -347,6 +347,16 @@ function RIC_Group_Manager.showPlayerBank()
 					end
 				end)
 
+				playerLabel:SetCallback("OnClick", function(self, _, button)
+					if button == "RightButton" then
+						RIC_Roster_Browser.remove(self.name)
+						-- Update data and view
+						RIC_Roster_Browser.buildRosterRaidList()
+						-- Redraw group view to reflect change
+						RIC_Group_Manager.draw()
+					end
+				end)
+
 				RIC.playerBank.scroll:AddChild(playerLabel)
 				RIC.playerBank.scroll:AddChild(statusLabel)
 				table.insert(RIC.playerBank.scroll.playerLabels, playerLabel)
