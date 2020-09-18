@@ -126,14 +126,6 @@ function pairsByKeys(t, f)
 	return iter
 end
 
-function MouseIsOver(frame)
-    local x, y = GetCursorPosition();
-    local s = frame:GetEffectiveScale();
-    x, y = x/s, y/s;
-    return ((x >= frame:GetLeft()) and (x <= frame:GetRight())
-          and (y >= frame:GetBottom()) and (y <= frame:GetTop()));
-end
-
 function IsRaidAssistant(player)
 	if not player then
 		player = "player"
