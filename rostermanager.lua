@@ -274,7 +274,7 @@ function RIC_Roster_Manager.confirm()
 
 	-- Update views
 	RIC_Roster_Browser.buildRosterRaidList()
-	RIC_Group_Manager.draw()
+	RIC_Group_Manager.draw(true)
 end
 
 function RIC_Roster_Manager.toggle()
@@ -299,7 +299,7 @@ function RIC_Roster_Manager.addReceivedRosters(rosterLists)
 		RIC.db.realm.RosterList[rosterName] = rosterList
 	end
 	RIC_Roster_Manager.draw()
-	RIC_Group_Manager.draw()
+	RIC_Group_Manager.draw(true)
 end
 
 function RIC_Roster_Manager.send()

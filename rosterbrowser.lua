@@ -278,7 +278,7 @@ function RIC_Roster_Browser.importRoster(rosterString)
 	RIC_Roster_Browser.buildRosterRaidList()
 
 	-- Update groups view
-	RIC_Group_Manager.draw()
+	RIC_Group_Manager.draw(true)
 end
 
 function RIC_Roster_Browser.updateOffset(val)
@@ -727,7 +727,7 @@ function RIC_Roster_Browser.addSelectedToRoster()
 	RIC_Roster_Browser.buildRosterRaidList()
 
 	-- Redraw group view to reflect change
-	RIC_Group_Manager.draw()
+	RIC_Group_Manager.draw(true)
 end
 
 function RIC_Roster_Browser.addNameToRoster(name)
@@ -740,7 +740,7 @@ function RIC_Roster_Browser.addNameToRoster(name)
 		-- Update list
 		RIC_Roster_Browser.buildRosterRaidList()
 		-- Redraw group view to reflect change
-		RIC_Group_Manager.draw()
+		RIC_Group_Manager.draw(true)
 	end
 end
 
@@ -768,7 +768,7 @@ function RIC_Roster_Browser.removeFromRoster()
 	RIC_Roster_Browser.buildRosterRaidList()
 
 	-- Redraw group view to reflect change
-	RIC_Group_Manager.draw()
+	RIC_Group_Manager.draw(true)
 end
 
 -- Add people that were selected in guild browser (if any)
@@ -780,7 +780,7 @@ function RIC_Roster_Browser.addFromGuildBrowser(name)
 		-- Update data and view
 		RIC_Roster_Browser.buildRosterRaidList()
 		-- Redraw group view to reflect change
-		RIC_Group_Manager.draw()
+		RIC_Group_Manager.draw(true)
 	end
 end
 

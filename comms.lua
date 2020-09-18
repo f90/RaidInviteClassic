@@ -39,12 +39,12 @@ function RIC:OnCommReceived(prefix, message, distribution, sender)
 	end
 
 	if key == "SWAP_IN_PROGRESS" then
-		RIC_Group_Manager.ReceiveInProgress(sender)
+		RIC_Group_Manager.receiveInProgress(sender)
 		return
 	end
 
 	if key == "SWAP_END" then
-		RIC_Group_Manager.ReceiveEndProgress()
+		RIC_Group_Manager.receiveEndProgress()
 		return
 	end
 

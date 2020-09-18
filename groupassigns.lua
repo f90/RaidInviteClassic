@@ -5,12 +5,18 @@ local DEFAULT_FONT = LSM.MediaTable.font[LSM:GetDefault('font')]
 
 local inSwap = false
 local remoteInSwap = false
-local swapCounter = 0
+local remoteSender = nil
+local moveCounter = 0
 
 local isDraggingLabel = false
 local shouldUpdatePlayerBank = false
 
 function RIC:OnEnableGroupview()
+	-- Add event listeners
+	self:RegisterEvent("GROUP_ROSTER_UPDATE", function() RIC_Group_Manager.OnRosterUpdate() end)
+	--self:RegisterEvent("PLAYER_REGEN_DISABLED", function() RIC_Group_Manager.updateArrangeBox(true) end)
+	--self:RegisterEvent("PLAYER_REGEN_ENABLED", function() RIC_Group_Manager.updateArrangeBox(false) end)
+
 	-- CREATE GROUP ASSIGNMENT FUNCTIONALITY!
 	self.groups = AceGUI:Create("Window")
 	self.groups:Hide()
@@ -105,7 +111,7 @@ function RIC:OnEnableGroupview()
 	self.rearrangeRaid.textColor.r = r
 	self.rearrangeRaid.textColor.g = g
 	self.rearrangeRaid.textColor.b = b
-	self.rearrangeRaid:SetCallback("OnClick", function() RIC_Group_Manager.RearrangeRaid() end)
+	self.rearrangeRaid:SetCallback("OnClick", function() RIC_Group_Manager.rearrangeRaid() end)
 
 	AceGUI:RegisterLayout("GroupLayout", function()
 		self.playerBank:SetPoint("TOPLEFT", self.groups.frame, "TOPLEFT", 10, -28)
@@ -145,7 +151,7 @@ function RIC_Group_Manager.toggle()
 		_G["RIC_OpenGroupWindow"]:SetText("View groups")
 	else
 		RIC.groups:Show()
-		RIC_Group_Manager.draw()
+		RIC_Group_Manager.draw(true)
 		_G["RIC_OpenGroupWindow"]:SetText("Hide groups")
 	end
 end
@@ -169,13 +175,12 @@ function RIC_Group_Manager.flattenGroups()
 		end
 	end
 	RIC_Group_Manager.drawGroupLabels()
-	RIC_Group_Manager.CheckArrangable()
+	-- No need to check arrangability here since player raid and roster did not change on its own, and is not affected by flattening
 end
 
 function RIC_Group_Manager.MovedToPlayerBank(label)
 	RIC_Group_Manager.setGroupPosition(label.name, 0)
-	RIC_Group_Manager.flattenGroups()
-	RIC_Group_Manager.showPlayerBank()
+	RIC_Group_Manager.draw(true)
 end
 
 function RIC_Group_Manager.SetLabel(label, statusLabel, name)
@@ -242,10 +247,12 @@ function RIC_Group_Manager.assignGroupLabelFunctionality(label)
 	end)
 end
 
-function RIC_Group_Manager.draw()
+function RIC_Group_Manager.draw(rosterChanged)
 	RIC_Group_Manager.showPlayerBank()
 	RIC_Group_Manager.flattenGroups()
-	RIC_Group_Manager.drawGroupLabels()
+	if rosterChanged then
+		RIC_Group_Manager.updateArrangeBox()
+	end
 end
 
 -- Set player name to a certain raid position, possibly swapping positions with already existing player on this position
@@ -264,8 +271,7 @@ function RIC_Group_Manager.setGroupPosition(name, position)
 		end
 		RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] = position
 	end
-	-- Finally, compress groups
-	RIC_Group_Manager.flattenGroups()
+	RIC_Group_Manager.draw(true) -- Redraw UI and flatten groups, since roster changed
 end
 
 function RIC_Group_Manager.drawGroupLabels()
@@ -353,7 +359,7 @@ function RIC_Group_Manager.showPlayerBank()
 						-- Update data and view
 						RIC_Roster_Browser.buildRosterRaidList()
 						-- Redraw group view to reflect change
-						RIC_Group_Manager.draw()
+						RIC_Group_Manager.draw(true)
 					end
 				end)
 
@@ -385,26 +391,12 @@ function RIC_Group_Manager.unassignAll()
 	for name, _ in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 		RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] = 0
 	end
-	RIC_Group_Manager.draw()
+	RIC_Group_Manager.draw(true)
 end
 
-function RIC_Group_Manager.DoSwap()
-	if swapCounter > 40 then
-		RIC:Print("|cFFFF0000ERROR: Something went wrong, we are still stuck rearranging after 40 swaps. Terminating...|r")
-		RIC_Group_Manager.StopSwap()
-		return
-	end
-
-	local errorMessage = RIC_Group_Manager.CheckArrangable()
-	if errorMessage then
-		RIC:Print("|cFFFF0000ERROR: " .. errorMessage .. "|r")
-		RIC_Group_Manager.StopSwap()
-		return
-	end
-
-	RIC_Group_Manager.SetUnarrangable("REARRANGING...")
-	RIC_Group_Manager.SendInProgress()
-
+-- Checks for potential player swaps by comparing current to desired group setup.
+-- Returns true if a swap was found and attempted, false otherwise
+function RIC_Group_Manager.getMove()
 	local raidPlayers = getRaidMembers()
 	-- Go through roster list and check which people are in the raid but not in the right group
 	for name, targetPosition in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
@@ -437,111 +429,183 @@ function RIC_Group_Manager.DoSwap()
 				table.sort(targetGroupPlayersPrio, function(a,b) return a[1] < b[1] end)
 				if #targetGroupPlayersPrio > 0 and targetGroupPlayersPrio[1][1] == 1 then
 					--print("PRIO 1: Swapping " .. name .. " with " .. targetGroupPlayersPrio[1][2]["name"])
-					SwapRaidSubgroup(raidPlayers[name]["index"], targetGroupPlayersPrio[1][2]["index"])
-					swapCounter = swapCounter + 1
-					return
+					return {cmd = "SWAP", from=raidPlayers[name]["index"], to=targetGroupPlayersPrio[1][2]["index"]}
 				elseif targetGroupSize < 5 then -- Empty space in target group!
 					--print("PRIO 2: Putting " .. name .. " into empty slot in group " .. tostring(targetGroup))
-					SetRaidSubgroup(raidPlayers[name]["index"], targetGroup)
-					swapCounter = swapCounter + 1
-					return
+					return {cmd = "SET", from=raidPlayers[name]["index"], targetGroup, to=targetGroup}
 				elseif #targetGroupPlayersPrio > 0 and targetGroupPlayersPrio[1][1] == 3 then
 					--print("PRIO 3: Swapping " .. name .. " with " .. targetGroupPlayersPrio[1][2]["name"])
-					SwapRaidSubgroup(raidPlayers[name]["index"], targetGroupPlayersPrio[1][2]["index"])
-					swapCounter = swapCounter + 1
-					return
+					return {cmd = "SWAP", from=raidPlayers[name]["index"], to=targetGroupPlayersPrio[1][2]["index"]}
 				elseif #targetGroupPlayersPrio > 0 and targetGroupPlayersPrio[1][1] == 4 then
 					--print("PRIO 4: Swapping " .. name .. " with non-roster player " .. targetGroupPlayersPrio[1][2]["name"])
-					SwapRaidSubgroup(raidPlayers[name]["index"], targetGroupPlayersPrio[1][2]["index"])
-					swapCounter = swapCounter + 1
-					return
+					return {cmd = "SWAP", from=raidPlayers[name]["index"], to=targetGroupPlayersPrio[1][2]["index"]}
 				end
 			end
 		end
 	end
-	-- No action was possible anymore! STOP!
-	RIC_Group_Manager.StopSwap()
+	--print("NO SWAP FOUND")
+	return nil
+end
+
+function RIC_Group_Manager.move(action)
+	if action.cmd == "SWAP" then
+		SwapRaidSubgroup(action.from, action.to)
+	elseif action.cmd == "SET" then
+		SetRaidSubgroup(action.from, action.to)
+	else
+		RIC:Print("ERROR: Move not detected")
+	end
+	moveCounter = moveCounter + 1
+end
+
+function RIC_Group_Manager.startSwap()
+	inSwap = true
+	moveCounter = 0
+	RIC_Group_Manager.sendInProgress()
+	RIC_Group_Manager.setUnarrangable("REARRANGING...")
+	local action = RIC_Group_Manager.getMove()
+	if action == nil then -- No swap needed
+		-- Group setup was already correct and we didn't find any swap candidate - stop! In other case, OnRosterUpdate will trigger
+		RIC_Group_Manager.StopSwap()
+	else
+		RIC_Group_Manager.move(action)
+	end
 end
 
 function RIC_Group_Manager.StopSwap()
 	inSwap = false
-	swapCounter = 0
-	RIC_Group_Manager.SendEndProgress()
+	moveCounter = 0
+	RIC_Group_Manager.sendEndProgress()
 	RIC_Group_Manager.flattenGroups()
+	RIC_Group_Manager.updateArrangeBox()
 end
 
 function RIC_Group_Manager.OnRosterUpdate()
-	if remoteInSwap then
+	if remoteInSwap then -- Don't do anything if a remote swap is in progress
+		if inSwap then
+			RIC:Print("|cFFFF0000ERROR: Our group swap was interrupted by a remote swap. Stopping...|r")
+			inSwap = false
+			moveCounter = 0
+		end
 		return
 	end
 
+	RIC_Group_Manager.updateArrangeBox()
+
 	if inSwap then
-		RIC_Group_Manager.DoSwap()
-	else
-		RIC_Group_Manager.CheckArrangable()
+		-- Stop after too many swaps
+		if moveCounter > 40 then
+			RIC:Print("|cFFFF0000ERROR: Something went wrong, we are still stuck rearranging after 40 swaps. Terminating...|r")
+			RIC_Group_Manager.StopSwap()
+			return
+		end
+
+		-- Check if we can continue swapping
+		local errorMessage = RIC_Group_Manager.checkArrangable()
+		if errorMessage then
+			RIC_Group_Manager.StopSwap()
+			return
+		end
+
+		-- Try next swap. If we dont have any swap candidates anymore, stop!
+		local action = RIC_Group_Manager.getMove()
+		if action == nil then
+			RIC_Group_Manager.StopSwap()
+		else
+			RIC_Group_Manager.move(action)
+		end
 	end
 end
 
-function RIC_Group_Manager.CheckArrangable(enteredCombat)
-	local rearrangeRaidText = "REARRANGE RAID"
-	local errorMessage
+function RIC_Group_Manager.checkArrangable()
+	local errorMessage = nil
 	if not IsInRaid() then
 		errorMessage = "CANNOT REARRANGE - NOT IN A RAID GROUP"
-		RIC_Group_Manager.SetUnarrangable(errorMessage)
+		RIC_Group_Manager.setUnarrangable(errorMessage)
+		return errorMessage
+	end
+
+	if RIC_Group_Manager.getMove() == nil then
+		-- Our roster is already arranged as desired!
+		errorMessage = "RAID IS ARRANGED"
+		RIC_Group_Manager.setUnarrangable(errorMessage)
 		return errorMessage
 	end
 
 	if not IsRaidAssistant() then
 		errorMessage = "CANNOT REARRANGE - NOT A RAID LEADER OR ASSISTANT"
-		RIC_Group_Manager.SetUnarrangable(errorMessage)
+		RIC_Group_Manager.setUnarrangable(errorMessage)
 		return errorMessage
 	end
 
-	if enteredCombat or InCombatLockdown() then
+	if InCombatLockdown() then
 		errorMessage = "CANNOT REARRANGE - IN COMBAT"
-		RIC_Group_Manager.SetUnarrangable(errorMessage)
+		RIC_Group_Manager.setUnarrangable(errorMessage)
 		return errorMessage
 	end
 
-	RIC.rearrangeRaid:SetText(rearrangeRaidText)
+	if remoteInSwap then
+		errorMessage = "REARRANGEMENT IN PROGRESS BY " .. remoteSender
+		RIC_Group_Manager.setUnarrangable(errorMessage)
+		return errorMessage
+	end
+
+	return errorMessage
+end
+
+function RIC_Group_Manager.updateArrangeBox()
+	local msg = RIC_Group_Manager.checkArrangable()
+	if msg ~= nil then
+		RIC_Group_Manager.setUnarrangable(msg)
+	else
+		RIC_Group_Manager.setArrangable()
+	end
+end
+
+function RIC_Group_Manager.setArrangable()
+	RIC.rearrangeRaid:SetText("REARRANGE RAID")
 	RIC.rearrangeRaid:SetDisabled(false)
 	RIC.rearrangeRaid.frame:EnableMouse(true)
 	RIC.rearrangeRaid.text:SetTextColor(1.0, 1.0, 1.0)
 end
 
-function RIC_Group_Manager.SetUnarrangable(text)
+function RIC_Group_Manager.setUnarrangable(text)
 	RIC.rearrangeRaid:SetText(text)
 	RIC.rearrangeRaid:SetDisabled(true)
 	RIC.rearrangeRaid.frame:EnableMouse(false)
 	RIC.rearrangeRaid.text:SetTextColor(0.35, 0.35, 0.35)
 end
 
-function RIC_Group_Manager.RearrangeRaid()
-	inSwap = true
-	swapCounter = 0
-	RIC_Group_Manager.DoSwap()
+function RIC_Group_Manager.rearrangeRaid()
+	local errorMessage = RIC_Group_Manager.checkArrangable()
+	if errorMessage == nil then -- Check to see whether we can start
+		RIC_Group_Manager.startSwap()
+	else
+		RIC_Group_Manager.setUnarrangable(errorMessage)
+	end
 end
 
-function RIC_Group_Manager.SendInProgress()
+function RIC_Group_Manager.sendInProgress()
 	local message = {
 		key = "SWAP_IN_PROGRESS",
 	}
-	SendComm(message)
+	SendComm(message,"RAID")
 end
 
-function RIC_Group_Manager.SendEndProgress()
+function RIC_Group_Manager.sendEndProgress()
 	local message = {
 		key = "SWAP_END",
 	}
-	SendComm(message)
+	SendComm(message,"RAID")
 end
 
-function RIC_Group_Manager.ReceiveInProgress(sender)
+function RIC_Group_Manager.receiveInProgress(sender)
 	remoteInSwap = true
-	RIC_Group_Manager.SetUnarrangable("REARRANGEMENT IN PROGRESS BY " .. sender)
+	remoteSender = sender
+	RIC_Group_Manager.setUnarrangable("REARRANGEMENT IN PROGRESS BY " .. sender)
 end
 
-function RIC_Group_Manager.ReceiveEndProgress()
+function RIC_Group_Manager.receiveEndProgress()
 	remoteInSwap = false
-	RIC_Group_Manager.CheckArrangable()
+	RIC_Group_Manager.updateArrangeBox()
 end

@@ -64,9 +64,6 @@ function RIC:OnEnable() -- Called when the addon is enabled
 	self:RegisterEvent("PARTY_LEADER_CHANGED") -- To stop invite phase if we give away group/raid lead
 	self:RegisterEvent("PLAYER_LOGOUT") -- To properly end invite phase (with announcement) when player logs out/exits/reloads UI since invite phase is reset
 
-	self:RegisterEvent("GROUP_ROSTER_UPDATE", function() RIC_Group_Manager.OnRosterUpdate() end)
-	self:RegisterEvent("PLAYER_REGEN_DISABLED", function() RIC_Group_Manager.CheckArrangable(true) end)
-	self:RegisterEvent("PLAYER_REGEN_ENABLED", function() RIC_Group_Manager.CheckArrangable(false) end)
 	self:RegisterComm("ricroster")
 
 	-- Regularly call internal update function
