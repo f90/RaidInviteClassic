@@ -189,15 +189,17 @@ function RIC_Group_Manager.SetLabel(label, statusLabel, name)
 		label.name = name
 		label:SetText(name)
 		local playerInfo = RIC_Roster_Browser.getPlayerInfo(name)
-		label.label:SetTextColor(playerInfo.classColor.r, playerInfo.classColor.g, playerInfo.classColor.b)
-		label.frame:EnableMouse(true)
-		label.frame:SetMovable(true)
-		local statusLabelPath = getStatusSymbolImagePath(playerInfo.status)
-		if statusLabelPath ~= nil then
-			statusLabel:SetImage(statusLabelPath)
+		local classColor
+		if playerInfo ~= nil then
+			statusLabel:SetImage(getStatusSymbolImagePath(playerInfo.status))
+			classColor = playerInfo.classColor
 		else
 			statusLabel:SetImage("Interface\\AddOns\\RaidInviteClassic\\img\\question_mark")
+			classColor = getClassColor("UNKNOWN_CLASS", "RGB")
 		end
+		label.label:SetTextColor(classColor.r, classColor.g, classColor.b)
+		label.frame:EnableMouse(true)
+		label.frame:SetMovable(true)
 	else
 		-- Clear label
 		label.name = nil
