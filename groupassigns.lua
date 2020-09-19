@@ -293,7 +293,7 @@ function RIC_Group_Manager.showPlayerBank()
 	end
 
 	local index = 0
-	for name, val in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
+	for name, val in pairsByKeys(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 		if val == 0 then
 			index = index + 1
 			local playerLabel
