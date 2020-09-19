@@ -112,10 +112,15 @@ function charLength(str)
 	return 1
 end
 
-function pairsByKeys(t, f)
+function getSortedTableKeys(t, f)
     local a = {}
     for n in pairs(t) do table.insert(a, n) end
     table.sort(a, f)
+    return a
+end
+
+function pairsByKeys(t, f)
+    local a = getSortedTableKeys(t, f)
     local i = 0
     local iter = function()
 		i = i + 1

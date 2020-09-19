@@ -299,13 +299,43 @@ function RIC_Roster_Manager.addReceivedRosters(rosterLists)
 		RIC.db.realm.RosterList[rosterName] = rosterList
 	end
 	RIC_Roster_Manager.draw()
+	RIC_Roster_Browser.buildRosterRaidList()
 	RIC_Group_Manager.draw(true)
 end
 
+function RIC_Roster_Manager.isValidRosterList(rosterLists)
+	if rosterLists == nil or hashLength(rosterLists) == 0 then
+		return false
+	end
+	for k,v in pairs(rosterLists) do
+		if v == nil then
+			return false
+		end
+	end
+	-- TODO Potentially more checks here (content of entries etc)
+	return true
+end
+
 function RIC_Roster_Manager.setReceivedRosters(rosterLists)
-	-- Overwrite our own roster lists with the received ones -- TODO maybe ask user for permission before overwriting
+	-- Make sure the new list is a valid roster list, otherwise don't accept list
+	if not RIC_Roster_Manager.isValidRosterList(rosterLists) then
+		return
+	end
+
+	-- Our current roster name might not be available anymore - in this case, switch current roster to an existing one!
+	local newRosterName = getSortedTableKeys(rosterLists)[1]
+	if rosterLists[RIC.db.realm.CurrentRoster] == nil then
+		RIC.db.realm.CurrentRoster = newRosterName
+	end
+	if rosterLists[selectedRoster] == nil then
+		selectedRoster = newRosterName
+	end
+
+	-- Overwrite our own roster lists with the received ones
 	RIC.db.realm.RosterList = rosterLists
+
 	RIC_Roster_Manager.draw()
+	RIC_Roster_Browser.buildRosterRaidList()
 	RIC_Group_Manager.draw(true)
 end
 
