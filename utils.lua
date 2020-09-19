@@ -187,6 +187,12 @@ function getRaidMembers()
     return output
 end
 
+function rtrim(s)
+  local n = #s
+  while n > 0 and s:find("^%s", n) do n = n - 1 end
+  return s:sub(1, n)
+end
+
 function reverseMap(assocTable)
     local reversed = {}
 	for key, val in pairs(assocTable) do

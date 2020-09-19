@@ -188,8 +188,8 @@ function RIC:OnEnable() -- Called when the addon is enabled
 	RIC_Roster_Browser.buildRosterRaidList()
 
 	RIC:OnEnableGroupview()
-
 	RIC:OnEnableRosterManagerView()
+	RIC:OnEnableImportView()
 
 	RIC_setScale()
 end

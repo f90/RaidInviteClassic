@@ -27,5 +27,6 @@ durability.lua
 chatfilter.lua
 groupassigns.lua
 comms.lua
+import.lua
 
 MainFrame.xml
