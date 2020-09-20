@@ -304,15 +304,6 @@
 
 				<Layers>
 					<Layer>
-						-- Roster number text
-						<FontString name="RIC_RosterNumberText" text="Roster: 0" inherits="GameFontNormal" justifyV="MIDDLE" justifyH="LEFT">
-							<Size x="100" y="24"/>
-							<Anchors>
-								<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-									<Offset x="265" y="-10" />
-								</Anchor>
-							</Anchors>
-						</FontString>
 						-- Filter texts
 						<FontString text="Ready" inherits="GameFontNormal" justifyV="MIDDLE" justifyH="LEFT">
 							<Size x="100" y="24"/>
@@ -374,6 +365,30 @@
 				</Layers>
 
 				<Frames>
+					<Frame name="RIC_RosterDisplay">
+						<Size x="100" y="24"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+								<Offset x="265" y="-10" />
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="RIC_RosterNumberText" text="Roster: 0" inherits="GameFontNormal" justifyV="MIDDLE" justifyH="LEFT">
+									<Size x="100" y="24"/>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnEnter>
+								RIC_Roster_Browser.showRosterTooltip()
+							</OnEnter>
+							<OnLeave>
+								RIC_Roster_Browser.hideRosterTooltip()
+							</OnLeave>
+						</Scripts>
+					</Frame>
+
 					<Frame name="RIC_RosterFrame">
 						<Size>
 							<AbsDimension x="218" y="392" />

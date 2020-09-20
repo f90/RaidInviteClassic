@@ -192,7 +192,7 @@ function RIC_Group_Manager.SetLabel(label, statusLabel, name)
 		local classColor
 		if playerInfo ~= nil then
 			statusLabel:SetImage(getStatusSymbolImagePath(playerInfo.status))
-			classColor = playerInfo.classColor
+			classColor = getClassColor(playerInfo.classFileName, "RGB")
 		else
 			statusLabel:SetImage("Interface\\AddOns\\RaidInviteClassic\\img\\question_mark")
 			classColor = getClassColor("UNKNOWN_CLASS", "RGB")

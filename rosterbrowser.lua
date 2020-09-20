@@ -55,11 +55,12 @@ function RIC_Roster_Browser.buildRosterRaidList()
 		inRaid[name] = 1
 
 		table.insert(rosterRaidList, {
-			name,
-			data["classFileName"],
-			guildRank,
-			guildRankIndex,
-			getStatusSymbol(true, (RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] ~= nil), data["online"], inviteStatusList[name])
+			name=name,
+			classFileName=data["classFileName"],
+			class=data["class"],
+			guildRank=guildRank,
+			guildRankIndex=guildRankIndex,
+			status=getStatusSymbol(true, (RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] ~= nil), data["online"], inviteStatusList[name])
 		})
 	end
 
@@ -68,19 +69,21 @@ function RIC_Roster_Browser.buildRosterRaidList()
 		if inRaid[name] == nil then -- Only process people NOT in raid right now
 			if guildMembers[name] == nil then -- Person is not in guild
 				table.insert(rosterRaidList, {
-					name,
-					"UNKNOWN_CLASS",
-					"<Not in Guild>",
-					0, -- Rank 0 for non-guildies
-					getStatusSymbol(false, true, nil, inviteStatusList[name]) -- We dont know online status of non-raid non-guild members
+					name=name,
+					classFileName="UNKNOWN_CLASS",
+					class="Unknown",
+					guildRank="<Not in Guild>",
+					guildRankIndex=0, -- Rank 0 for non-guildies
+					status=getStatusSymbol(false, true, nil, inviteStatusList[name]) -- We dont know online status of non-raid non-guild members
 				})
 			else -- Person IS in guild
 				table.insert(rosterRaidList, {
-					name,
-					guildMembers[name]["classFileName"],
-					guildMembers[name]["rank"],
-					guildMembers[name]["rankIndex"],
-					getStatusSymbol(false, true, guildMembers[name]["online"], inviteStatusList[name])
+					name=name,
+					classFileName=guildMembers[name]["classFileName"],
+					class=guildMembers[name]["class"],
+					guildRank=guildMembers[name]["rank"],
+					guildRankIndex=guildMembers[name]["rankIndex"],
+					status=getStatusSymbol(false, true, guildMembers[name]["online"], inviteStatusList[name])
 				})
 			end
 		end
@@ -89,16 +92,16 @@ function RIC_Roster_Browser.buildRosterRaidList()
 	-- Subset of rosterRaidList that we actually want to display (status filters)
 	rosterRaidListVisible = {}
 	for _, data in ipairs(rosterRaidList) do
-		if RIC_Roster_Browser.showStatusSymbol(data[5]) == true then
+		if RIC_Roster_Browser.showStatusSymbol(data.status) == true then
 			table.insert(rosterRaidListVisible, data)
 		end
 	end
 
 	-- Clear selection from people who are not shown in rosterRaidListVisible
 	local newSelectedList = {}
-	for _, val in ipairs(rosterRaidListVisible) do
-		if selectedList[val[1]] ~= nil then
-			newSelectedList[val[1]] = 1
+	for _, data in ipairs(rosterRaidListVisible) do
+		if selectedList[data.name] ~= nil then
+			newSelectedList[data.name] = 1
 		end
 	end
 	selectedList = newSelectedList
@@ -137,22 +140,21 @@ function RIC_Roster_Browser.drawTable()
 	for ci = 1, 20 do
 		local row = rosterRaidListVisible[ci+rosterOffset]
 		if row then
-			_G["RIC_RosterFrameEntry"..ci.."Name"]:SetText(getClassColor(row[2]) .. row[1])
-			_G["RIC_RosterFrameEntry"..ci.."Rank"]:SetText(row[3])
+			_G["RIC_RosterFrameEntry"..ci.."Name"]:SetText(getClassColor(row.classFileName) .. row.name)
+			_G["RIC_RosterFrameEntry"..ci.."Rank"]:SetText(row.guildRank)
 			_G["RIC_RosterFrameEntry"..ci]:Show()
-			local theName = row[1]
-			if selectedList[theName] and selectedList[theName] == 1 then
+			if selectedList[row.name] and selectedList[row.name] == 1 then
 				_G["RIC_RosterFrameEntry"..ci.."Check"]:Show()
 			else
 				_G["RIC_RosterFrameEntry"..ci.."Check"]:Hide()
 			end
 
-			local texturePath = getStatusSymbolImagePath(row[5])
+			local texturePath = getStatusSymbolImagePath(row.status)
 			if texturePath ~= nil then
 				_G["RIC_RosterFrameEntry"..ci.."Status"]:SetTexture(texturePath)
 			else
 				_G["RIC_RosterFrameEntry"..ci.."Status"]:SetTexture("Interface\\AddOns\\RaidInviteClassic\\img\\question_mark")
-				RIC:Print("ERROR: Could not find a status symbol for " .. theName)
+				RIC:Print("ERROR: Could not find a status symbol for " .. row.name)
 			end
 
 		else
@@ -197,7 +199,7 @@ end
 function RIC_Roster_Browser.selectAll()
 	selectedList = {}
 	for _, val in ipairs(rosterRaidListVisible) do
-		selectedList[val[1]] = 1
+		selectedList[val.name] = 1
 	end
 	RIC_Roster_Browser.drawTable()
 end
@@ -205,7 +207,7 @@ end
 function RIC_Roster_Browser.selectRow(rowNum)
 	local theRow = rosterRaidListVisible[rowNum+rosterOffset]
 	if theRow then
-		local theName = theRow[1]
+		local theName = theRow.name
 		if theName then
 			if selectedList[theName] ~= nil then
 				selectedList[theName] = nil
@@ -538,7 +540,7 @@ function RIC_Roster_Browser.showPlayerTooltip(rowElement, rowNum)
 	GameTooltip:SetOwner(rowElement, "ANCHOR_RIGHT")
 	local theRow = rosterRaidListVisible[rowNum+rosterOffset]
 	if theRow then
-		local theName = theRow[1]
+		local theName = theRow.name
 		if theName then
 			tooltipRow = rowNum
 			tooltipActive = true
@@ -554,7 +556,7 @@ function RIC_Roster_Browser.setPlayerTooltip()
 
 	local theRow = rosterRaidListVisible[tooltipRow+rosterOffset]
 	if theRow then
-		local theName = theRow[1]
+		local theName = theRow.name
 		if theName then
 			-- Get online status of player
 			local online = "Unknown"
@@ -598,13 +600,42 @@ end
 function RIC_Roster_Browser.hidePlayerTooltip(rowNum)
 	local theRow = rosterRaidListVisible[rowNum+rosterOffset]
 	if theRow then
-		local theName = theRow[1]
+		local theName = theRow.name
 		if theName then
 			tooltipRow = nil
 			tooltipActive = false
 			GameTooltip:Hide()
 		end
 	end
+end
+
+function RIC_Roster_Browser.countClassFrequencies()
+	local classFreq = {}
+	for i, data in ipairs(rosterRaidList) do
+		if classFreq[data.class] ~= nil then
+			classFreq[data.class].freq = classFreq[data.class].freq + 1
+		else
+			classFreq[data.class] = {freq=1, classFileName=data.classFileName}
+		end
+	end
+	return classFreq
+end
+
+function RIC_Roster_Browser.showRosterTooltip()
+	-- Set tooltip
+	GameTooltip:SetOwner(_G["RIC_RosterDisplay"], "ANCHOR_RIGHT")
+	GameTooltip:ClearLines()
+	GameTooltip:AddLine("|cFFFFFFFFRoster:|r " .. RIC.db.realm.CurrentRoster)
+	-- Show how many of each class we have on roster
+	local classFrequencies = RIC_Roster_Browser.countClassFrequencies()
+	for className, data in pairsByKeys(classFrequencies) do
+		GameTooltip:AddLine(getClassColor(data.classFileName) .. className .. "|r: " .. tostring(data.freq))
+	end
+	GameTooltip:Show()
+end
+
+function RIC_Roster_Browser.hideRosterTooltip()
+	GameTooltip:Hide()
 end
 
 function RIC_Roster_Browser.SystemFilter(chatFrame, event, message)
@@ -688,9 +719,9 @@ end
 
 -- Can be called by other modules to ask for a players class and invite status information
 function RIC_Roster_Browser.getPlayerInfo(name)
-	for _, val in ipairs(rosterRaidList) do
-		if val[1] == name then
-			return {classColor = getClassColor(val[2], "RGB"), rank = val[3], rankIndex = val[4], status = val[5]} -- Return class color, guild rank, invite status etc
+	for _, data in ipairs(rosterRaidList) do
+		if data.name == name then
+			return data
 		end
 	end
 	RIC:Print("WARNING: Could not find " .. name .. " in roster raid list!")
@@ -726,17 +757,17 @@ function RIC_Roster_Browser.sortTable(t, id)
 	if (id == 1) then -- Char Name sorting (alphabetically)
 		table.sort(t, function(v1, v2)
 			if sortMethod == "desc" then
-				return v1 and v1[1] > v2[1]
+				return v1 and v1.name > v2.name
 			else
-				return v1 and v1[1] < v2[1]
+				return v1 and v1.name < v2.name
 			end
 		end)
 	elseif (id == 2) then -- Guild Rank sorting (numerically)
 		table.sort(t, function(v1, v2)
 			if sortMethod == "desc" then
-				return v1 and v1[4] > v2[4]
+				return v1 and v1.guildRankIndex > v2.guildRankIndex
 			else
-				return v1 and v1[4] < v2[4]
+				return v1 and v1.guildRankIndex < v2.guildRankIndex
 			end
 		end)
 	elseif (id == 3) then -- Selected sorting
@@ -744,17 +775,17 @@ function RIC_Roster_Browser.sortTable(t, id)
 				if v1 == nil then return false end
 				if v2 == nil then return true end
 				if sortMethod == "asc" then
-					return ((selectedList[v1[1]] ~= nil) and (selectedList[v2[1]] == nil))
+					return ((selectedList[v1.name] ~= nil) and (selectedList[v2.name] == nil))
 				else
-					return ((selectedList[v2[1]] ~= nil) and (selectedList[v1[1]] == nil))
+					return ((selectedList[v2.name] ~= nil) and (selectedList[v1.name] == nil))
 				end
 		end)
 	elseif (id == 4) then -- Status sorting
 				table.sort(t, function(v1, v2)
 			if sortMethod == "desc" then
-				return v1 and v1[5] > v2[5]
+				return v1 and v1.status > v2.status
 			else
-				return v1 and v1[5] < v2[5]
+				return v1 and v1.status < v2.status
 			end
 		end)
 	end
