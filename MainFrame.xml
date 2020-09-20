@@ -366,7 +366,7 @@
 
 				<Frames>
 					<Frame name="RIC_RosterDisplay">
-						<Size x="100" y="24"/>
+						<Size x="80" y="24"/>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
 								<Offset x="265" y="-10" />
@@ -375,7 +375,7 @@
 						<Layers>
 							<Layer>
 								<FontString name="RIC_RosterNumberText" text="Roster: 0" inherits="GameFontNormal" justifyV="MIDDLE" justifyH="LEFT">
-									<Size x="100" y="24"/>
+									<Size x="80" y="24"/>
 								</FontString>
 							</Layer>
 						</Layers>

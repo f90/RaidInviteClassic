@@ -12,7 +12,7 @@ function RIC:OnEnableRosterManagerView()
 	self.rosters = AceGUI:Create("Window")
 	self.rosters:Hide()
 	self.rosters:EnableResize(false)
-	self.rosters:SetWidth(450)
+	self.rosters:SetWidth(500)
 	self.rosters:SetHeight(270)
 	self.rosters:SetTitle("Manage rosters")
 	self.rosters:SetLayout("Flow")
@@ -21,7 +21,7 @@ function RIC:OnEnableRosterManagerView()
 	self:HookScript(self.rosters.frame, "OnShow", function() RIC_Roster_Manager.draw() end)
 
 	local rosterList = AceGUI:Create("InlineGroup")
-	rosterList:SetWidth(200)
+	rosterList:SetWidth(250)
 	rosterList:SetHeight(200)
 	rosterList:SetTitle("Select roster")
 	rosterList:SetLayout("Fill")
@@ -171,7 +171,7 @@ function RIC_Roster_Manager.draw()
 			label:SetFont(DEFAULT_FONT, 12)
 			label:SetJustifyH("CENTER")
 			label:SetHighlight("Interface\\BUTTONS\\UI-Listbox-Highlight.blp")
-			label:SetWidth(161)
+			label:SetWidth(230)
 			label:SetHeight(20)
 
 			label:SetCallback("OnClick", function(self, _, button)
@@ -186,12 +186,17 @@ function RIC_Roster_Manager.draw()
 		end
 
 		-- Update label
-		label.rosterName = rosterName
-		if rosterName == selectedRoster then
-			label:SetText(">> " .. rosterName .. " <<")
-			label:SetColor(1.0, 1.0, 0.0)
+		label.name = rosterName
+		if string.utf8len(rosterName) > 25 then
+			label:SetText(string.sub(rosterName, 1, 25) .. "...")
+			label:SetCallback("OnEnter", function(self) RIC_Roster_Manager.showRosterTooltip(self) end)
+			label:SetCallback("OnLeave", function() GameTooltip:Hide() end)
 		else
 			label:SetText(rosterName)
+		end
+		if rosterName == selectedRoster then
+			label:SetColor(1.0, 1.0, 0.0)
+		else
 			label:SetColor(1.0, 1.0, 1.0)
 		end
 		rosterNum = rosterNum + 1
@@ -204,8 +209,16 @@ function RIC_Roster_Manager.draw()
 	end
 end
 
+function RIC_Roster_Manager.showRosterTooltip(label)
+	-- put tooltip here showing full name of roster
+	GameTooltip:SetOwner(label.frame, "ANCHOR_RIGHT")
+	GameTooltip:ClearLines()
+	GameTooltip:AddLine(label.name)
+	GameTooltip:Show()
+end
+
 function RIC_Roster_Manager.select(label)
-	selectedRoster = label.rosterName
+	selectedRoster = label.name
 	RIC_Roster_Manager.draw()
 end
 
