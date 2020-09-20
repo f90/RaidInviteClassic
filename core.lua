@@ -264,4 +264,5 @@ function RIC_setScale()
 	RIC_MainFrame:SetScale(RIC.db.profile.MainFrameScale)
 	RIC.groups.frame:SetScale(RIC.db.profile.MainFrameScale)
 	RIC.rosters.frame:SetScale(RIC.db.profile.MainFrameScale)
+	RIC.import.frame:SetScale(RIC.db.profile.MainFrameScale)
 end

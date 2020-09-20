@@ -293,20 +293,11 @@ function RIC_Roster_Manager.requestRosters()
 	SendComm(message)
 end
 
-function RIC_Roster_Manager.addReceivedRosters(rosterLists)
-	-- Build union of current roster lists and received ones, overwriting our local lists in case of duplicate names
-	for rosterName, rosterList in pairs(rosterLists) do
-		RIC.db.realm.RosterList[rosterName] = rosterList
-	end
-	RIC_Roster_Manager.draw()
-	RIC_Roster_Browser.buildRosterRaidList()
-	RIC_Group_Manager.draw(true)
-end
-
 function RIC_Roster_Manager.isValidRosterList(rosterLists)
 	if rosterLists == nil or hashLength(rosterLists) == 0 then
 		return false
 	end
+	-- Check if all created roster lists are non-nil
 	for k,v in pairs(rosterLists) do
 		if v == nil then
 			return false
@@ -316,9 +307,24 @@ function RIC_Roster_Manager.isValidRosterList(rosterLists)
 	return true
 end
 
-function RIC_Roster_Manager.setReceivedRosters(rosterLists)
+function RIC_Roster_Manager.addReceivedRosters(rosterLists, sender)
+	if not RIC_Roster_Manager.isValidRosterList(rosterLists) then
+		RIC:Print(L["Roster_Rejected_1"] .. " " .. sender .. " " .. L["Roster_Rejected_2"])
+		return
+	end
+	-- Build union of current roster lists and received ones, overwriting our local lists in case of duplicate names
+	for rosterName, rosterList in pairs(rosterLists) do
+		RIC.db.realm.RosterList[rosterName] = rosterList
+	end
+	RIC_Roster_Manager.draw()
+	RIC_Roster_Browser.buildRosterRaidList()
+	RIC_Group_Manager.draw(true)
+end
+
+function RIC_Roster_Manager.setReceivedRosters(rosterLists, sender)
 	-- Make sure the new list is a valid roster list, otherwise don't accept list
 	if not RIC_Roster_Manager.isValidRosterList(rosterLists) then
+		RIC:Print(L["Roster_Rejected_1"] .. " " .. sender .. " " .. L["Roster_Rejected_2"])
 		return
 	end
 
@@ -345,5 +351,26 @@ function RIC_Roster_Manager.send()
 		sender = UnitName("player"),
 		value = RIC.db.realm.RosterList,
 	}
-	SendComm(msg)
+
+	-- Try sending via raid channel
+	if IsInRaid() then
+		if UnitIsGroupLeader("player") then
+			SendComm(msg, "RAID")
+			RIC:Print(L["Roster_Sent_Successfully_Raid"])
+		else
+			-- We are in raid but not leader - we are NOT allowed to overwrite other people's roster
+			RIC:Print(L["Roster_Send_Failed_Not_Raid_Lead"])
+		end
+	end
+
+	-- Try sending via guild channel
+	if IsInGuild() then
+		if CanEditOfficerNote() then
+			SendComm(msg, "GUILD")
+			RIC:Print(L["Roster_Sent_Successfully_Guild"])
+		else
+			-- We are in a guild but not an "officer" - we are NOT allowed to overwrite other people's roster
+			RIC:Print(L["Roster_Send_Failed_Not_Guild_Officer"])
+		end
+	end
 end

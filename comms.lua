@@ -59,11 +59,11 @@ function RIC:OnCommReceived(prefix, message, distribution, sender)
 	end
 
 	if key == "ROSTERS" and message["asker"] == UnitName("player") and message["value"] then
-		RIC_Roster_Manager.addReceivedRosters(message["value"])
+		RIC_Roster_Manager.addReceivedRosters(message["value"], sender)
 		return
 	end
 
 	if key == "OVERWRITE_ROSTERS" and message["value"] then
-		RIC_Roster_Manager.setReceivedRosters(message["value"]) -- TODO maybe ask recipient if he wants to get this update and discard his own data
+		RIC_Roster_Manager.setReceivedRosters(message["value"], sender) -- TODO maybe ask recipient if he wants to get this update and discard his own data
 	end
 end
