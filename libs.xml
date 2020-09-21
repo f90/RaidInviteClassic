@@ -4,7 +4,7 @@
     <Script file="libs\UTF8\utf8data.lua"/>
     <Script file="libs\UTF8\utf8.lua"/>
     <Include file="libs\CallbackHandler-1.0\CallbackHandler-1.0.xml"/>
-    <Include file="libs\Lib-EditBox-AutoComplete\Lib-EditBox-AutoComplete.xml"/>
+
     <Include file="libs\AceAddon-3.0\AceAddon-3.0.xml"/>
     <Include file="libs\AceComm-3.0\AceComm-3.0.xml"/>
     <Include file="libs\AceEvent-3.0\AceEvent-3.0.xml"/>
@@ -15,9 +15,12 @@
     <Include file="libs\AceConfig-3.0\AceConfig-3.0.xml"/>
     <Include file="libs\AceHook-3.0\AceHook-3.0.xml"/>
     <Include file="libs\AceLocale-3.0\AceLocale-3.0.xml"/>
+    <Include file="libs\AceSerializer-3.0\AceSerializer-3.0.xml"/>
+
     <Script file="libs\LibDataBroker-1.1\LibDataBroker-1.1.lua"/>
     <Include file="libs\LibDBIcon-1.0\lib.xml"/>
     <Include file="libs\LibCompress\lib.xml"/>
     <Include file="libs\LibSharedMedia-3.0\lib.xml"/>
     <Include file="libs\LibDeflate\lib.xml"/>
+    <Include file="libs\Lib-EditBox-AutoComplete\Lib-EditBox-AutoComplete.xml"/>
 </Ui>

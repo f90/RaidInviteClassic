@@ -42,15 +42,15 @@ function getOptions()
 				type = "group",
 				args = {
 					minimapshow = {
-						name = "Minimap icon",
-						desc = "Enable / disable minimap icon",
+						name = "Hide minimap icon",
+						desc = "Tick to hide minimap icon",
 						type = "toggle",
 						set = function(info, val)
-							RIC.db.profile.MinimapShow = val
+							RIC.db.profile.hide = val
 							RIC_MinimapButton_Update()
 						end,
 						get = function(info)
-							return RIC.db.profile.MinimapShow
+							return RIC.db.profile.hide
 						end
 					},
 
@@ -163,8 +163,8 @@ function getOptions()
             Durability_Warning = true,
             Durability_Threshold = 80,
 
-            MinimapPos = 0, -- default position of the minimap icon in degrees
-            MinimapShow = true,
+            minimapPos = 0, -- default position of the minimap icon in degrees
+            hide = false, -- Minimap hide
 			MainFrameScale = 1,
 
             NotifyInvitePhaseStart = true,

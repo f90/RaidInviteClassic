@@ -38,7 +38,7 @@ function RIC:processConsoleCommand(cmd)
 		RIC.db.profile.MainFrameScale = 1
 		RIC_setScale()
 		-- Reset minimap position
-		RIC.db.profile.MinimapPos = 0
+		RIC.db.profile.minimapPos = 0
 		RIC_MinimapButton_Update()
 	elseif cmd == "version" then
 		RIC:Print("Version: " .. RIC_Version)
@@ -181,8 +181,6 @@ function RIC:OnEnable() -- Called when the addon is enabled
 
 	RIC_Codewords_Handler.updateCodeWords()
 
-	RIC_MinimapButton_Update()
-
 	-- Update table views
 	RIC_Guild_Browser.buildGuildList()
 	RIC_Roster_Browser.buildRosterRaidList()
@@ -190,6 +188,7 @@ function RIC:OnEnable() -- Called when the addon is enabled
 	RIC:OnEnableGroupview()
 	RIC:OnEnableRosterManagerView()
 	RIC:OnEnableImportView()
+	RIC:OnEnableMinimap()
 
 	RIC_setScale()
 end
