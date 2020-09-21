@@ -132,13 +132,17 @@ function RIC:OnEnable() -- Called when the addon is enabled
 			-- Setup autocomplete suggestions for the player entry edit box
 			local guildMembers = RIC_Guild_Manager.getGuildMembers()
 			local nameLookup = {}
-			for name,v in pairs(guildMembers) do -- Add guild members
+			for name,_ in pairs(guildMembers) do -- Add guild members
 				nameLookup[name] = true
 			end
-			for name,v in pairs(RIC_ReceivedWhisperAuthors) do -- Add people who whispered us during this session
+			for name,_ in pairs(RIC_ReceivedWhisperAuthors) do -- Add people who whispered us during this session
 				nameLookup[name] = true
 			end
-			 -- Go through all names and filter them, and put them into the final list
+			local raidMembers = getRaidMembers() -- Get raid members
+			for name,_ in pairs(raidMembers) do
+				nameLookup[name] = true
+			end
+			-- Go through all names and filter them, and put them into the final list
 			local names = {}
 			for name,v in pairs(nameLookup) do
 				if RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] == nil then -- Only add as suggestion if not on roster list yet
