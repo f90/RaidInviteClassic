@@ -500,6 +500,9 @@ function RIC_Roster_Browser.startInvitePhase()
 			-- Change text of button
 			_G["RIC_SendMassInvites".."Text"]:SetText("Stop invites")
 
+			-- Change minimap icon
+			RIC.minimapIcon:IconCallback(nil, "Raid Invite Classic", "icon", "Interface\\AddOns\\RaidInviteClassic\\img\\minimap_dots")
+
 			-- Notify via guild message
 			if RIC.db.profile.NotifyInvitePhaseStart then
 				SendChatMessageRIC(L["Invite_Start"] ,"GUILD" ,nil ,nil)
@@ -523,6 +526,9 @@ function RIC_Roster_Browser.endInvitePhase()
 	if invitePhaseActive then
 		-- Change text of button
 		_G["RIC_SendMassInvites".."Text"]:SetText("Start invites")
+
+		-- Change minimap icon
+		RIC.minimapIcon:IconCallback(nil, "Raid Invite Classic", "icon", "Interface\\AddOns\\RaidInviteClassic\\img\\minimap")
 
 		-- Notify via guild message
 		if RIC.db.profile.NotifyInvitePhaseEnd then
