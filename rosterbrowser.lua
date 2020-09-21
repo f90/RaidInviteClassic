@@ -609,15 +609,18 @@ function RIC_Roster_Browser.hidePlayerTooltip(rowNum)
 	end
 end
 
-function RIC_Roster_Browser.countClassFrequencies()
+function RIC_Roster_Browser.countClassFrequencies(includeAll)
 	local classFreq = {}
 	for i, data in ipairs(rosterRaidList) do
-		if classFreq[data.class] ~= nil then
-			classFreq[data.class].freq = classFreq[data.class].freq + 1
-		else
-			classFreq[data.class] = {freq=1, classFileName=data.classFileName}
+		if (includeAll == true) or (RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][data.name] ~= nil) then
+			if classFreq[data.class] ~= nil then
+				classFreq[data.class].freq = classFreq[data.class].freq + 1
+			else
+				classFreq[data.class] = {freq=1, classFileName=data.classFileName}
+			end
+
+			end
 		end
-	end
 	return classFreq
 end
 
@@ -627,7 +630,7 @@ function RIC_Roster_Browser.showRosterTooltip()
 	GameTooltip:ClearLines()
 	GameTooltip:AddLine("|cFFFFFFFFRoster:|r " .. RIC.db.realm.CurrentRoster)
 	-- Show how many of each class we have on roster
-	local classFrequencies = RIC_Roster_Browser.countClassFrequencies()
+	local classFrequencies = RIC_Roster_Browser.countClassFrequencies(false)
 	for className, data in pairsByKeys(classFrequencies) do
 		GameTooltip:AddLine(getClassColor(data.classFileName) .. className .. "|r: " .. tostring(data.freq))
 	end
