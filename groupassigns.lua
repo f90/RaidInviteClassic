@@ -164,13 +164,15 @@ function RIC_Group_Manager.flattenGroups()
 			if groupNames[row] == nil then
 				groupNames[row] = {}
 			end
-			table.insert(groupNames[row], name)
+			groupNames[row][position - (row-1)*5] = name
 		end
 	end
 	for row=1,8 do
 		if groupNames[row] ~= nil then
-			for col, name in ipairs(groupNames[row]) do
+			local col = 1
+			for _, name in pairsByKeys(groupNames[row]) do
 				RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] = (row-1)*5 + col
+				col = col + 1
 			end
 		end
 	end
