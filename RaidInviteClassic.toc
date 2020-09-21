@@ -28,5 +28,6 @@ chatfilter.lua
 groupassigns.lua
 comms.lua
 import.lua
+contextpopup.lua
 
 MainFrame.xml

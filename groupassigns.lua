@@ -521,7 +521,7 @@ function RIC_Group_Manager.OnRosterUpdate()
 	end
 end
 
-function RIC_Group_Manager.checkArrangable()
+function RIC_Group_Manager.checkArrangable() -- TODO translate warnings, but be careful for outside check message == "REARRANGING..."
 	local errorMessage = nil
 	if not IsInRaid() then
 		errorMessage = "CANNOT REARRANGE - NOT IN A RAID GROUP"
@@ -586,12 +586,15 @@ function RIC_Group_Manager.setUnarrangable(text)
 	RIC.rearrangeRaid.text:SetTextColor(0.35, 0.35, 0.35)
 end
 
-function RIC_Group_Manager.rearrangeRaid()
+function RIC_Group_Manager.rearrangeRaid(actor)
 	local errorMessage = RIC_Group_Manager.checkArrangable()
 	if errorMessage == nil then -- Check to see whether we can start
 		RIC_Group_Manager.startSwap()
 	else
 		RIC_Group_Manager.setUnarrangable(errorMessage)
+		if actor == "MinimapButton" then -- We initiated this through the minimap button - we need some kind of non-GUI feedback now!
+			RIC:Print(errorMessage)
+		end
 	end
 end
 

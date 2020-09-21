@@ -158,9 +158,16 @@ function RIC:OnEnableRosterManagerView()
 end
 
 function RIC_Roster_Manager.draw()
+	-- reset selectedRoster variable if its not pointing to a roster
+	if RIC.db.realm.RosterList[selectedRoster] == nil then
+		for rosterName, _ in pairsByKeys(RIC.db.realm.RosterList) do
+			selectedRoster = rosterName
+			break
+		end
+	end
 	-- Show all available rosters
 	local rosterNum = 1
-	for rosterName, _ in pairs(RIC.db.realm.RosterList) do
+	for rosterName, _ in pairsByKeys(RIC.db.realm.RosterList) do
 		local label
 		if rosterNum <= #RIC.rosters.rosterList.labels then
 			-- Fetch already existing label
@@ -282,12 +289,20 @@ function RIC_Roster_Manager.delete()
 end
 
 function RIC_Roster_Manager.confirm()
-	RIC.db.realm.CurrentRoster = selectedRoster
 	RIC.rosters:Hide()
+	RIC_Roster_Manager.setRoster(selectedRoster)
+end
 
-	-- Update views
-	RIC_Roster_Browser.buildRosterRaidList()
-	RIC_Group_Manager.draw(true)
+function RIC_Roster_Manager.setRoster(rosterName)
+	if RIC.db.realm.RosterList[rosterName] ~= nil and rosterName ~= RIC.db.realm.CurrentRoster then
+		RIC.db.realm.CurrentRoster = rosterName
+		selectedRoster = rosterName
+
+		-- Update views
+		RIC_Roster_Browser.buildRosterRaidList()
+		RIC_Group_Manager.draw(true)
+		RIC_Roster_Manager.draw()
+	end
 end
 
 function RIC_Roster_Manager.toggle()
