@@ -45,3 +45,12 @@ L["Roster_Rejected_1"] = "WARNING: Rosters received by"
 L["Roster_Rejected_2"] = "were rejected because they are invalid!"
 L["Roster_Sent_Successfully_Raid"] = "Rosters were successfully sent to raid members."
 L["Roster_Sent_Successfully_Guild"] = "Rosters were successfully sent to guild members."
+
+-- Raid group assignments status
+L["Group_Assign_Not_In_Raid"] = "CANNOT REARRANGE - NOT IN A RAID GROUP"
+L["Group_Assign_Is_Arranged"] = "RAID IS ARRANGED"
+L["Group_Assign_No_Rights"] = "CANNOT REARRANGE - NOT A RAID LEADER OR ASSISTANT"
+L["Group_Assign_In_Combat"] = "CANNOT REARRANGE - IN COMBAT"
+L["Group_Assign_In_Progress"] = "REARRANGING..."
+L["Group_Assign_In_Progress_Remote"] = "REARRANGEMENT IN PROGRESS BY"
+L["Group_Assign_Rearrange"] = "REARRANGE RAID"

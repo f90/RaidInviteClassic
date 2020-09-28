@@ -45,3 +45,12 @@ L["Roster_Rejected_1"] = "WARNUNG: Die von"
 L["Roster_Rejected_2"] = "empfangenen Roster wurden ignoriert, weil sie ungültig sind!"
 L["Roster_Sent_Successfully_Raid"] = "Roster wurden erfolgreich an Raidmitglieder gesendet."
 L["Roster_Sent_Successfully_Guild"] = "Roster wurden erfolgreich an Gildenmitglieder gesendet."
+
+-- Raid group assignments status
+L["Group_Assign_Not_In_Raid"] = "KANN NICHT ORDNEN - NICHT IM RAID"
+L["Group_Assign_Is_Arranged"] = "RAID IST GEORDNET"
+L["Group_Assign_No_Rights"] = "KANN NICHT ORDNEN - KEIN RAID LEITER/ASISSTENT"
+L["Group_Assign_In_Combat"] = "KANN NICHT ORDNEN - IM KAMPF"
+L["Group_Assign_In_Progress"] = "ORDNE..."
+L["Group_Assign_In_Progress_Remote"] = "WIRD GEORDNET VON"
+L["Group_Assign_Rearrange"] = "ORDNE RAID"

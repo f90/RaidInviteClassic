@@ -3,10 +3,12 @@ local LD = LibStub("LibDeflate")
 local LSM = LibStub("LibSharedMedia-3.0")
 local DEFAULT_FONT = LSM.MediaTable.font[LSM:GetDefault('font')]
 
+local inCombat = false
 local inSwap = false
 local remoteInSwap = false
-local remoteSender = nil
+local remoteSender = "NONE"
 local moveCounter = 0
+local actorButton = nil
 
 local isDraggingLabel = false
 local shouldUpdatePlayerBank = false
@@ -14,8 +16,8 @@ local shouldUpdatePlayerBank = false
 function RIC:OnEnableGroupview()
 	-- Add event listeners
 	self:RegisterEvent("GROUP_ROSTER_UPDATE", function() RIC_Group_Manager.OnRosterUpdate() end)
-	--self:RegisterEvent("PLAYER_REGEN_DISABLED", function() RIC_Group_Manager.updateArrangeBox(true) end)
-	--self:RegisterEvent("PLAYER_REGEN_ENABLED", function() RIC_Group_Manager.updateArrangeBox(false) end)
+	self:RegisterEvent("PLAYER_REGEN_DISABLED", function() RIC_Group_Manager.onEnterCombat() end)
+	self:RegisterEvent("PLAYER_REGEN_ENABLED", function() RIC_Group_Manager.onExitCombat() end)
 
 	-- CREATE GROUP ASSIGNMENT FUNCTIONALITY!
 	self.groups = AceGUI:Create("Window")
@@ -106,7 +108,7 @@ function RIC:OnEnableGroupview()
 	self.unassignAll:SetCallback("OnClick", function() RIC_Group_Manager.unassignAll() end)
 
 	self.rearrangeRaid = AceGUI:Create("Button")
-	self.rearrangeRaid:SetText("REARRANGE RAID")
+	self.rearrangeRaid:SetText(L["Group_Assign_Rearrange"])
 	self.rearrangeRaid.textColor = {}
 	self.rearrangeRaid.textColor.r = r
 	self.rearrangeRaid.textColor.g = g
@@ -457,7 +459,7 @@ function RIC_Group_Manager.move(action)
 	elseif action.cmd == "SET" then
 		SetRaidSubgroup(action.from, action.to)
 	else
-		RIC:Print("ERROR: Move not detected")
+		RIC:Print("|cFFFF0000ERROR: Move not detected|r")
 	end
 	moveCounter = moveCounter + 1
 end
@@ -466,7 +468,12 @@ function RIC_Group_Manager.startSwap()
 	inSwap = true
 	moveCounter = 0
 	RIC_Group_Manager.sendInProgress()
-	RIC_Group_Manager.setUnarrangable("REARRANGING...")
+	RIC_Group_Manager.updateArrangeBox()
+	if actorButton == "MinimapButton" then -- Textual feedback in case we use minimap
+		RIC:Print(L["Group_Assign_In_Progress"])
+	end
+
+	-- Find possible moves and start swapping if there are any
 	local action = RIC_Group_Manager.getMove()
 	if action == nil then -- No swap needed
 		-- Group setup was already correct and we didn't find any swap candidate - stop! In other case, OnRosterUpdate will trigger
@@ -482,6 +489,10 @@ function RIC_Group_Manager.StopSwap()
 	RIC_Group_Manager.sendEndProgress()
 	RIC_Group_Manager.flattenGroups()
 	RIC_Group_Manager.updateArrangeBox()
+	if actorButton == "MinimapButton" then
+		-- Give console feedback since we cant see arrange box when using minimap
+		RIC:Print(RIC_Group_Manager.getStatusMessage(RIC_Group_Manager.checkArrangable()))
+	end
 end
 
 function RIC_Group_Manager.OnRosterUpdate()
@@ -505,8 +516,9 @@ function RIC_Group_Manager.OnRosterUpdate()
 		end
 
 		-- Check if we can continue swapping
-		local errorMessage = RIC_Group_Manager.checkArrangable()
-		if errorMessage and errorMessage ~= "REARRANGING..." then -- Stop if we have some problem, except if the "problem" is that we are currently swapping
+		local status = RIC_Group_Manager.checkArrangable()
+		if status ~= "Group_Assign_In_Progress" then -- Stop if we have some problem, except if the "problem" is that we are currently swapping
+			--print("STOPPING: " .. L[status])
 			RIC_Group_Manager.StopSwap()
 			return
 		end
@@ -514,6 +526,7 @@ function RIC_Group_Manager.OnRosterUpdate()
 		-- Try next swap. If we dont have any swap candidates anymore, stop!
 		local action = RIC_Group_Manager.getMove()
 		if action == nil then
+			--print("NO MOVE FOUND - STOPPING")
 			RIC_Group_Manager.StopSwap()
 		else
 			RIC_Group_Manager.move(action)
@@ -521,79 +534,82 @@ function RIC_Group_Manager.OnRosterUpdate()
 	end
 end
 
-function RIC_Group_Manager.checkArrangable() -- TODO translate warnings, but be careful for outside check message == "REARRANGING..."
-	local errorMessage = nil
+function RIC_Group_Manager.onEnterCombat()
+	inCombat = true
+	if inSwap then
+		RIC_Group_Manager.StopSwap()
+	end
+	RIC_Group_Manager.updateArrangeBox()
+end
+
+function RIC_Group_Manager.onExitCombat()
+	inCombat = false
+	RIC_Group_Manager.updateArrangeBox()
+end
+
+-- Checks whether we can currently rearrange the raid, and if not, why. Returns the reason as a status message
+function RIC_Group_Manager.checkArrangable()
 	if not IsInRaid() then
-		errorMessage = "CANNOT REARRANGE - NOT IN A RAID GROUP"
-		RIC_Group_Manager.setUnarrangable(errorMessage)
-		return errorMessage
+		return "Group_Assign_Not_In_Raid"
 	end
 
 	if RIC_Group_Manager.getMove() == nil then
 		-- Our roster is already arranged as desired!
-		errorMessage = "RAID IS ARRANGED"
-		RIC_Group_Manager.setUnarrangable(errorMessage)
-		return errorMessage
+		return "Group_Assign_Is_Arranged"
 	end
 
 	if not IsRaidAssistant() then
-		errorMessage = "CANNOT REARRANGE - NOT A RAID LEADER OR ASSISTANT"
-		RIC_Group_Manager.setUnarrangable(errorMessage)
-		return errorMessage
+		return "Group_Assign_No_Rights"
 	end
 
-	if InCombatLockdown() then
-		errorMessage = "CANNOT REARRANGE - IN COMBAT"
-		RIC_Group_Manager.setUnarrangable(errorMessage)
-		return errorMessage
+	if (InCombatLockdown() == true) or (inCombat == true) then
+		return "Group_Assign_In_Combat"
 	end
 
 	if inSwap then
-		errorMessage = "REARRANGING..."
-		RIC_Group_Manager.setUnarrangable(errorMessage)
-		return errorMessage
+		return "Group_Assign_In_Progress"
 	end
 
 	if remoteInSwap then
-		errorMessage = "REARRANGEMENT IN PROGRESS BY " .. remoteSender
-		RIC_Group_Manager.setUnarrangable(errorMessage)
-		return errorMessage
+		return "Group_Assign_In_Progress_Remote"
 	end
 
-	return errorMessage
+	return "Group_Assign_Rearrange"
 end
 
+-- Check whether raid is arrangable and set arrange box text accordingly.
 function RIC_Group_Manager.updateArrangeBox()
-	local msg = RIC_Group_Manager.checkArrangable()
-	if msg ~= nil then
-		RIC_Group_Manager.setUnarrangable(msg)
+	local status = RIC_Group_Manager.checkArrangable()
+	RIC.rearrangeRaid:SetText(RIC_Group_Manager.getStatusMessage(status))
+	if status == "Group_Assign_Rearrange" then
+		-- Rearranging is possible
+		RIC.rearrangeRaid:SetDisabled(false)
+		RIC.rearrangeRaid.frame:EnableMouse(true)
+		RIC.rearrangeRaid.text:SetTextColor(1.0, 1.0, 1.0)
 	else
-		RIC_Group_Manager.setArrangable()
+		RIC.rearrangeRaid:SetDisabled(true)
+		RIC.rearrangeRaid.frame:EnableMouse(false)
+		RIC.rearrangeRaid.text:SetTextColor(0.35, 0.35, 0.35)
 	end
 end
 
-function RIC_Group_Manager.setArrangable()
-	RIC.rearrangeRaid:SetText("REARRANGE RAID")
-	RIC.rearrangeRaid:SetDisabled(false)
-	RIC.rearrangeRaid.frame:EnableMouse(true)
-	RIC.rearrangeRaid.text:SetTextColor(1.0, 1.0, 1.0)
-end
-
-function RIC_Group_Manager.setUnarrangable(text)
-	RIC.rearrangeRaid:SetText(text)
-	RIC.rearrangeRaid:SetDisabled(true)
-	RIC.rearrangeRaid.frame:EnableMouse(false)
-	RIC.rearrangeRaid.text:SetTextColor(0.35, 0.35, 0.35)
+function RIC_Group_Manager.getStatusMessage(status)
+	if status == "Group_Assign_In_Progress_Remote" then
+		return L[status] .. " " .. remoteSender
+	else
+		return L[status]
+	end
 end
 
 function RIC_Group_Manager.rearrangeRaid(actor)
-	local errorMessage = RIC_Group_Manager.checkArrangable()
-	if errorMessage == nil then -- Check to see whether we can start
+	actorButton = actor
+	local status = RIC_Group_Manager.checkArrangable()
+	if status == "Group_Assign_Rearrange" then -- Check to see whether we can start
 		RIC_Group_Manager.startSwap()
 	else
-		RIC_Group_Manager.setUnarrangable(errorMessage)
+		RIC_Group_Manager.updateArrangeBox()
 		if actor == "MinimapButton" then -- We initiated this through the minimap button - we need some kind of non-GUI feedback now!
-			RIC:Print(errorMessage)
+			RIC:Print(RIC_Group_Manager.getStatusMessage(RIC_Group_Manager.checkArrangable()))
 		end
 	end
 end
@@ -615,10 +631,11 @@ end
 function RIC_Group_Manager.receiveInProgress(sender)
 	remoteInSwap = true
 	remoteSender = sender
-	RIC_Group_Manager.setUnarrangable("REARRANGEMENT IN PROGRESS BY " .. sender)
+	RIC_Group_Manager.updateArrangeBox()
 end
 
 function RIC_Group_Manager.receiveEndProgress()
 	remoteInSwap = false
+	remoteSender = "NONE"
 	RIC_Group_Manager.updateArrangeBox()
 end
