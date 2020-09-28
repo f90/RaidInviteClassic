@@ -481,6 +481,10 @@ function RIC_Roster_Browser.processSystemMessage(msg)
 	RIC_Roster_Browser.buildRosterRaidList()
 end
 
+function RIC_Roster_Browser.isInvitePhaseActive()
+	return invitePhaseActive
+end
+
 function RIC_Roster_Browser.toggleInvitePhase()
 	if invitePhaseActive then
 		RIC_Roster_Browser:endInvitePhase()
@@ -496,6 +500,8 @@ function RIC_Roster_Browser.startInvitePhase()
 			-- Reset variables that remember who was invited/declined invite and when
 			inviteStatusList = {}
 			inviteTimeList = {}
+
+			invitePhaseActive = true
 
 			-- Change text of button
 			_G["RIC_SendMassInvites".."Text"]:SetText("Stop invites")
@@ -513,8 +519,6 @@ function RIC_Roster_Browser.startInvitePhase()
 
 			-- Check gear durability of our own character - since we otherwise only check people joining our group/raid
 			RIC_Durability_Manager.setPlayerWarning(GetUnitName("player", false))
-
-			invitePhaseActive = true
 		else
 			-- We cannot activate invite phase because we are already in a group, but not leading it - give error message
 			message("You can only start the invite phase when alone or as a group or raid leader!")

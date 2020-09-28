@@ -49,7 +49,8 @@ function RIC_Durability_Manager.checkDurabilities()
 end
 
 function RIC_Durability_Manager.setPlayerWarning(player)
-	if RIC.db.profile.Durability_Warning then -- Only initiate checks if that is activated in the options
+	if RIC.db.profile.Durability_Warning and
+			((not RIC.db.profile.Durability_Invite_Phase) or RIC_Roster_Browser.isInvitePhaseActive()) then -- Only initiate checks if that is activated in the options
 		playersNeedWarning[player] = time()
 	end
 end

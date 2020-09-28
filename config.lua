@@ -119,7 +119,7 @@ function getOptions()
 				name = "Player checks",
 				type = "group",
 				args = {
-					durability = {
+					durabilitytoggle = {
 						name = "Durability warning",
 						desc = "Enable this to check the gear durability of players joining the raid, to send them a message if their equipment is broken",
 						type = "toggle",
@@ -149,6 +149,22 @@ function getOptions()
 							return RIC.db.profile.Durability_Threshold
 						end
 					},
+
+					durabilityinvitephase = {
+						name = "Only during invite phase",
+						desc = "Only check gear durability of players that join when invite phase is active",
+						type = "toggle",
+						order = 2,
+						disabled = function()
+							return (not RIC.db.profile.Durability_Warning)
+						end,
+						set = function(info, val)
+							RIC.db.profile.Durability_Invite_Phase = val;
+						end,
+						get = function(info)
+							return RIC.db.profile.Durability_Invite_Phase
+						end
+					},
 				}
 			}
 		},
@@ -162,6 +178,7 @@ function getOptions()
 
             Durability_Warning = true,
             Durability_Threshold = 80,
+			Durability_Invite_Phase = false,
 
             minimapPos = 0, -- default position of the minimap icon in degrees
             hide = false, -- Minimap hide
