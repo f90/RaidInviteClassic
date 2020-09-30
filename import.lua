@@ -37,6 +37,8 @@ function RIC_Import_Manager.toggle()
 	else
 		RIC.import:Show()
 		RIC.import.editbox:SetText(RIC_Import_Manager.generateRosterList())
+		RIC.import.editbox:HighlightText()
+		RIC.import.editbox:SetFocus()
 	end
 end
 
