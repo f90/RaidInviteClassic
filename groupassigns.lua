@@ -509,8 +509,8 @@ function RIC_Group_Manager.OnRosterUpdate()
 
 	if inSwap then
 		-- Stop after too many swaps
-		if moveCounter > 40 then
-			RIC:Print("|cFFFF0000ERROR: Something went wrong, we are still stuck rearranging after 40 swaps. Terminating...|r")
+		if moveCounter > 100 then
+			RIC:Print("|cFFFF0000ERROR: Something went wrong, we are still stuck rearranging after 100 swaps. Terminating...|r")
 			RIC_Group_Manager.StopSwap()
 			return
 		end
@@ -537,6 +537,7 @@ end
 function RIC_Group_Manager.onEnterCombat()
 	inCombat = true
 	if inSwap then
+		RIC:Print(L["Group_Assign_Entered_Combat"])
 		RIC_Group_Manager.StopSwap()
 	end
 	RIC_Group_Manager.updateArrangeBox()
