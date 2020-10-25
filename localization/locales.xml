@@ -2,4 +2,5 @@
 ..\FrameXML\UI.xsd">
     <Script file="localization/enUS.lua"/>
     <Script file="localization/deDE.lua"/>
+    <Script file="localization/ruRU.lua"/>
 </Ui>

@@ -1,13 +1,12 @@
 -- Author      : Daniel Stoller
-
 RIC = LibStub("AceAddon-3.0"):NewAddon("Raid Invite Classic", "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceHook-3.0", "AceSerializer-3.0")
-L = LibStub("AceLocale-3.0"):GetLocale("Raid Invite Classic")
-local AceGUI = LibStub("AceGUI-3.0")
-local LSM = LibStub("LibSharedMedia-3.0")
-local DEFAULT_FONT = LSM.MediaTable.font[LSM:GetDefault('font')]
 
+-- Called when the addon is loaded
 function RIC:OnInitialize()
-    -- Called when the addon is loaded
+	-- Setup global locale object
+	L = LibStub("AceLocale-3.0"):GetLocale("Raid Invite Classic")
+
+	-- Setup options
 	local options, defaults = getOptions()
 	self.db = LibStub("AceDB-3.0"):New("RICDB", defaults, true) -- Create database with default config entries
 	options.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db) -- Add profile managment section to options table
