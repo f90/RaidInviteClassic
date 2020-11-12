@@ -68,10 +68,19 @@ function RIC_Roster_Browser.buildRosterRaidList()
 	for name,_ in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 		if inRaid[name] == nil then -- Only process people NOT in raid right now
 			if guildMembers[name] == nil then -- Person is not in guild
+				-- Check if we remember the classFileName from our database of chars!
+				local clsFilename = "UNKNOWN_CLASS"
+				local class = "Unknown"
+				local clsIndex = RIC.db.realm.KnownPlayerClasses[name]
+				if clsIndex ~= nil then -- Found player in database - set class info
+					clsFilename = indexToClassFilename(clsIndex)
+					class = indexToClassname(clsIndex)
+				end
+
 				table.insert(rosterRaidList, {
 					name=name,
-					classFileName="UNKNOWN_CLASS",
-					class="Unknown",
+					classFileName=clsFilename,
+					class=class,
 					guildRank="<Not in Guild>",
 					guildRankIndex=0, -- Rank 0 for non-guildies
 					status=getStatusSymbol(false, true, nil, inviteStatusList[name]) -- We dont know online status of non-raid non-guild members

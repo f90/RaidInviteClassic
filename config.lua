@@ -205,7 +205,8 @@ function getOptions()
 
 		realm = {
 			RosterList = {["Default Roster"] = {}},
-			CurrentRoster = "Default Roster"
+			CurrentRoster = "Default Roster",
+			KnownPlayerClasses = {},
 		}
     }
 

@@ -1,3 +1,18 @@
+-- Class list lookup table (classFilename -> Localised Name)
+local classFilenameToIndexTable, classIndexToFilenameTable = nil
+local function buildClassLists()
+    if classFilenameToIndexTable ~= nil then return end
+    classFilenameToIndexTable = {}
+    classIndexToFilenameTable = {}
+    for i=1,100 do
+        local classInfo = C_CreatureInfo.GetClassInfo(i)
+        if classInfo ~= nil then
+            print(classInfo.className)
+            classFilenameToIndexTable[classInfo.classFile] = {className=classInfo.className, id=classInfo.classID}
+            classIndexToFilenameTable[classInfo.classID] = {className=classInfo.className, classFilename=classInfo.classFile}
+        end
+    end
+end
 
 --Based on that: Symbols
 RIC_Status = {
@@ -98,6 +113,21 @@ function getClassColor(classFilename, format)
     end
 end
 
+function classFilenameToIndex(classFilename)
+    buildClassLists()
+    return classFilenameToIndexTable[classFilename]["id"]
+end
+
+function indexToClassFilename(index)
+    buildClassLists()
+    return classIndexToFilenameTable[index]["classFilename"]
+end
+
+function indexToClassname(index)
+    buildClassLists()
+    return classIndexToFilenameTable[index]["className"]
+end
+
 function charLength(str)
 	local b = string.byte(str, 1)
 	if b then
@@ -176,6 +206,7 @@ function getRaidMembers()
         end
 
         if name ~= nil then
+            -- Add player
             output[name] = {
             name=name,
             rank=rank,
@@ -187,6 +218,9 @@ function getRaidMembers()
             subgroup=subgroup,
             index=ci, --TODO how is this output behaving for half-empty groups?
             }
+
+            -- Save detected class in database
+            RIC.db.realm.KnownPlayerClasses[name] = classFilenameToIndex(classFileName)
         end
     end
     return output
