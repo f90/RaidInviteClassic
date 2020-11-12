@@ -404,53 +404,55 @@ end
 -- Returns true if a swap was found and attempted, false otherwise
 function RIC_Group_Manager.getMove()
 	local raidPlayers = getRaidMembers()
-	-- Go through roster list and check which people are in the raid but not in the right group
-	for name, targetPosition in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
-		if raidPlayers[name] ~= nil then -- If player is not in raid, we ignore that player
-			local currGroup = raidPlayers[name].subgroup
+	local possibleMoves = {}
+	-- Go through raid members
+	for name, data in pairs(raidPlayers) do
+		targetPosition = RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name]
+		if targetPosition ~= nil then -- If player is not in roster, we ignore that player
+			local currGroup = data["subgroup"]
 			local targetGroup = math.ceil(targetPosition/5)
-			if (targetPosition > 0) and (currGroup ~= targetGroup) then -- Only do something if the player is not in the desired group AND not in the list of unassigned players
-				-- Check target group for players
-				local targetGroupPlayersPrio = {}
+			if (targetPosition > 0) and (currGroup ~= targetGroup) then -- Only do something if the player is not in the list of unassigned players and not in the desired group
+				-- Check target group for gplayers
 				local targetGroupSize = 0
 				for otherName, otherData in pairs(raidPlayers) do
 					if otherData["subgroup"] == targetGroup then -- Potential swap partner?
 						local otherTargetPosition = RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][otherName]
 						targetGroupSize = targetGroupSize + 1
-						if otherTargetPosition ~= nil then
-							-- Swap candidate is also on the roster
+						local move = {cmd="SWAP", fromName=name, from=data["index"], toName=otherName, to=otherData["index"]}
+						if otherTargetPosition ~= nil then -- Swap candidate is also on the roster
 							local otherTargetGroup = math.ceil(otherTargetPosition/5)
 							if otherTargetGroup == currGroup then -- If this person needs to go into the group that we want to move the other player out of, perfect match - priority 1
-								table.insert(targetGroupPlayersPrio, {1, otherData})
+								table.insert(possibleMoves, {1, move})
 							elseif otherTargetGroup ~= targetGroup then -- If this person needs to go into another group, but not the ones we swap someone out of, priority 2
-								table.insert(targetGroupPlayersPrio, {3, otherData})
+								table.insert(possibleMoves, {3, move})
 							end -- If swap candidate is already in his correct group, dont swap them!
 						else
 							-- Swap candidate is not on the roster - we dont care where to put them, but also dont want to move them around unnecessarily
-							table.insert(targetGroupPlayersPrio,{4, otherData})
+							table.insert(possibleMoves,{4, move})
 						end
 					end
 				end
-				-- We have the priority for all swap candidates, now choose the best action
-				table.sort(targetGroupPlayersPrio, function(a,b) return a[1] < b[1] end)
-				if #targetGroupPlayersPrio > 0 and targetGroupPlayersPrio[1][1] == 1 then
-					--print("PRIO 1: Swapping " .. name .. " with " .. targetGroupPlayersPrio[1][2]["name"])
-					return {cmd = "SWAP", from=raidPlayers[name]["index"], to=targetGroupPlayersPrio[1][2]["index"]}
-				elseif targetGroupSize < 5 then -- Empty space in target group!
-					--print("PRIO 2: Putting " .. name .. " into empty slot in group " .. tostring(targetGroup))
-					return {cmd = "SET", from=raidPlayers[name]["index"], targetGroup, to=targetGroup}
-				elseif #targetGroupPlayersPrio > 0 and targetGroupPlayersPrio[1][1] == 3 then
-					--print("PRIO 3: Swapping " .. name .. " with " .. targetGroupPlayersPrio[1][2]["name"])
-					return {cmd = "SWAP", from=raidPlayers[name]["index"], to=targetGroupPlayersPrio[1][2]["index"]}
-				elseif #targetGroupPlayersPrio > 0 and targetGroupPlayersPrio[1][1] == 4 then
-					--print("PRIO 4: Swapping " .. name .. " with non-roster player " .. targetGroupPlayersPrio[1][2]["name"])
-					return {cmd = "SWAP", from=raidPlayers[name]["index"], to=targetGroupPlayersPrio[1][2]["index"]}
+				-- If target group is not full, we can also put that player into the target group directly
+				if targetGroupSize < 5 then
+					local move = {cmd="SET", fromName=name, from=data["index"], to=targetGroup}
+					table.insert(possibleMoves, {2, move})
 				end
 			end
 		end
 	end
-	--print("NO SWAP FOUND")
-	return nil
+	-- We added all possible moves to the list. Sort it and select highest-priority one. If empty, raid is arranged!
+	if #possibleMoves > 0 then
+		table.sort(possibleMoves, function(a,b) return a[1] < b[1] end)
+		local bestPriority, bestMove = possibleMoves[1][1], possibleMoves[1][2]
+		--if bestMove["cmd"] == "SWAP" then
+		--	print("PRIO " .. tostring(bestPriority) .. ": " .. bestMove["cmd"] .. " Player: " .. bestMove["fromName"] .. ", Target Player: " .. bestMove["toName"])
+		--else
+		--	print("PRIO " .. tostring(bestPriority) .. ": " .. bestMove["cmd"] .. " Player: " .. bestMove["fromName"] .. ", to empty group: " .. bestMove["to"])
+		--end
+		return bestMove
+	else
+		return nil
+	end
 end
 
 function RIC_Group_Manager.move(action)
