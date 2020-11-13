@@ -1,13 +1,12 @@
--- Class list lookup table (classFilename -> Localised Name)
+-- Class list lookup table (classFilename -> Localised Name) - Make sure to call this exactly ONCE before its needed!
 local classFilenameToIndexTable, classIndexToFilenameTable = nil
 local function buildClassLists()
     if classFilenameToIndexTable ~= nil then return end
     classFilenameToIndexTable = {}
     classIndexToFilenameTable = {}
-    for i=1,100 do
+    for i=1,100 do -- TODO GetNumClasses function does not exist in this Classic API version yet?
         local classInfo = C_CreatureInfo.GetClassInfo(i)
         if classInfo ~= nil then
-            print(classInfo.className)
             classFilenameToIndexTable[classInfo.classFile] = {className=classInfo.className, id=classInfo.classID}
             classIndexToFilenameTable[classInfo.classID] = {className=classInfo.className, classFilename=classInfo.classFile}
         end
