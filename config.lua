@@ -166,6 +166,160 @@ function getOptions()
 						end
 					},
 				}
+			},
+
+			codewords = {
+				name = "Codewords",
+				type = "group",
+				args = {
+					codewordlist = {
+						name = "List of codewords",
+						desc = "Enter the codewords (one per line) that people can whisper you to get themselves invited to the raid. It is enough for one codeword to be contained in the whisper message to get an invite.",
+						type = "input",
+						width = "full",
+						multiline = 6,
+						order = 1,
+						set = function(info, val)
+							RIC.db.profile.Codewords = RIC_Codewords_Handler.buildCodeWords(val)
+						end,
+						get = function(info)
+							return RIC_Codewords_Handler.getCodeWordsString(RIC.db.profile.Codewords)
+						end
+					},
+
+					restrictions = {
+						name = "Restrictions",
+						type = "group",
+						args = {
+							whitelist = {
+								name = "Whitelist players",
+								desc = "List names (one player per line) of characters whose codeword whispers should always be accepted (meaning all permission checks such as being on the roster or in the guild are skipped)",
+								type = "input",
+								width = "full",
+								multiline = 6,
+								order = 1,
+								set = function(info, val)
+									RIC.db.realm.Whitelist = RIC_Codewords_Handler.buildPlayerList(val)
+								end,
+								get = function(info)
+									return RIC_Codewords_Handler.getPlayerListString(RIC.db.realm.Whitelist)
+								end
+							},
+
+							blacklist = {
+								name = "Blacklist players",
+								desc = "List names (one player per line) of characters whose codeword whispers should always be ignored (except if they are also on the whitelist)",
+								type = "input",
+								width = "full",
+								multiline = 6,
+								order = 2,
+								set = function(info, val)
+									RIC.db.realm.Blacklist = RIC_Codewords_Handler.buildPlayerList(val)
+								end,
+								get = function(info)
+									return RIC_Codewords_Handler.getPlayerListString(RIC.db.realm.Blacklist)
+								end
+							},
+
+							onlyingroup = {
+								name = "Only in group",
+								desc = "Only accept codewords when you are already in group. When active, people can not force you to start a new group by whispering you, instead the request is ignored silently.",
+								type = "toggle",
+								order = 5,
+								set = function(info, val)
+									RIC.db.profile.CodewordOnlyInGroup = val;
+								end,
+								get = function(info)
+									return RIC.db.profile.CodewordOnlyInGroup
+								end
+							},
+
+							onlyduringinvite = {
+								name = "Only during invite phase",
+								desc = "Only accept codewords when you are currently in the invite phase",
+								type = "toggle",
+								order = 6,
+								set = function(info, val)
+									RIC.db.profile.CodewordOnlyDuringInvite = val;
+									if (val == false) then
+										RIC.db.profile.CodewordNotifyEnd = false
+									end
+								end,
+								get = function(info)
+									return RIC.db.profile.CodewordOnlyDuringInvite
+								end
+							},
+
+							onlyfromguild = {
+								name = "Only for guild members",
+								desc = "Only accept codewords from guild members",
+								type = "toggle",
+								order = 7,
+								set = function(info, val)
+									RIC.db.profile.GuildWhispersOnly = val;
+								end,
+								get = function(info)
+									return RIC.db.profile.GuildWhispersOnly
+								end
+							},
+
+							onlyfromroster = {
+								name = "Only for roster players",
+								desc = "Only accept codewords from people on the current roster",
+								type = "toggle",
+								order = 8,
+								set = function(info, val)
+									RIC.db.profile.RosterWhispersOnly = val;
+								end,
+								get = function(info)
+									return RIC.db.profile.RosterWhispersOnly
+								end
+							},
+						}
+					},
+
+					sendguildmessagestart = {
+						name = "Notify guild at invite start",
+						desc = "Send a guild message containing the usable codewords when starting the invite phase",
+						type = "toggle",
+						order = 4,
+						set = function(info, val)
+							RIC.db.profile.CodewordNotifyStart = val;
+						end,
+						get = function(info)
+							return RIC.db.profile.CodewordNotifyStart
+						end
+					},
+
+					sendguildmessageend = {
+						name = "Notify guild at invite end",
+						desc = "When stopping the invite phase, inform the guild that codewords are not longer accepted anymore.",
+						type = "toggle",
+						order = 5,
+						disabled = function()
+							return (not RIC.db.profile.CodewordOnlyDuringInvite)
+						end,
+						set = function(info, val)
+							RIC.db.profile.CodewordNotifyEnd = val;
+						end,
+						get = function(info)
+							return RIC.db.profile.CodewordNotifyEnd
+						end
+					},
+
+					hidecodewordwhispers = {
+						name = "Hide codeword whispers",
+						desc = "Hide incoming whispers from your chat that contain NOTHING but a codeword. When activated, the addon still processes these whispers normally, they are just hidden from your view.",
+						type = "toggle",
+						order = 8,
+						set = function(info, val)
+							RIC.db.profile.CodewordHide = val;
+						end,
+						get = function(info)
+							return RIC.db.profile.CodewordHide
+						end
+					},
+				}
 			}
 		},
 	}
@@ -190,7 +344,7 @@ function getOptions()
             MasterLooter = false,
             HideOutgoingWhispers = false,
 
-			CodewordString = "invite",
+			Codewords = RIC_Codewords_Handler.buildCodeWords("invite"),
 			CodewordOnlyDuringInvite = true,
 			CodewordOnlyInGroup = true,
 			CodewordNotifyStart = true,
@@ -207,6 +361,8 @@ function getOptions()
 			RosterList = {["Default Roster"] = {}},
 			CurrentRoster = "Default Roster",
 			KnownPlayerClasses = {},
+			Blacklist={},
+			Whitelist={}
 		}
     }
 

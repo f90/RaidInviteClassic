@@ -93,13 +93,6 @@ function RIC:OnEnable() -- Called when the addon is enabled
 	end
 
 	-- Set text fields
-	_G["RIC_CodewordOnlyInGroupBoxText"]:SetText("Only accept when in group")
-	_G["RIC_CodewordOnlyDuringInviteBoxText"]:SetText("Only accept during invite phase")
-	_G["RIC_CodewordNotifyStartBoxText"]:SetText("Send guild message at start")
-	_G["RIC_CodewordNotifyEndBoxText"]:SetText("Send guild message at end")
-	_G["RIC_OnlyGuildMembersBoxText"]:SetText("Only accept whispers from guild")
-	_G["RIC_OnlyRosterMembersBoxText"]:SetText("Only accept whispers from roster")
-	_G["RIC_CodewordHideBoxText"]:SetText("Hide whispers equalling a codeword")
 	_G["RIC_ShowOfflineBoxText"]:SetText("Show Offline")
 
 	-- Create player entry popup
@@ -164,14 +157,6 @@ function RIC:OnEnable() -- Called when the addon is enabled
 		 _G["RIC_ShowRank"..i]:SetChecked(val)
 	end
 	_G["RIC_ShowOfflineBox"]:SetChecked(RIC.db.profile.ShowOffline)
-	_G["RIC_CodeWordEditBox"]:SetText(RIC.db.profile.CodewordString)
-	_G["RIC_OnlyGuildMembersBox"]:SetChecked(RIC.db.profile.GuildWhispersOnly)
-	_G["RIC_CodewordOnlyDuringInviteBox"]:SetChecked(RIC.db.profile.CodewordOnlyDuringInvite)
-	_G["RIC_CodewordOnlyInGroupBox"]:SetChecked(RIC.db.profile.CodewordOnlyInGroup)
-	_G["RIC_CodewordNotifyStartBox"]:SetChecked(RIC.db.profile.CodewordNotifyStart)
-	_G["RIC_CodewordNotifyEndBox"]:SetChecked(RIC.db.profile.CodewordNotifyEnd)
-	_G["RIC_OnlyRosterMembersBox"]:SetChecked(RIC.db.profile.RosterWhispersOnly)
-	_G["RIC_CodewordHideBox"]:SetChecked(RIC.db.profile.CodewordHide)
 
 	-- Set roster visibility checkboxes to show all by default
 	_G["RIC_ReadyBox"]:SetChecked(true)
@@ -181,8 +166,6 @@ function RIC:OnEnable() -- Called when the addon is enabled
 	_G["RIC_InviteFailedBox"]:SetChecked(true)
 	_G["RIC_MissingBox"]:SetChecked(true)
 	_G["RIC_OtherBox"]:SetChecked(true)
-
-	RIC_Codewords_Handler.updateCodeWords()
 
 	-- Update table views
 	RIC_Guild_Browser.buildGuildList()

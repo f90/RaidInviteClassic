@@ -1,6 +1,46 @@
-function RIC_Codewords_Handler.updateCodeWords()
-	RIC_CodeWords = {}
-	local codewords = { strsplit("\n", RIC.db.profile.CodewordString) }
+-- For converting whitelist and blacklist textboxes into player tables
+function RIC_Codewords_Handler.buildPlayerList(blacklistString)
+	local newPlayerList = {}
+	if blacklistString == nil then
+		return newPlayerList
+	end
+
+	-- Use newlines, colons, comma or space to separate characters
+	local parsedList = gsub(blacklistString, ";", "\n")
+	parsedList = gsub(parsedList, ",", "\n")
+	parsedList = gsub(parsedList, " ", "\n")
+	parsedList = { strsplit("\n", parsedList) }
+
+	for _, playerName in ipairs(parsedList) do
+		local p = trim_special_chars(playerName)
+		if string.utf8len(p) > 1 then
+			-- Add player
+			newPlayerList[p] = true
+		end
+	end
+	return newPlayerList
+end
+
+-- For converting whitelist and blacklist player tables into textbox strings
+function RIC_Codewords_Handler.getPlayerListString(playerList)
+	local playerListString = ""
+	if playerList == nil then
+		return playerListString
+	end
+
+	for playerName, _ in pairsByKeys(playerList) do
+		playerListString = playerListString .. playerName .. "\n"
+	end
+	return playerListString
+end
+
+function RIC_Codewords_Handler.buildCodeWords(newCodewordString)
+	local newCodewords = {}
+	if newCodewordString == nil then
+		return newCodewords
+	end
+
+	local codewords = { strsplit("\n", newCodewordString) }
 
 	-- Go through codewords, trim them and put into codeword table
 	for _, codeword in ipairs(codewords) do
@@ -9,25 +49,25 @@ function RIC_Codewords_Handler.updateCodeWords()
 		-- Check if line is empty, and addon tag does not contain our codeword to avoid accidental triggers by other addon users
 		if (string.utf8len(c) > 0) and (string.find(string.utf8lower(RIC_ChatString), c, 1, true) == nil) then
 			-- Add codeword!
-			table.insert(RIC_CodeWords, c)
+			table.insert(newCodewords, c)
 		end
 	end
 
-	-- Update codeword string and editbox according to cleaned-up codewords
+	return newCodewords
+end
+
+function RIC_Codewords_Handler.getCodeWordsString(codewords)
 	local s = ""
-	for i, codeword in ipairs(RIC_CodeWords) do
-		s = s .. codeword
-		if i < #RIC_CodeWords then
+	for i, c in ipairs(codewords) do
+		s = s .. c
+		if i < #codewords then
 			s = s .. "\n"
 		end
 	end
-	RIC.db.profile.CodewordString = s
-	_G["RIC_CodeWordEditBox"]:SetText(RIC.db.profile.CodewordString)
+	return s
 end
 
 function RIC_Codewords_Handler.startInvitePhase()
-	RIC_Codewords_Handler.updateCodeWords() -- Parse codewords from text box
-
 	-- Notify guild now, if this is activated in the options
 	if RIC.db.profile.CodewordNotifyStart then
 		if #RIC_CodeWords == 0 then

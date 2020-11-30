@@ -1021,214 +1021,6 @@
 					</Button>
 				</Frames>
 			</Frame>
-			<Frame name="RIC_TabPage3">
-				<Anchors>
-						<Anchor point="TOPLEFT"/>
-						<Anchor point="BOTTOMRIGHT"/>
-				</Anchors>
-				<Frames>
-					<Button name="RIC_CodeWordsContainer">
-						<Size x="140" y="357" />
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset x="16" y="-16" />
-							</Anchor>
-						</Anchors>
-						<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
-							<TileSize>
-								<AbsValue val="16" />
-							</TileSize>
-							<EdgeSize>
-								<AbsValue val="16" />
-							</EdgeSize>
-						</Backdrop>
-						<Scripts>
-							<OnClick>
-								RIC_CodeWordEditBox:SetFocus()
-								RIC_CodeWordEditBox:SetCursorPosition(RIC_CodeWordEditBox:GetNumLetters())
-							</OnClick>
-						</Scripts>
-						<Frames>
-							<Button name="$parentHeaderCodeword" inherits="RIC_EditBoxHeader" id="1" text="Codewords">
-								<Size>
-									<AbsDimension x="132" y="24" />
-								</Size>
-								<Anchors>
-									<Anchor point="TOPLEFT">
-										<Offset x="4" y="-3" />
-									</Anchor>
-								</Anchors>
-							</Button>
-							<Editbox name="RIC_CodeWordEditBox" multiLine="true" parentKey="input" autoFocus="false" spacing="1">
-								<Size x="131" y="350" />
-								<Anchors>
-									<Anchor point="TOPLEFT">
-										<Offset x="4" y="-28" />
-									</Anchor>
-								</Anchors>
-								<Scripts>
-									<OnEscapePressed>
-										self:ClearFocus()
-									</OnEscapePressed>								
-								</Scripts>
-								<FontString inherits="GameFontHighlight"/>
-							</Editbox>
-						</Frames>
-					</Button>
-					<Button name="RIC_SaveCodeWordListBox" inherits="UIPanelButtonTemplate" text="Save Codewords">
-						<Size>
-							<AbsDimension x="136" y="30" />
-						</Size>
-						<Anchors>
-							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="18" y="-378" />
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								RIC_CodeWordEditBox:ClearFocus()
-								RIC.db.profile.CodewordString=RIC_CodeWordEditBox:GetText()
-								RIC_Codewords_Handler.updateCodeWords()
-							</OnClick>
-						</Scripts>
-					</Button>
-
-					<CheckButton name="RIC_CodewordOnlyInGroupBox" inherits="UICheckButtonTemplate" text="">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="160" y="-40" />
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								if self:GetChecked() then
-									RIC.db.profile.CodewordOnlyInGroup = true
-								else
-									RIC.db.profile.CodewordOnlyInGroup = false
-								end
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="RIC_CodewordOnlyDuringInviteBox" inherits="UICheckButtonTemplate" text="">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="160" y="-70" />
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								if self:GetChecked() then
-									RIC.db.profile.CodewordOnlyDuringInvite = true
-								else
-									RIC.db.profile.CodewordOnlyDuringInvite = false
-								end
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="RIC_CodewordNotifyStartBox" inherits="UICheckButtonTemplate" text="">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="160" y="-100" />
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								if self:GetChecked() then
-									RIC.db.profile.CodewordNotifyStart = true
-								else
-									RIC.db.profile.CodewordNotifyStart = false
-								end
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="RIC_CodewordNotifyEndBox" inherits="UICheckButtonTemplate" text="">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="160" y="-130" />
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								if self:GetChecked() then
-									RIC.db.profile.CodewordNotifyEnd = true
-								else
-									RIC.db.profile.CodewordNotifyEnd = false
-								end
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="RIC_OnlyGuildMembersBox" inherits="UICheckButtonTemplate" text="">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="160" y="-160" />
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								if self:GetChecked() then
-									RIC.db.profile.GuildWhispersOnly = true
-								else
-									RIC.db.profile.GuildWhispersOnly = false
-								end
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="RIC_OnlyRosterMembersBox" inherits="UICheckButtonTemplate" text="">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="160" y="-190" />
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								if self:GetChecked() then
-									RIC.db.profile.RosterWhispersOnly = true
-								else
-									RIC.db.profile.RosterWhispersOnly = false
-								end
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-					<CheckButton name="RIC_CodewordHideBox" inherits="UICheckButtonTemplate" text="">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
-								<Offset x="160" y="-220" />
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnClick>
-								if self:GetChecked() then
-									RIC.db.profile.CodewordHide = true
-								else
-									RIC.db.profile.CodewordHide = false
-								end
-							</OnClick>
-						</Scripts>
-					</CheckButton>
-				</Frames>
-				<Layers>
-					<Layer>
-						<FontString name="$parent_EmptyLabel" inherits="GameFontDisableSmall" justifyH="LEFT" justifyV="TOP" text="Type Each Codeword on a new line.|nCodewords are not case sensitive.">
-							<Size>
-								<AbsDimension x="200" y="200" />
-							</Size>
-							<Anchors>
-								<Anchor point="TOPLEFT">
-									<Offset x="163" y="-342" />
-								</Anchor>
-							</Anchors>
-							<FontHeight>
-								<AbsValue val="72" />
-							</FontHeight>
-						</FontString>
-					</Layer>
-				</Layers>
-				<Scripts>
-					<OnShow>
-						RIC_Codewords_Handler.updateCodeWords()
-					</OnShow>
-				</Scripts>
-			</Frame>
 			<Button name="$parentTab1" text="Roster" inherits="CharacterFrameTabButtonTemplate" id="1">
 				<Anchors>
 					<Anchor point="CENTER" relativePoint="BOTTOMLEFT">
@@ -1240,7 +1032,6 @@
                     	PanelTemplates_SetTab(RIC_MainFrame, 1)
 						RIC_TabPage1:Show()
                     	RIC_TabPage2:Hide()
-						RIC_TabPage3:Hide()
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -1255,22 +1046,6 @@
                     	PanelTemplates_SetTab(RIC_MainFrame, 2)
 						RIC_TabPage1:Hide()
                     	RIC_TabPage2:Show()
-						RIC_TabPage3:Hide()
-					</OnClick>
-				</Scripts>
-			</Button>
-			<Button name="$parentTab3" text="Codewords" inherits="CharacterFrameTabButtonTemplate" id="3">
-				<Anchors>
-					<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parentTab2">
-						<Offset x="0" y="0" />
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnClick>
-                    	PanelTemplates_SetTab(RIC_MainFrame, 3)
-						RIC_TabPage1:Hide()
-                    	RIC_TabPage2:Hide()
-						RIC_TabPage3:Show()
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -1322,7 +1097,7 @@
 		</Layers>
 		<Scripts>
 			<OnLoad>
-    	        PanelTemplates_SetNumTabs(RIC_MainFrame, 3)
+    	        PanelTemplates_SetNumTabs(RIC_MainFrame, 2)
 	            PanelTemplates_SetTab(RIC_MainFrame, 1)
 				self:RegisterForDrag("LeftButton")
 			</OnLoad>
@@ -1336,7 +1111,6 @@
 				PanelTemplates_SetTab(RIC_MainFrame, 1)
     	        RIC_TabPage1:Show()
 				RIC_TabPage2:Hide()
-        	    RIC_TabPage3:Hide()
 				RICMainFrame_OnShow()
 			</OnShow>
 		</Scripts>
