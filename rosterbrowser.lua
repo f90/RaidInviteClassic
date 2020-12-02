@@ -320,7 +320,7 @@ function RIC_Roster_Browser.inviteWhisper(author, msg)
 		end
 
 		-- Check if author is NOT on blacklist, otherwise deny request
-		if RIC.db.realm.Blacklist[author] then
+		if RIC.db.realm.Blacklist[author] == true then
 			RIC:Print("A codeword whisper by " .. author .. " was ignored because they are on your blacklist.")
 			PlaySound(846)
 			return

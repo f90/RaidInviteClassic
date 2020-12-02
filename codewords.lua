@@ -70,21 +70,21 @@ end
 function RIC_Codewords_Handler.startInvitePhase()
 	-- Notify guild now, if this is activated in the options
 	if RIC.db.profile.CodewordNotifyStart then
-		if #RIC_CodeWords == 0 then
+		if #RIC.db.profile.Codewords == 0 then
 			RIC:Print(L["Codewords_Not_Set"])
 		else
 			local theMsg = L["Whisper_Me"]
-			for ci=1, (#RIC_CodeWords - 1) do
+			for ci=1, (#RIC.db.profile.Codewords - 1) do
 				if (ci == 1) then
-					theMsg = theMsg .. " \"" .. RIC_CodeWords[ci] .. "\""
+					theMsg = theMsg .. " \"" .. RIC.db.profile.Codewords[ci] .. "\""
 				else
-					theMsg = theMsg .. ", " .. "\"" .. RIC_CodeWords[ci] .. "\""
+					theMsg = theMsg .. ", " .. "\"" .. RIC.db.profile.Codewords[ci] .. "\""
 				end
 			end
-			if (#RIC_CodeWords) >= 2 then
-				theMsg = theMsg .. " " .. L["Or"] .. " \"" .. RIC_CodeWords[#RIC_CodeWords] .. "\""
+			if (#RIC.db.profile.Codewords) >= 2 then
+				theMsg = theMsg .. " " .. L["Or"] .. " \"" .. RIC.db.profile.Codewords[#RIC.db.profile.Codewords] .. "\""
 			else
-				theMsg = theMsg ..  " \"" .. RIC_CodeWords[1] .. "\""
+				theMsg = theMsg ..  " \"" .. RIC.db.profile.Codewords[1] .. "\""
 			end
 
 			theMsg = theMsg .. " " .. L["For_An_Invite"]
@@ -105,7 +105,7 @@ function RIC_Codewords_Handler.containsCodeword(msg)
 		return false
 	end
 	-- Go through codewords, check for each if its in the message
-	for _, codeword in ipairs(RIC_CodeWords) do
+	for _, codeword in ipairs(RIC.db.profile.Codewords) do
 		if string.find(string.utf8upper(msg), string.utf8upper(codeword), 1, true) then
 			return true
 		end
@@ -114,9 +114,9 @@ function RIC_Codewords_Handler.containsCodeword(msg)
 end
 
 function RIC_Codewords_Handler.equalsCodeword(msg)
-	local numCodeWords = #RIC_CodeWords
+	local numCodeWords = #RIC.db.profile.Codewords
 	for ci=1, numCodeWords do
-		if string.utf8upper(msg) == string.utf8upper(RIC_CodeWords[ci]) then
+		if string.utf8upper(msg) == string.utf8upper(RIC.db.profile.Codewords[ci]) then
 			return true
 		end
 	end

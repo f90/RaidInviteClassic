@@ -14,5 +14,4 @@ RIC_Group_Manager = {}
 RIC_Import_Manager = {}
 
 RIC_UpdateInterval = 1.0
-RIC_CodeWords = {}
 RIC_ChatString = "[RIC]:"
