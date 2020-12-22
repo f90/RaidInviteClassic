@@ -1,3 +1,4 @@
+local addonName, RIC = ...
 -- Durability is requested/transmitted when opening the list.
 -- This module is a display wrapper for LibDurability.
 
@@ -13,17 +14,17 @@ do
 			time=time()
 		}
 	end
-	LD:Register(RIC_Durability_Manager, processPlayerDurability)
+	LD:Register(RIC._Durability_Manager, processPlayerDurability)
 end
 
-function RIC_Durability_Manager.checkDurabilities()
-	local raidMembers = getRaidMembers()-- Get current list of raid members
+function RIC._Durability_Manager.checkDurabilities() -- TODO: Called OnUpdate
+	local raidMembers = RIC.getRaidMembers()-- Get current list of raid members
 	-- Go through all players that joined and might still need a warning
 	for player,_ in pairs(playersNeedWarning) do
 		if raidMembers[player] ~= nil then -- Check if player is in raid. If not - doesn't need warning anymore!
 			-- Player is in raid - warn player if necessary
 			if (time() - playersNeedWarning[player]) < 300 then -- Check whether the request to check durability is still new enough
-				RIC_Durability_Manager.warnPlayer(player)
+				RIC._Durability_Manager.warnPlayer(player)
 			else
 				-- Durability request failed after multiple attempts. Give up now. Possible reasons:
 				-- a) Player doesnt have addon installed (or DBM or similar that sends gear info)
@@ -48,15 +49,15 @@ function RIC_Durability_Manager.checkDurabilities()
 	LD:RequestDurability() -- Get new durability values for next time
 end
 
-function RIC_Durability_Manager.setPlayerWarning(player)
+function RIC._Durability_Manager.setPlayerWarning(player)
 	if RIC.db.profile.Durability_Warning and
-			((not RIC.db.profile.Durability_Invite_Phase) or RIC_Roster_Browser.isInvitePhaseActive()) then -- Only initiate checks if that is activated in the options
+			((not RIC.db.profile.Durability_Invite_Phase) or RIC._Roster_Browser.isInvitePhaseActive()) then -- Only initiate checks if that is activated in the options
 		playersNeedWarning[player] = time()
 	end
 end
 
 -- Checks a player for current durability. If it can be retrieved and is too low, warn them (if they were not warned before)
-function RIC_Durability_Manager.warnPlayer(player)
+function RIC._Durability_Manager.warnPlayer(player)
 	-- Only raid leader is allowed to send durability warnings, so postpone if we are not raid leader
 	if (not IsInRaid()) or (not UnitIsGroupLeader("player")) then -- TODO maybe also check durability if just in a group not raid?
 		return
@@ -89,7 +90,7 @@ function RIC_Durability_Manager.warnPlayer(player)
 		end
 	else
 		-- This is someone else than us - send a message
-		 SendChatMessageRIC(warningText, "WHISPER", nil, player)
+		 RIC.SendChatMessageRIC(warningText, "WHISPER", nil, player)
 	end
 	playersNeedWarning[player] = nil -- Clear up durability check request time
 end

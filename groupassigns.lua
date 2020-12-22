@@ -1,3 +1,4 @@
+local addonName, RIC = ...
 local AceGUI = LibStub("AceGUI-3.0")
 local LD = LibStub("LibDeflate")
 local LSM = LibStub("LibSharedMedia-3.0")
@@ -15,9 +16,9 @@ local shouldUpdatePlayerBank = false
 
 function RIC:OnEnableGroupview()
 	-- Add event listeners
-	self:RegisterEvent("GROUP_ROSTER_UPDATE", function() RIC_Group_Manager.OnRosterUpdate() end)
-	self:RegisterEvent("PLAYER_REGEN_DISABLED", function() RIC_Group_Manager.onEnterCombat() end)
-	self:RegisterEvent("PLAYER_REGEN_ENABLED", function() RIC_Group_Manager.onExitCombat() end)
+	self:RegisterEvent("GROUP_ROSTER_UPDATE", function() RIC._Group_Manager.OnRosterUpdate() end)
+	self:RegisterEvent("PLAYER_REGEN_DISABLED", function() RIC._Group_Manager.onEnterCombat() end)
+	self:RegisterEvent("PLAYER_REGEN_ENABLED", function() RIC._Group_Manager.onExitCombat() end)
 
 	-- CREATE GROUP ASSIGNMENT FUNCTIONALITY!
 	self.groups = AceGUI:Create("Window")
@@ -27,7 +28,7 @@ function RIC:OnEnableGroupview()
 	self.groups:SetLayout("Flow")
 	_G["GroupFrame"] = self.groups.frame
 	table.insert(UISpecialFrames, "GroupFrame")
-	self:HookScript(self.groups.frame, "OnShow", function() RIC_Group_Manager.draw() end)
+	self:HookScript(self.groups.frame, "OnShow", function() RIC._Group_Manager.draw() end)
 	self:HookScript(self.groups.frame, "OnHide", function() _G["RIC_OpenGroupWindow"]:SetText("View groups") end)
 
 	self.playerBank = AceGUI:Create("InlineGroup")
@@ -68,7 +69,7 @@ function RIC:OnEnableGroupview()
 			label:SetHeight(20)
 			label:SetText("Empty")
 			label.label:SetTextColor(0.35, 0.35, 0.35)
-			RIC_Group_Manager.assignGroupLabelFunctionality(label)
+			RIC._Group_Manager.assignGroupLabelFunctionality(label)
 			raidGroup:AddChild(label)
 
 			local statusLabel = AceGUI:Create("Label")
@@ -105,7 +106,7 @@ function RIC:OnEnableGroupview()
 	self.unassignAll.textColor.r = r
 	self.unassignAll.textColor.g = g
 	self.unassignAll.textColor.b = b
-	self.unassignAll:SetCallback("OnClick", function() RIC_Group_Manager.unassignAll() end)
+	self.unassignAll:SetCallback("OnClick", function() RIC._Group_Manager.unassignAll() end)
 
 	self.rearrangeRaid = AceGUI:Create("Button")
 	self.rearrangeRaid:SetText(L["Group_Assign_Rearrange"])
@@ -113,7 +114,7 @@ function RIC:OnEnableGroupview()
 	self.rearrangeRaid.textColor.r = r
 	self.rearrangeRaid.textColor.g = g
 	self.rearrangeRaid.textColor.b = b
-	self.rearrangeRaid:SetCallback("OnClick", function() RIC_Group_Manager.rearrangeRaid() end)
+	self.rearrangeRaid:SetCallback("OnClick", function() RIC._Group_Manager.rearrangeRaid() end)
 
 	AceGUI:RegisterLayout("GroupLayout", function()
 		self.playerBank:SetPoint("TOPLEFT", self.groups.frame, "TOPLEFT", 10, -28)
@@ -144,22 +145,22 @@ function RIC:OnEnableGroupview()
 	self.groups:SetLayout("GroupLayout")
 	self.groups:DoLayout()
 
-	RIC_Group_Manager.OnRosterUpdate()
+	RIC._Group_Manager.OnRosterUpdate()
 end
 
-function RIC_Group_Manager.toggle()
+function RIC._Group_Manager.toggle()
 	if RIC.groups:IsShown() == true then
 		RIC.groups:Hide()
 		_G["RIC_OpenGroupWindow"]:SetText("View groups")
 	else
 		RIC.groups:Show()
-		RIC_Group_Manager.draw(true)
+		RIC._Group_Manager.draw(true)
 		_G["RIC_OpenGroupWindow"]:SetText("Hide groups")
 	end
 end
 
-function RIC_Group_Manager.flattenGroups()
-	local groupNames = {}
+local groupNames = {}
+function RIC._Group_Manager.flattenGroups() -- TODO: Called OnUpdate
 	for name, position in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 		if position > 0 then
 			local row = math.ceil(position/5)
@@ -172,34 +173,34 @@ function RIC_Group_Manager.flattenGroups()
 	for row=1,8 do
 		if groupNames[row] ~= nil then
 			local col = 1
-			for _, name in pairsByKeys(groupNames[row]) do
+			for _, name in RIC.pairsByKeys(groupNames[row]) do
 				RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] = (row-1)*5 + col
 				col = col + 1
 			end
 		end
 	end
-	RIC_Group_Manager.drawGroupLabels()
+	RIC._Group_Manager.drawGroupLabels()
 	-- No need to check arrangability here since player raid and roster did not change on its own, and is not affected by flattening
 end
 
-function RIC_Group_Manager.MovedToPlayerBank(label)
-	RIC_Group_Manager.setGroupPosition(label.name, 0)
-	RIC_Group_Manager.draw(true)
+function RIC._Group_Manager.MovedToPlayerBank(label)
+	RIC._Group_Manager.setGroupPosition(label.name, 0)
+	RIC._Group_Manager.draw(true)
 end
 
-function RIC_Group_Manager.SetLabel(label, statusLabel, name)
+function RIC._Group_Manager.SetLabel(label, statusLabel, name)
 	if name then
 		-- Set label
 		label.name = name
 		label:SetText(name)
-		local playerInfo = RIC_Roster_Browser.getPlayerInfo(name)
+		local playerInfo = RIC._Roster_Browser.getPlayerInfo(name)
 		local classColor
 		if playerInfo ~= nil then
-			statusLabel:SetImage(getStatusSymbolImagePath(playerInfo.status))
-			classColor = getClassColor(playerInfo.classFileName, "RGB")
+			statusLabel:SetImage(RIC.getStatusSymbolImagePath(playerInfo.status))
+			classColor = RIC.getClassColor(playerInfo.classFileName, "RGB")
 		else
 			statusLabel:SetImage("Interface\\AddOns\\RaidInviteClassic\\img\\question_mark")
-			classColor = getClassColor("UNKNOWN_CLASS", "RGB")
+			classColor = RIC.getClassColor("UNKNOWN_CLASS", "RGB")
 		end
 		label.label:SetTextColor(classColor.r, classColor.g, classColor.b)
 		label.frame:EnableMouse(true)
@@ -215,7 +216,7 @@ function RIC_Group_Manager.SetLabel(label, statusLabel, name)
 	end
 end
 
-function RIC_Group_Manager.assignGroupLabelFunctionality(label)
+function RIC._Group_Manager.assignGroupLabelFunctionality(label)
 	local anchorPoint, parentFrame, relativeTo, ptX, ptY
 	label.frame:RegisterForDrag("LeftButton")
 	label.frame:SetScript("OnDragStart", function(self)
@@ -227,14 +228,14 @@ function RIC_Group_Manager.assignGroupLabelFunctionality(label)
 		self:StopMovingOrSizing()
 		self:SetFrameStrata("FULLSCREEN_DIALOG")
 		if MouseIsOver(RIC.playerBank.frame) then
-			RIC_Group_Manager.MovedToPlayerBank(label)
+			RIC._Group_Manager.MovedToPlayerBank(label)
 		else
 			local putToGroup = function()
 				for iRow = 1, 8 do
 					if label.row ~= iRow then
 						for iCol = 1, 5 do
 							if MouseIsOver(RIC.raidPlayerLabels[iRow][iCol].frame) then
-								RIC_Group_Manager.setGroupPosition(label.name, (iRow-1)*5 + iCol)
+								RIC._Group_Manager.setGroupPosition(label.name, (iRow-1)*5 + iCol)
 								return
 							end
 						end
@@ -248,21 +249,21 @@ function RIC_Group_Manager.assignGroupLabelFunctionality(label)
 	end)
 	label:SetCallback("OnClick", function(self, _, button)
 		if button == "RightButton" then
-			RIC_Group_Manager.MovedToPlayerBank(self)
+			RIC._Group_Manager.MovedToPlayerBank(self)
 		end
 	end)
 end
 
-function RIC_Group_Manager.draw(rosterChanged)
-	RIC_Group_Manager.showPlayerBank()
-	RIC_Group_Manager.flattenGroups()
+function RIC._Group_Manager.draw(rosterChanged) -- TODO: Called OnUpdate
+	RIC._Group_Manager.showPlayerBank()
+	RIC._Group_Manager.flattenGroups()
 	if rosterChanged then
-		RIC_Group_Manager.updateArrangeBox()
+		RIC._Group_Manager.updateArrangeBox()
 	end
 end
 
 -- Set player name to a certain raid position, possibly swapping positions with already existing player on this position
-function RIC_Group_Manager.setGroupPosition(name, position)
+function RIC._Group_Manager.setGroupPosition(name, position)
 	-- Position is zero => Simply put player on bank, no replacement
 	if position == 0 then
 		RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] = 0
@@ -277,27 +278,27 @@ function RIC_Group_Manager.setGroupPosition(name, position)
 		end
 		RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] = position
 	end
-	RIC_Group_Manager.draw(true) -- Redraw UI and flatten groups, since roster changed
+	RIC._Group_Manager.draw(true) -- Redraw UI and flatten groups, since roster changed
 end
 
-function RIC_Group_Manager.drawGroupLabels()
-	local filledPositions = reverseMap(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster])
+function RIC._Group_Manager.drawGroupLabels()
+	local filledPositions = RIC.reverseMap(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster])
 	for row = 1, 8 do
 		for col = 1, 5 do
-			RIC_Group_Manager.SetLabel(RIC.raidPlayerLabels[row][col], RIC.raidPlayerStatusLabels[row][col], filledPositions[(row-1)*5 + col])
+			RIC._Group_Manager.SetLabel(RIC.raidPlayerLabels[row][col], RIC.raidPlayerStatusLabels[row][col], filledPositions[(row-1)*5 + col])
 		end
 	end
 end
 
 
-function RIC_Group_Manager.showPlayerBank()
+function RIC._Group_Manager.showPlayerBank() -- TODO: Called OnUpdate
 	if isDraggingLabel then
 		shouldUpdatePlayerBank = true
 		return
 	end
 
 	local index = 0
-	for name, val in pairsByKeys(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
+	for name, val in RIC.pairsByKeys(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 		if val == 0 then
 			index = index + 1
 			local playerLabel
@@ -338,8 +339,8 @@ function RIC_Group_Manager.showPlayerBank()
 								local label = RIC.raidPlayerLabels[row][col]
 								if MouseIsOver(label.frame) then
 									-- Found raid position where this label was moved to - setting new position!
-									RIC_Group_Manager.setGroupPosition(playerLabel.name, (row-1)*5 + col)
-									RIC_Group_Manager.showPlayerBank()
+									RIC._Group_Manager.setGroupPosition(playerLabel.name, (row-1)*5 + col)
+									RIC._Group_Manager.showPlayerBank()
 									return true
 								end
 							end
@@ -355,17 +356,17 @@ function RIC_Group_Manager.showPlayerBank()
 
 					if putToGroup() or shouldUpdatePlayerBank then
 						shouldUpdatePlayerBank = false
-						RIC_Group_Manager.showPlayerBank()
+						RIC._Group_Manager.showPlayerBank()
 					end
 				end)
 
 				playerLabel:SetCallback("OnClick", function(self, _, button)
 					if button == "RightButton" then
-						RIC_Roster_Browser.remove(self.name)
+						RIC._Roster_Browser.remove(self.name)
 						-- Update data and view
-						RIC_Roster_Browser.buildRosterRaidList()
+						RIC._Roster_Browser.buildRosterRaidList()
 						-- Redraw group view to reflect change
-						RIC_Group_Manager.draw(true)
+						RIC._Group_Manager.draw(true)
 					end
 				end)
 
@@ -376,7 +377,7 @@ function RIC_Group_Manager.showPlayerBank()
 			end
 
 			-- Set player label
-			RIC_Group_Manager.SetLabel(playerLabel, statusLabel, name)
+			RIC._Group_Manager.SetLabel(playerLabel, statusLabel, name)
 		end
 	end
 
@@ -393,18 +394,22 @@ function RIC_Group_Manager.showPlayerBank()
 	RIC.playerBank.scroll:DoLayout()
 end
 
-function RIC_Group_Manager.unassignAll()
+function RIC._Group_Manager.unassignAll()
 	for name, _ in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 		RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] = 0
 	end
-	RIC_Group_Manager.draw(true)
+	RIC._Group_Manager.draw(true)
 end
 
 -- Checks for potential player swaps by comparing current to desired group setup.
 -- Returns true if a swap was found and attempted, false otherwise
-function RIC_Group_Manager.getMove()
-	local raidPlayers = getRaidMembers()
-	local possibleMoves = {}
+local possibleMoves = {}
+local move_sorter = function(a,b)
+	return a[1] < b[1]
+end
+function RIC._Group_Manager.getMove()
+	local raidPlayers = RIC.getRaidMembers()
+	wipe(possibleMoves)
 	-- Go through raid members
 	for name, data in pairs(raidPlayers) do
 		targetPosition = RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name]
@@ -442,7 +447,7 @@ function RIC_Group_Manager.getMove()
 	end
 	-- We added all possible moves to the list. Sort it and select highest-priority one. If empty, raid is arranged!
 	if #possibleMoves > 0 then
-		table.sort(possibleMoves, function(a,b) return a[1] < b[1] end)
+		table.sort(possibleMoves, move_sorter)
 		local bestPriority, bestMove = possibleMoves[1][1], possibleMoves[1][2]
 		--if bestMove["cmd"] == "SWAP" then
 		--	print("PRIO " .. tostring(bestPriority) .. ": " .. bestMove["cmd"] .. " Player: " .. bestMove["fromName"] .. ", Target Player: " .. bestMove["toName"])
@@ -455,7 +460,7 @@ function RIC_Group_Manager.getMove()
 	end
 end
 
-function RIC_Group_Manager.move(action)
+function RIC._Group_Manager.move(action)
 	if action.cmd == "SWAP" then
 		SwapRaidSubgroup(action.from, action.to)
 	elseif action.cmd == "SET" then
@@ -466,38 +471,38 @@ function RIC_Group_Manager.move(action)
 	moveCounter = moveCounter + 1
 end
 
-function RIC_Group_Manager.startSwap()
+function RIC._Group_Manager.startSwap()
 	inSwap = true
 	moveCounter = 0
-	RIC_Group_Manager.sendInProgress()
-	RIC_Group_Manager.updateArrangeBox()
+	RIC._Group_Manager.sendInProgress()
+	RIC._Group_Manager.updateArrangeBox()
 	if actorButton == "MinimapButton" then -- Textual feedback in case we use minimap
 		RIC:Print(L["Group_Assign_In_Progress"])
 	end
 
 	-- Find possible moves and start swapping if there are any
-	local action = RIC_Group_Manager.getMove()
+	local action = RIC._Group_Manager.getMove()
 	if action == nil then -- No swap needed
 		-- Group setup was already correct and we didn't find any swap candidate - stop! In other case, OnRosterUpdate will trigger
-		RIC_Group_Manager.StopSwap()
+		RIC._Group_Manager.StopSwap()
 	else
-		RIC_Group_Manager.move(action)
+		RIC._Group_Manager.move(action)
 	end
 end
 
-function RIC_Group_Manager.StopSwap()
+function RIC._Group_Manager.StopSwap()
 	inSwap = false
 	moveCounter = 0
-	RIC_Group_Manager.sendEndProgress()
-	RIC_Group_Manager.flattenGroups()
-	RIC_Group_Manager.updateArrangeBox()
+	RIC._Group_Manager.sendEndProgress()
+	RIC._Group_Manager.flattenGroups()
+	RIC._Group_Manager.updateArrangeBox()
 	if actorButton == "MinimapButton" then
 		-- Give console feedback since we cant see arrange box when using minimap
-		RIC:Print(RIC_Group_Manager.getStatusMessage(RIC_Group_Manager.checkArrangable()))
+		RIC:Print(RIC._Group_Manager.getStatusMessage(RIC._Group_Manager.checkArrangable()))
 	end
 end
 
-function RIC_Group_Manager.OnRosterUpdate()
+function RIC._Group_Manager.OnRosterUpdate()
 	if remoteInSwap then -- Don't do anything if a remote swap is in progress
 		if inSwap then
 			RIC:Print("|cFFFF0000ERROR: Our group swap was interrupted by a remote swap. Stopping...|r")
@@ -507,61 +512,61 @@ function RIC_Group_Manager.OnRosterUpdate()
 		return
 	end
 
-	RIC_Group_Manager.updateArrangeBox()
+	RIC._Group_Manager.updateArrangeBox()
 
 	if inSwap then
 		-- Stop after too many swaps
 		if moveCounter > 100 then
 			RIC:Print("|cFFFF0000ERROR: Something went wrong, we are still stuck rearranging after 100 swaps. Terminating...|r")
-			RIC_Group_Manager.StopSwap()
+			RIC._Group_Manager.StopSwap()
 			return
 		end
 
 		-- Check if we can continue swapping
-		local status = RIC_Group_Manager.checkArrangable()
+		local status = RIC._Group_Manager.checkArrangable()
 		if status ~= "Group_Assign_In_Progress" then -- Stop if we have some problem, except if the "problem" is that we are currently swapping
 			--print("STOPPING: " .. L[status])
-			RIC_Group_Manager.StopSwap()
+			RIC._Group_Manager.StopSwap()
 			return
 		end
 
 		-- Try next swap. If we dont have any swap candidates anymore, stop!
-		local action = RIC_Group_Manager.getMove()
+		local action = RIC._Group_Manager.getMove()
 		if action == nil then
 			--print("NO MOVE FOUND - STOPPING")
-			RIC_Group_Manager.StopSwap()
+			RIC._Group_Manager.StopSwap()
 		else
-			RIC_Group_Manager.move(action)
+			RIC._Group_Manager.move(action)
 		end
 	end
 end
 
-function RIC_Group_Manager.onEnterCombat()
+function RIC._Group_Manager.onEnterCombat()
 	inCombat = true
 	if inSwap then
 		RIC:Print(L["Group_Assign_Entered_Combat"])
-		RIC_Group_Manager.StopSwap()
+		RIC._Group_Manager.StopSwap()
 	end
-	RIC_Group_Manager.updateArrangeBox()
+	RIC._Group_Manager.updateArrangeBox()
 end
 
-function RIC_Group_Manager.onExitCombat()
+function RIC._Group_Manager.onExitCombat()
 	inCombat = false
-	RIC_Group_Manager.updateArrangeBox()
+	RIC._Group_Manager.updateArrangeBox()
 end
 
 -- Checks whether we can currently rearrange the raid, and if not, why. Returns the reason as a status message
-function RIC_Group_Manager.checkArrangable()
+function RIC._Group_Manager.checkArrangable()
 	if not IsInRaid() then
 		return "Group_Assign_Not_In_Raid"
 	end
 
-	if RIC_Group_Manager.getMove() == nil then
+	if RIC._Group_Manager.getMove() == nil then
 		-- Our roster is already arranged as desired!
 		return "Group_Assign_Is_Arranged"
 	end
 
-	if not IsRaidAssistant() then
+	if not RIC.IsRaidAssistant() then
 		return "Group_Assign_No_Rights"
 	end
 
@@ -581,9 +586,9 @@ function RIC_Group_Manager.checkArrangable()
 end
 
 -- Check whether raid is arrangable and set arrange box text accordingly.
-function RIC_Group_Manager.updateArrangeBox()
-	local status = RIC_Group_Manager.checkArrangable()
-	RIC.rearrangeRaid:SetText(RIC_Group_Manager.getStatusMessage(status))
+function RIC._Group_Manager.updateArrangeBox()
+	local status = RIC._Group_Manager.checkArrangable()
+	RIC.rearrangeRaid:SetText(RIC._Group_Manager.getStatusMessage(status))
 	if status == "Group_Assign_Rearrange" then
 		-- Rearranging is possible
 		RIC.rearrangeRaid:SetDisabled(false)
@@ -596,7 +601,7 @@ function RIC_Group_Manager.updateArrangeBox()
 	end
 end
 
-function RIC_Group_Manager.getStatusMessage(status)
+function RIC._Group_Manager.getStatusMessage(status)
 	if status == "Group_Assign_In_Progress_Remote" then
 		return L[status] .. " " .. remoteSender
 	else
@@ -604,41 +609,41 @@ function RIC_Group_Manager.getStatusMessage(status)
 	end
 end
 
-function RIC_Group_Manager.rearrangeRaid(actor)
+function RIC._Group_Manager.rearrangeRaid(actor)
 	actorButton = actor
-	local status = RIC_Group_Manager.checkArrangable()
+	local status = RIC._Group_Manager.checkArrangable()
 	if status == "Group_Assign_Rearrange" then -- Check to see whether we can start
-		RIC_Group_Manager.startSwap()
+		RIC._Group_Manager.startSwap()
 	else
-		RIC_Group_Manager.updateArrangeBox()
+		RIC._Group_Manager.updateArrangeBox()
 		if actor == "MinimapButton" then -- We initiated this through the minimap button - we need some kind of non-GUI feedback now!
-			RIC:Print(RIC_Group_Manager.getStatusMessage(RIC_Group_Manager.checkArrangable()))
+			RIC:Print(RIC._Group_Manager.getStatusMessage(RIC._Group_Manager.checkArrangable()))
 		end
 	end
 end
 
-function RIC_Group_Manager.sendInProgress()
+function RIC._Group_Manager.sendInProgress()
 	local message = {
 		key = "SWAP_IN_PROGRESS",
 	}
-	SendComm(message,"RAID")
+	RIC.SendComm(message,"RAID")
 end
 
-function RIC_Group_Manager.sendEndProgress()
+function RIC._Group_Manager.sendEndProgress()
 	local message = {
 		key = "SWAP_END",
 	}
-	SendComm(message,"RAID")
+	RIC.SendComm(message,"RAID")
 end
 
-function RIC_Group_Manager.receiveInProgress(sender)
+function RIC._Group_Manager.receiveInProgress(sender)
 	remoteInSwap = true
 	remoteSender = sender
-	RIC_Group_Manager.updateArrangeBox()
+	RIC._Group_Manager.updateArrangeBox()
 end
 
-function RIC_Group_Manager.receiveEndProgress()
+function RIC._Group_Manager.receiveEndProgress()
 	remoteInSwap = false
 	remoteSender = "NONE"
-	RIC_Group_Manager.updateArrangeBox()
+	RIC._Group_Manager.updateArrangeBox()
 end

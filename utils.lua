@@ -1,9 +1,8 @@
+local addonName, RIC = ...
 -- Class list lookup table (classFilename -> Localised Name) - Make sure to call this exactly ONCE before its needed!
-local classFilenameToIndexTable, classIndexToFilenameTable = nil
+local classFilenameToIndexTable, classIndexToFilenameTable, output, reversed = {}, {}, {}, {}
 local function buildClassLists()
-    if classFilenameToIndexTable ~= nil then return end
-    classFilenameToIndexTable = {}
-    classIndexToFilenameTable = {}
+    if RIC.table_count(classFilenameToIndexTable) > 0 then return end
     for i=1,100 do -- TODO GetNumClasses function does not exist in this Classic API version yet?
         local classInfo = C_CreatureInfo.GetClassInfo(i)
         if classInfo ~= nil then
@@ -14,7 +13,7 @@ local function buildClassLists()
 end
 
 --Based on that: Symbols
-RIC_Status = {
+RIC.RIC_Status = {
     READY=1,
     EXTRA=2,
     NOT_INVITED=3,
@@ -24,17 +23,28 @@ RIC_Status = {
     OTHER=7
 }
 
-RIC_InviteStatus = {
+RIC.RIC_InviteStatus = {
     NOT_INVITED=1,
     INVITE_PENDING=2,
     INVITE_FAILED=3
 }
 
-function trim_special_chars(char_name)
+
+function RIC.table_count(t)
+  local count = 0
+  if type(t) == "table" then
+    for k,v in pairs(t) do
+      count = count+1
+    end
+  end
+  return count
+end
+
+function RIC.trim_special_chars(char_name)
     return char_name:gsub("[%c%p%s]", "")
 end
 
-function getStatusSymbol(in_raid, in_roster, online, invite_status)
+function RIC.getStatusSymbol(in_raid, in_roster, online, invite_status)
     --Checkmark - In Raid + In Roster
     --Plus symbol - In Raid + Not In Roster
     --Neutral symbol - Not in Raid + Online + In Roster + NOT_INVITED
@@ -44,43 +54,43 @@ function getStatusSymbol(in_raid, in_roster, online, invite_status)
     --Question mark symbol - Everything else
 
     if in_raid and in_roster then
-        return RIC_Status["READY"]
+        return RIC.RIC_Status["READY"]
     elseif in_raid and (not in_roster) then
-        return RIC_Status["EXTRA"]
-    elseif (not in_raid) and (online==true) and in_roster and ((invite_status==RIC_InviteStatus["NOT_INVITED"]) or (invite_status == nil)) then
-        return RIC_Status["NOT_INVITED"]
-    elseif (not in_raid) and ((online==true) or (online==nil)) and in_roster and (invite_status==RIC_InviteStatus["INVITE_PENDING"]) then
-        return RIC_Status["INVITE_PENDING"]
-    elseif (not in_raid) and ((online==true) or (online==nil)) and in_roster and (invite_status==RIC_InviteStatus["INVITE_FAILED"]) then
-        return RIC_Status["INVITE_FAILED"]
+        return RIC.RIC_Status["EXTRA"]
+    elseif (not in_raid) and (online==true) and in_roster and ((invite_status==RIC.RIC_InviteStatus["NOT_INVITED"]) or (invite_status == nil)) then
+        return RIC.RIC_Status["NOT_INVITED"]
+    elseif (not in_raid) and ((online==true) or (online==nil)) and in_roster and (invite_status==RIC.RIC_InviteStatus["INVITE_PENDING"]) then
+        return RIC.RIC_Status["INVITE_PENDING"]
+    elseif (not in_raid) and ((online==true) or (online==nil)) and in_roster and (invite_status==RIC.RIC_InviteStatus["INVITE_FAILED"]) then
+        return RIC.RIC_Status["INVITE_FAILED"]
     elseif (not in_raid) and (online==false) and in_roster then
-        return RIC_Status["MISSING"]
+        return RIC.RIC_Status["MISSING"]
     else
-        return RIC_Status["OTHER"]
+        return RIC.RIC_Status["OTHER"]
     end
 end
 
-function getStatusSymbolImagePath(status)
-    if status == RIC_Status["READY"] then
+function RIC.getStatusSymbolImagePath(status)
+    if status == RIC.RIC_Status["READY"] then
         return "Interface\\AddOns\\RaidInviteClassic\\img\\checkmark"
-    elseif status == RIC_Status["EXTRA"] then
+    elseif status == RIC.RIC_Status["EXTRA"] then
         return "Interface\\AddOns\\RaidInviteClassic\\img\\plus"
-    elseif status == RIC_Status["NOT_INVITED"] then
+    elseif status == RIC.RIC_Status["NOT_INVITED"] then
         return "Interface\\AddOns\\RaidInviteClassic\\img\\dash"
-    elseif status == RIC_Status["INVITE_PENDING"] then
+    elseif status == RIC.RIC_Status["INVITE_PENDING"] then
         return "Interface\\AddOns\\RaidInviteClassic\\img\\dots"
-    elseif status == RIC_Status["INVITE_FAILED"] then
+    elseif status == RIC.RIC_Status["INVITE_FAILED"] then
         return "Interface\\AddOns\\RaidInviteClassic\\img\\red_cross"
-    elseif status == RIC_Status["MISSING"] then
+    elseif status == RIC.RIC_Status["MISSING"] then
         return "Interface\\AddOns\\RaidInviteClassic\\img\\lightning"
-    elseif status == RIC_Status["OTHER"] then
+    elseif status == RIC.RIC_Status["OTHER"] then
         return "Interface\\AddOns\\RaidInviteClassic\\img\\question_mark"
     else
         return nil
     end
 end
 
-RIC_ColorTable = {
+RIC.RIC_ColorTable = {
 	["DEATH KNIGHT"] = "C41F36",
 	["DRUID"] = "FF7D0A",
 	["HUNTER"] = "ABD473",
@@ -95,13 +105,13 @@ RIC_ColorTable = {
 
 local function getClassColorHex(classFilename)
     local hex = "DA5151" -- Red-grey for unknown class
-    if RIC_ColorTable[classFilename] then
-        hex = RIC_ColorTable[classFilename]
+    if RIC.RIC_ColorTable[classFilename] then
+        hex = RIC.RIC_ColorTable[classFilename]
     end
     return hex
 end
 
-function getClassColor(classFilename, format)
+function RIC.getClassColor(classFilename, format)
     if format == "RGB" then
         local hex = getClassColorHex(classFilename)
         return {r = tonumber("0x"..hex:sub(1,2)) / 255,
@@ -112,22 +122,22 @@ function getClassColor(classFilename, format)
     end
 end
 
-function classFilenameToIndex(classFilename)
+function RIC.classFilenameToIndex(classFilename)
     buildClassLists()
     return classFilenameToIndexTable[classFilename]["id"]
 end
 
-function indexToClassFilename(index)
+function RIC.indexToClassFilename(index)
     buildClassLists()
     return classIndexToFilenameTable[index]["classFilename"]
 end
 
-function indexToClassname(index)
+function RIC.indexToClassname(index)
     buildClassLists()
     return classIndexToFilenameTable[index]["className"]
 end
 
-function charLength(str)
+function RIC.charLength(str)
 	local b = string.byte(str, 1)
 	if b then
 		if b >= 194 and b < 224 then
@@ -141,15 +151,15 @@ function charLength(str)
 	return 1
 end
 
-function getSortedTableKeys(t, f)
+function RIC.getSortedTableKeys(t, f)
     local a = {}
     for n in pairs(t) do table.insert(a, n) end
     table.sort(a, f)
     return a
 end
 
-function pairsByKeys(t, f)
-    local a = getSortedTableKeys(t, f)
+function RIC.pairsByKeys(t, f)
+    local a = RIC.getSortedTableKeys(t, f)
     local i = 0
     local iter = function()
 		i = i + 1
@@ -160,20 +170,20 @@ function pairsByKeys(t, f)
 	return iter
 end
 
-function IsRaidAssistant(player)
+function RIC.IsRaidAssistant(player)
 	if not player then
 		player = "player"
 	end
 	return UnitIsGroupLeader(player) == true or UnitIsGroupAssistant(player) == true
 end
 
-function SendChatMessageRIC(msg, chatType, language, channel)
+function RIC.SendChatMessageRIC(msg, chatType, language, channel)
     if msg ~= nil and string.utf8len(msg) > 0 then -- Check if message is non-nil and not empty (disabled in settings)
-        SendChatMessage(RIC_ChatString .. " " .. msg, chatType, language, channel)
+        SendChatMessage(RIC._ChatString .. " " .. msg, chatType, language, channel)
     end
 end
 
-function removeServerFromName(name)
+function RIC.removeServerFromName(name)
     -- Removes server names from full names, e.g. "Tim-Patchwerk" -> "Tim"
     local dashPosStart, dashPosEnd = string.find(name, "-", 1, true)
     if dashPosStart ~= nil then -- Check if name has a dash in it
@@ -183,7 +193,7 @@ function removeServerFromName(name)
     end
 end
 
-function countFrequency(list, value)
+function RIC.countFrequency(list, value)
     n = 0
     for k,v in pairs(list) do
         if v == value then
@@ -193,8 +203,8 @@ function countFrequency(list, value)
     return n
 end
 
-function getRaidMembers()
-    local output = {}
+function RIC.getRaidMembers()
+    wipe(output)
     for ci=1, MAX_RAID_MEMBERS do
         local name, rank, subgroup, level, class, classFileName, zone, online, isDead, role, isML = GetRaidRosterInfo(ci)
         -- Set online to boolean variable
@@ -219,27 +229,27 @@ function getRaidMembers()
             }
 
             -- Save detected class in database
-            RIC.db.realm.KnownPlayerClasses[name] = classFilenameToIndex(classFileName)
+            RIC.db.realm.KnownPlayerClasses[name] = RIC.classFilenameToIndex(classFileName)
         end
     end
     return output
 end
 
-function rtrim(s)
+function RIC.rtrim(s)
   local n = #s
   while n > 0 and s:find("^%s", n) do n = n - 1 end
   return s:sub(1, n)
 end
 
-function reverseMap(assocTable)
-    local reversed = {}
+function RIC.reverseMap(assocTable)
+    wipe(reversed)
 	for key, val in pairs(assocTable) do
 		reversed[val] = key
 	end
     return reversed
 end
 
-function hashLength(assocTable)
+function RIC.hashLength(assocTable)
     local n = 0
     if assocTable == nil then
         return 0

@@ -1,4 +1,5 @@
-local L = LibStub("AceLocale-3.0"):NewLocale("Raid Invite Classic", "deDE")
+local addonName, RIC = ...
+local L = LibStub("AceLocale-3.0"):NewLocale(addonName, "deDE")
 if not L then return end -- Stop setting up this locale if game client decides its not relevant
 
 -- RIC guild messages and whisper notifications

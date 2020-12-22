@@ -1,6 +1,8 @@
+local addonName, RIC = ...
 local LD = LibStub("LibDeflate")
+local response = {}
 
-function SendComm(message, channel)
+function RIC.SendComm(message, channel)
 	local messageSerialized = LD:EncodeForWoWAddonChannel(LD:CompressDeflate(RIC:Serialize(message)))
 	if channel == nil then
 		RIC:SendCommMessage("ricroster", messageSerialized, "RAID")
@@ -39,31 +41,29 @@ function RIC:OnCommReceived(prefix, message, distribution, sender)
 	end
 
 	if key == "SWAP_IN_PROGRESS" then
-		RIC_Group_Manager.receiveInProgress(sender)
+		RIC._Group_Manager.receiveInProgress(sender)
 		return
 	end
 
 	if key == "SWAP_END" then
-		RIC_Group_Manager.receiveEndProgress()
+		RIC._Group_Manager.receiveEndProgress()
 		return
 	end
 
 	if key == "ASK_ROSTERS" then
-		local response = {
-			key = "ROSTERS",
-			asker = sender,
-			value = RIC.db.realm.RosterList,
-		}
-		SendComm(response, distribution)
+		response["key"] = "ROSTERS"
+		response["asker"] = sender
+		response["value"] = RIC.db.realm.RosterList
+		RIC.SendComm(response, distribution)
 		return
 	end
 
 	if key == "ROSTERS" and message["asker"] == UnitName("player") and message["value"] then
-		RIC_Roster_Manager.addReceivedRosters(message["value"], sender)
+		RIC._Roster_Manager.addReceivedRosters(message["value"], sender)
 		return
 	end
 
 	if key == "OVERWRITE_ROSTERS" and message["value"] then
-		RIC_Roster_Manager.setReceivedRosters(message["value"], sender) -- TODO maybe ask recipient if he wants to get this update and discard his own data
+		RIC._Roster_Manager.setReceivedRosters(message["value"], sender) -- TODO maybe ask recipient if he wants to get this update and discard his own data
 	end
 end

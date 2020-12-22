@@ -1,3 +1,4 @@
+local addonName, RIC = ...
 -- POPUP MENU CODE BELOW
 local PopupDepth
 local function PopupClick(self, arg1, arg2, checked)

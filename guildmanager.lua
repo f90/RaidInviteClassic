@@ -1,11 +1,21 @@
+local addonName, RIC = ...
 local guildMembersLoginTime = {} -- Track when guild members log in
 local guildMemberCameOnline = {} -- Set to true when a guild member came online, set back to nil as soon as we reset the invite state as a reaction to this
 local guildMemberWentOffline = {} -- Set to true when a guild member just went offline, set back to nil as soon as we update status information as a reaction to this
 
-function RIC_Guild_Manager.getGuildMembers()
-    GuildRoster()
+local output = {}
+function RIC._Guild_Manager.getGuildMembers()
+    local in_guild = IsInGuild()
+    if not in_guild then return output end
     local numMembers = GetNumGuildMembers(true)
-    local output = {}
+    if ( in_guild and numMembers == 0 ) then
+        GuildRoster()
+        return output
+    end
+    local prev_roster_count = RIC.table_count(output)
+    if numMembers ~= prev_roster_count then
+        wipe(output)
+    end
     for ci=1, numMembers do
         local name, rank, rankIndex, level, class, zone, note, officernote, online, status, classFileName = GetGuildRosterInfo(ci)
 
@@ -17,7 +27,7 @@ function RIC_Guild_Manager.getGuildMembers()
             end
 
             -- name contains "name-servername" but GetRaidRosterInfo does not give us server info. Since this is a classic addon, simply remove server name here and deal ONLY with char names
-            name = removeServerFromName(name)
+            name = RIC.removeServerFromName(name)
 
             -- Update last-login/logoff time and set justCameOnline-flag
             if online_val then
@@ -51,18 +61,18 @@ function RIC_Guild_Manager.getGuildMembers()
             }
 
             -- Save detected class in database
-            RIC.db.realm.KnownPlayerClasses[name] = classFilenameToIndex(classFileName)
+            RIC.db.realm.KnownPlayerClasses[name] = RIC.classFilenameToIndex(classFileName)
         end
     end
     return output
 end
 
-function RIC_Guild_Manager.resetCameOnlineFlag(name)
+function RIC._Guild_Manager.resetCameOnlineFlag(name)
     -- Called by roster browser when resetting invite status of a player because they came online
     guildMemberCameOnline[name] = nil
 end
 
-function RIC_Guild_Manager.resetWentOfflineFlag(name)
+function RIC._Guild_Manager.resetWentOfflineFlag(name)
     -- Called by roster browser when updating status information because a player went offline
     guildMemberWentOffline[name] = nil
 end

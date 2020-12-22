@@ -1,9 +1,11 @@
+local addonName, RIC = ...
 local AceGUI = LibStub("AceGUI-3.0")
 local LD = LibStub("LibDeflate")
 local LSM = LibStub("LibSharedMedia-3.0")
 local DEFAULT_FONT = LSM.MediaTable.font[LSM:GetDefault('font')]
 
 local selectedRoster
+local rosterCopy = {}
 
 -- Creates relevant GUI elements for the roster management window
 function RIC:OnEnableRosterManagerView()
@@ -18,7 +20,7 @@ function RIC:OnEnableRosterManagerView()
 	self.rosters:SetLayout("Flow")
 	--_G["GroupFrame"] = self.groups.frame -- TODO needed?
 	--table.insert(UISpecialFrames, "GroupFrame")
-	self:HookScript(self.rosters.frame, "OnShow", function() RIC_Roster_Manager.draw() end)
+	self:HookScript(self.rosters.frame, "OnShow", function() RIC._Roster_Manager.draw() end)
 
 	local rosterList = AceGUI:Create("InlineGroup")
 	rosterList:SetWidth(250)
@@ -52,17 +54,17 @@ function RIC:OnEnableRosterManagerView()
 
 	self.rosters.rosterControls.copy = AceGUI:Create("Button")
 	self.rosters.rosterControls.copy:SetText("Copy selected roster")
-	self.rosters.rosterControls.copy:SetCallback("OnClick", function() RIC_Roster_Manager.copy() end)
+	self.rosters.rosterControls.copy:SetCallback("OnClick", function() RIC._Roster_Manager.copy() end)
 	self.rosters.rosterControls:AddChild(self.rosters.rosterControls.copy)
 
 	self.rosters.rosterControls.delete = AceGUI:Create("Button")
 	self.rosters.rosterControls.delete:SetText("Delete selected roster")
-	self.rosters.rosterControls.delete:SetCallback("OnClick", function() RIC_Roster_Manager.delete() end)
+	self.rosters.rosterControls.delete:SetCallback("OnClick", function() RIC._Roster_Manager.delete() end)
 	self.rosters.rosterControls:AddChild(self.rosters.rosterControls.delete)
 
 	self.rosters.rosterControls.fetch = AceGUI:Create("Button")
 	self.rosters.rosterControls.fetch:SetText("Fetch rosters")
-	self.rosters.rosterControls.fetch:SetCallback("OnClick", function() RIC_Roster_Manager.requestRosters() end)
+	self.rosters.rosterControls.fetch:SetCallback("OnClick", function() RIC._Roster_Manager.requestRosters() end)
 	self.rosters.rosterControls:AddChild(self.rosters.rosterControls.fetch)
 
 	self.rosters.rosterControls.send = AceGUI:Create("Button")
@@ -72,7 +74,7 @@ function RIC:OnEnableRosterManagerView()
 
 	self.rosters.confirm = AceGUI:Create("Button")
 	self.rosters.confirm:SetText("Use selected roster")
-	self.rosters.confirm:SetCallback("OnClick", function() RIC_Roster_Manager.confirm() end)
+	self.rosters.confirm:SetCallback("OnClick", function() RIC._Roster_Manager.confirm() end)
 	self.rosters.rosterList:AddChild(self.rosters.confirm)
 
 	AceGUI:RegisterLayout("RostersLayout", function()
@@ -103,12 +105,12 @@ function RIC:OnEnableRosterManagerView()
 			self.editBox:SetScript("OnEnterPressed", function(self)
 				local text = self:GetText()
 				StaticPopup_Hide("NEW_ROSTER_ENTRY")
-				RIC_Roster_Manager.add(text)
+				RIC._Roster_Manager.add(text)
 			end)
 		end,
 		OnAccept = function(self, data, data2)
 			local text = self.editBox:GetText()
-			RIC_Roster_Manager.add(text)
+			RIC._Roster_Manager.add(text)
 		end,
 	}
 
@@ -131,12 +133,12 @@ function RIC:OnEnableRosterManagerView()
 			self.editBox:SetScript("OnEnterPressed", function(self)
 				local text = self:GetText()
 				StaticPopup_Hide("RENAME_ROSTER_ENTRY")
-				RIC_Roster_Manager.rename(text)
+				RIC._Roster_Manager.rename(text)
 			end)
 		end,
 		OnAccept = function(self, data, data2)
 			local text = self.editBox:GetText()
-			RIC_Roster_Manager.rename(text)
+			RIC._Roster_Manager.rename(text)
 		end,
 	}
 
@@ -152,22 +154,22 @@ function RIC:OnEnableRosterManagerView()
 		enterClicksFirstButton = true,
 		preferredIndex = 3,  -- avoid some UI taint, see http://www.wowace.com/announcements/how-to-avoid-some-ui-taint/
 		OnAccept = function(self, data, data2)
-			RIC_Roster_Manager.send()
+			RIC._Roster_Manager.send()
 		end,
 	}
 end
 
-function RIC_Roster_Manager.draw()
+function RIC._Roster_Manager.draw()
 	-- reset selectedRoster variable if its not pointing to a roster
 	if RIC.db.realm.RosterList[selectedRoster] == nil then
-		for rosterName, _ in pairsByKeys(RIC.db.realm.RosterList) do
+		for rosterName, _ in RIC.pairsByKeys(RIC.db.realm.RosterList) do
 			selectedRoster = rosterName
 			break
 		end
 	end
 	-- Show all available rosters
 	local rosterNum = 1
-	for rosterName, _ in pairsByKeys(RIC.db.realm.RosterList) do
+	for rosterName, _ in RIC.pairsByKeys(RIC.db.realm.RosterList) do
 		local label
 		if rosterNum <= #RIC.rosters.rosterList.labels then
 			-- Fetch already existing label
@@ -183,7 +185,7 @@ function RIC_Roster_Manager.draw()
 
 			label:SetCallback("OnClick", function(self, _, button)
 				if button == "LeftButton" then
-					RIC_Roster_Manager.select(self)
+					RIC._Roster_Manager.select(self)
 				end
 			end)
 
@@ -196,7 +198,7 @@ function RIC_Roster_Manager.draw()
 		label.name = rosterName
 		if string.utf8len(rosterName) > 25 then
 			label:SetText(string.sub(rosterName, 1, 25) .. "...")
-			label:SetCallback("OnEnter", function(self) RIC_Roster_Manager.showRosterTooltip(self) end)
+			label:SetCallback("OnEnter", function(self) RIC._Roster_Manager.showRosterTooltip(self) end)
 			label:SetCallback("OnLeave", function() GameTooltip:Hide() end)
 		else
 			label:SetText(rosterName)
@@ -216,7 +218,7 @@ function RIC_Roster_Manager.draw()
 	end
 end
 
-function RIC_Roster_Manager.showRosterTooltip(label)
+function RIC._Roster_Manager.showRosterTooltip(label)
 	-- put tooltip here showing full name of roster
 	GameTooltip:SetOwner(label.frame, "ANCHOR_RIGHT")
 	GameTooltip:ClearLines()
@@ -224,35 +226,35 @@ function RIC_Roster_Manager.showRosterTooltip(label)
 	GameTooltip:Show()
 end
 
-function RIC_Roster_Manager.select(label)
+function RIC._Roster_Manager.select(label)
 	selectedRoster = label.name
-	RIC_Roster_Manager.draw()
+	RIC._Roster_Manager.draw()
 end
 
-function RIC_Roster_Manager.add(rosterName)
+function RIC._Roster_Manager.add(rosterName)
 	if RIC.db.realm.RosterList[rosterName] ~= nil then
 		message("A roster named " .. rosterName .. " already exists!")
 		return false
 	else
 		RIC.db.realm.RosterList[rosterName] = {}
-		RIC_Roster_Manager.draw()
+		RIC._Roster_Manager.draw()
 		return true
 	end
 end
 
-function RIC_Roster_Manager.rename(newRosterName)
+function RIC._Roster_Manager.rename(newRosterName)
 	-- Add new roster with new name
-	local success = RIC_Roster_Manager.copy(newRosterName)
+	local success = RIC._Roster_Manager.copy(newRosterName)
 	if success == true then
 		-- Copy succeeded => We can safely delete current roster
-		RIC_Roster_Manager.delete() -- Delete selected roster
+		RIC._Roster_Manager.delete() -- Delete selected roster
 		selectedRoster = newRosterName -- Select roster under new name
-		RIC_Roster_Manager.draw() -- Redraw
+		RIC._Roster_Manager.draw() -- Redraw
 	end
 end
 
-function RIC_Roster_Manager.copy(newRosterName)
-	local rosterCopy = {}
+function RIC._Roster_Manager.copy(newRosterName)
+	wipe(rosterCopy)
 	for key, val in pairs(RIC.db.realm.RosterList[selectedRoster]) do
 		rosterCopy[key] = val
 	end
@@ -265,64 +267,65 @@ function RIC_Roster_Manager.copy(newRosterName)
 		message("A roster named " .. newRosterName .. " already exists!")
 		return false -- Indicate that we failed copying and nothing changed
 	else
-		RIC.db.realm.RosterList[newRosterName] = rosterCopy
-		RIC_Roster_Manager.draw()
+		RIC.db.realm.RosterList[newRosterName] = {}
+		for k,v in pairs(rosterCopy) do
+			RIC.db.realm.RosterList[newRosterName][k] = v
+		end
+		RIC._Roster_Manager.draw()
 		return true -- Success!
 	end
 end
 
-function RIC_Roster_Manager.delete()
+function RIC._Roster_Manager.delete()
 	-- Make sure we always have at least ONE roster to work with!
-	if hashLength(RIC.db.realm.RosterList) > 1 then
+	if RIC.hashLength(RIC.db.realm.RosterList) > 1 then
 		RIC.db.realm.RosterList[selectedRoster] = nil
-		for rosterName, rosterData in pairsByKeys(RIC.db.realm.RosterList) do
+		for rosterName, rosterData in RIC.pairsByKeys(RIC.db.realm.RosterList) do
 			if selectedRoster == RIC.db.realm.CurrentRoster then -- If this was the roster we are currently using, switch to another one
 				RIC.db.realm.CurrentRoster = rosterName
 			end
 			selectedRoster = rosterName
 			break
 		end
-		RIC_Roster_Manager.draw()
+		RIC._Roster_Manager.draw()
 	else
 		message("There needs to be at least one roster.")
 	end
 end
 
-function RIC_Roster_Manager.confirm()
+function RIC._Roster_Manager.confirm()
 	RIC.rosters:Hide()
-	RIC_Roster_Manager.setRoster(selectedRoster)
+	RIC._Roster_Manager.setRoster(selectedRoster)
 end
 
-function RIC_Roster_Manager.setRoster(rosterName)
+function RIC._Roster_Manager.setRoster(rosterName)
 	if RIC.db.realm.RosterList[rosterName] ~= nil and rosterName ~= RIC.db.realm.CurrentRoster then
 		RIC.db.realm.CurrentRoster = rosterName
 		selectedRoster = rosterName
 
 		-- Update views
-		RIC_Roster_Browser.buildRosterRaidList()
-		RIC_Group_Manager.draw(true)
-		RIC_Roster_Manager.draw()
+		RIC._Roster_Browser.buildRosterRaidList()
+		RIC._Group_Manager.draw(true)
+		RIC._Roster_Manager.draw()
 	end
 end
 
-function RIC_Roster_Manager.toggle()
+function RIC._Roster_Manager.toggle()
 	if RIC.rosters:IsShown() == true then
 		RIC.rosters:Hide()
 	else
 		RIC.rosters:Show()
-		RIC_Roster_Manager.draw()
+		RIC._Roster_Manager.draw()
 	end
 end
 
-function RIC_Roster_Manager.requestRosters()
-	local message = {
-		key = "ASK_ROSTERS",
-	}
-	SendComm(message)
+local comm_message = {	key = "ASK_ROSTERS"}
+function RIC._Roster_Manager.requestRosters()
+	RIC.SendComm(comm_message)
 end
 
-function RIC_Roster_Manager.isValidRosterList(rosterLists)
-	if rosterLists == nil or hashLength(rosterLists) == 0 then
+function RIC._Roster_Manager.isValidRosterList(rosterLists)
+	if rosterLists == nil or RIC.hashLength(rosterLists) == 0 then
 		return false
 	end
 	-- Check if all created roster lists are non-nil
@@ -335,29 +338,36 @@ function RIC_Roster_Manager.isValidRosterList(rosterLists)
 	return true
 end
 
-function RIC_Roster_Manager.addReceivedRosters(rosterLists, sender)
-	if not RIC_Roster_Manager.isValidRosterList(rosterLists) then
+function RIC._Roster_Manager.addReceivedRosters(rosterLists, sender)
+	if not RIC._Roster_Manager.isValidRosterList(rosterLists) then
 		RIC:Print(L["Roster_Rejected_1"] .. " " .. sender .. " " .. L["Roster_Rejected_2"])
 		return
 	end
 	-- Build union of current roster lists and received ones, overwriting our local lists in case of duplicate names
 	for rosterName, rosterList in pairs(rosterLists) do
-		RIC.db.realm.RosterList[rosterName] = rosterList
+		if RIC.db.realm.RosterList[rosterName] then
+			wipe(RIC.db.realm.RosterList[rosterName])
+			for k,v in pairs(rosterList) do
+				RIC.db.realm.RosterList[rosterName][k] = v
+			end
+		else
+			RIC.db.realm.RosterList[rosterName] = rosterList
+		end
 	end
-	RIC_Roster_Manager.draw()
-	RIC_Roster_Browser.buildRosterRaidList()
-	RIC_Group_Manager.draw(true)
+	RIC._Roster_Manager.draw()
+	RIC._Roster_Browser.buildRosterRaidList()
+	RIC._Group_Manager.draw(true)
 end
 
-function RIC_Roster_Manager.setReceivedRosters(rosterLists, sender)
+function RIC._Roster_Manager.setReceivedRosters(rosterLists, sender)
 	-- Make sure the new list is a valid roster list, otherwise don't accept list
-	if not RIC_Roster_Manager.isValidRosterList(rosterLists) then
+	if not RIC._Roster_Manager.isValidRosterList(rosterLists) then
 		RIC:Print(L["Roster_Rejected_1"] .. " " .. sender .. " " .. L["Roster_Rejected_2"])
 		return
 	end
 
 	-- Our current roster name might not be available anymore - in this case, switch current roster to an existing one!
-	local newRosterName = getSortedTableKeys(rosterLists)[1]
+	local newRosterName = RIC.getSortedTableKeys(rosterLists)[1]
 	if rosterLists[RIC.db.realm.CurrentRoster] == nil then
 		RIC.db.realm.CurrentRoster = newRosterName
 	end
@@ -366,24 +376,27 @@ function RIC_Roster_Manager.setReceivedRosters(rosterLists, sender)
 	end
 
 	-- Overwrite our own roster lists with the received ones
-	RIC.db.realm.RosterList = rosterLists
+	RIC.db.realm.RosterList = RIC.db.realm.RosterList or {}
+	wipe(RIC.db.realm.RosterList)
+	for k,v in pairs(rosterLists) do
+		RIC.db.realm.RosterList[k] = v
+	end
 
-	RIC_Roster_Manager.draw()
-	RIC_Roster_Browser.buildRosterRaidList()
-	RIC_Group_Manager.draw(true)
+	RIC._Roster_Manager.draw()
+	RIC._Roster_Browser.buildRosterRaidList()
+	RIC._Group_Manager.draw(true)
 end
 
-function RIC_Roster_Manager.send()
-	local msg = {
-		key = "OVERWRITE_ROSTERS",
-		sender = UnitName("player"),
-		value = RIC.db.realm.RosterList,
-	}
+local comm_msg = {}
+function RIC._Roster_Manager.send()
+	comm_msg["key"] = "OVERWRITE_ROSTERS"
+	comm_msg["sender"] = UnitName("player")
+	comm_msg["value"] = RIC.db.realm.RosterList
 
 	-- Try sending via raid channel
 	if IsInRaid() then
 		if UnitIsGroupLeader("player") then
-			SendComm(msg, "RAID")
+			RIC.SendComm(msg, "RAID")
 			RIC:Print(L["Roster_Sent_Successfully_Raid"])
 		else
 			-- We are in raid but not leader - we are NOT allowed to overwrite other people's roster
@@ -394,7 +407,7 @@ function RIC_Roster_Manager.send()
 	-- Try sending via guild channel
 	if IsInGuild() then
 		if CanEditOfficerNote() then
-			SendComm(msg, "GUILD")
+			RIC.SendComm(msg, "GUILD")
 			RIC:Print(L["Roster_Sent_Successfully_Guild"])
 		else
 			-- We are in a guild but not an "officer" - we are NOT allowed to overwrite other people's roster

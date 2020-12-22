@@ -1,7 +1,8 @@
-function getOptions()
+local addonName, RIC = ...
+function RIC.getOptions()
     -- OPTIONS
 	local options = {
-		name = "Raid Invite Classic",
+		name = addonName,
 		handler = RIC,
 		type = 'group',
 		args = {
@@ -47,7 +48,7 @@ function getOptions()
 						type = "toggle",
 						set = function(info, val)
 							RIC.db.profile.hide = val
-							RIC_MinimapButton_Update()
+							RIC.MinimapButton_Update()
 						end,
 						get = function(info)
 							return RIC.db.profile.hide
@@ -62,7 +63,7 @@ function getOptions()
 						max = 2.0,
 						set = function(info, val)
 							RIC.db.profile.MainFrameScale = val
-							RIC_setScale()
+							RIC.RIC_setScale()
 						end,
 						get = function(info)
 							return RIC.db.profile.MainFrameScale
@@ -180,10 +181,10 @@ function getOptions()
 						multiline = 6,
 						order = 1,
 						set = function(info, val)
-							RIC.db.profile.Codewords = RIC_Codewords_Handler.buildCodeWords(val)
+							RIC.db.profile.Codewords = RIC._Codewords_Handler.buildCodeWords(val)
 						end,
 						get = function(info)
-							return RIC_Codewords_Handler.getCodeWordsString(RIC.db.profile.Codewords)
+							return RIC._Codewords_Handler.getCodeWordsString(RIC.db.profile.Codewords)
 						end
 					},
 
@@ -199,10 +200,10 @@ function getOptions()
 								multiline = 6,
 								order = 1,
 								set = function(info, val)
-									RIC.db.realm.Whitelist = RIC_Codewords_Handler.buildPlayerList(val)
+									RIC.db.realm.Whitelist = RIC._Codewords_Handler.buildPlayerList(val)
 								end,
 								get = function(info)
-									return RIC_Codewords_Handler.getPlayerListString(RIC.db.realm.Whitelist)
+									return RIC._Codewords_Handler.getPlayerListString(RIC.db.realm.Whitelist)
 								end
 							},
 
@@ -214,10 +215,10 @@ function getOptions()
 								multiline = 6,
 								order = 2,
 								set = function(info, val)
-									RIC.db.realm.Blacklist = RIC_Codewords_Handler.buildPlayerList(val)
+									RIC.db.realm.Blacklist = RIC._Codewords_Handler.buildPlayerList(val)
 								end,
 								get = function(info)
-									return RIC_Codewords_Handler.getPlayerListString(RIC.db.realm.Blacklist)
+									return RIC._Codewords_Handler.getPlayerListString(RIC.db.realm.Blacklist)
 								end
 							},
 
@@ -344,7 +345,7 @@ function getOptions()
             MasterLooter = false,
             HideOutgoingWhispers = false,
 
-			Codewords = RIC_Codewords_Handler.buildCodeWords("invite"),
+			Codewords = RIC._Codewords_Handler.buildCodeWords("invite"),
 			CodewordOnlyDuringInvite = true,
 			CodewordOnlyInGroup = true,
 			CodewordNotifyStart = true,

@@ -1,31 +1,28 @@
 -- Author      : Daniel Stoller
-RIC = LibStub("AceAddon-3.0"):NewAddon("Raid Invite Classic", "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceHook-3.0", "AceSerializer-3.0")
+local addonName, RIC = ...
+local addon = LibStub("AceAddon-3.0"):NewAddon(RIC, addonName, "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceHook-3.0", "AceSerializer-3.0")
 
 -- Called when the addon is loaded
-function RIC:OnInitialize()
+function addon:OnInitialize()
 	-- Setup global locale object
-	L = LibStub("AceLocale-3.0"):GetLocale("Raid Invite Classic")
+	L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 	-- Setup options
-	local options, defaults = getOptions()
+	local options, defaults = RIC.getOptions()
 	self.db = LibStub("AceDB-3.0"):New("RICDB", defaults, true) -- Create database with default config entries
 	options.args.profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db) -- Add profile managment section to options table
-	LibStub("AceConfig-3.0"):RegisterOptionsTable("Raid Invite Classic", options) -- Create config menu
-	self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Raid Invite Classic") -- Add config menu to Blizzard options
+	LibStub("AceConfig-3.0"):RegisterOptionsTable(addonName, options) -- Create config menu
+	self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName) -- Add config menu to Blizzard options
 
 	-- Add console command listener
 	self:RegisterChatCommand("ric", "processConsoleCommand")
 	self:RegisterChatCommand("raidinviteclassic", "processConsoleCommand")
 end
 
-function RIC:processConsoleCommand(cmd)
+function addon:processConsoleCommand(cmd)
 	cmd = cmd:lower()
 	if cmd == "" then -- Toggle visibility
-		if RIC_MainFrame:IsShown() then
-			RIC_MainFrame:Hide()
-		else
-			RIC_MainFrame:Show()
-		end
+		RIC_MainFrame:SetShown(RIC_MainFrame:IsVisible())
 	elseif cmd == "show" then
 		RIC_MainFrame:Show()
 	elseif cmd == "hide" then
@@ -35,17 +32,17 @@ function RIC:processConsoleCommand(cmd)
 		RIC.groups.frame:SetPoint("CENTER", "UIParent", "CENTER", 0, 0)
 		RIC.rosters.frame:SetPoint("CENTER", "UIParent", "CENTER", 0, 0)
 		RIC.db.profile.MainFrameScale = 1
-		RIC_setScale()
+		RIC.RIC_setScale()
 		-- Reset minimap position
 		RIC.db.profile.minimapPos = 0
-		RIC_MinimapButton_Update()
+		RIC.MinimapButton_Update()
 	elseif cmd == "version" then
-		RIC:Print("Version: " .. RIC_Version)
+		addon:Print("Version: " .. RIC._Version)
 	elseif cmd == "config" then
 		InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
 		InterfaceOptionsFrame_OpenToCategory(self.optionsFrame)
 	else
-		RIC:Print("") -- Print just our addon name first
+		addon:Print("") -- Print just our addon name first
 		print("prefix: /ric - shows/hides main frame")
 		print(" - show - shows the main frame")
 		print(" - hide - hide the main frame")
@@ -55,7 +52,7 @@ function RIC:processConsoleCommand(cmd)
 	end
 end
 
-function RIC:OnEnable() -- Called when the addon is enabled
+function addon:OnEnable() -- Called when the addon is enabled
 	-- Add event listeners
 	self:RegisterEvent("GUILD_ROSTER_UPDATE")
 	self:RegisterEvent("CHAT_MSG_SYSTEM") -- To understand invite results
@@ -66,7 +63,7 @@ function RIC:OnEnable() -- Called when the addon is enabled
 	self:RegisterComm("ricroster")
 
 	-- Regularly call internal update function
-	C_Timer.NewTicker(RIC_UpdateInterval, RIC_OnUpdate)
+	C_Timer.NewTicker(RIC._UpdateInterval, RIC.RIC_OnUpdate)
 
 	-- Create roster list
 	local entry = CreateFrame("Button", "$parentEntry1", RIC_RosterFrame, "RIC_RosterEntry") -- Creates the first entry
@@ -117,20 +114,20 @@ function RIC:OnEnable() -- Called when the addon is enabled
 				if self.autoCompleted ~= true then -- Add player on enter, if enter was not meant for confirming autocomplete suggestion
 					local text = self:GetText()
 					StaticPopup_Hide("ROSTER_PLAYER_ENTRY")
-					RIC_Roster_Browser.addNameToRoster(text)
+					RIC._Roster_Browser.addNameToRoster(text)
 				end
 			end)
 
 			-- Setup autocomplete suggestions for the player entry edit box
-			local guildMembers = RIC_Guild_Manager.getGuildMembers()
+			local guildMembers = RIC._Guild_Manager.getGuildMembers()
 			local nameLookup = {}
 			for name,_ in pairs(guildMembers) do -- Add guild members
 				nameLookup[name] = true
 			end
-			for name,_ in pairs(RIC_ReceivedWhisperAuthors) do -- Add people who whispered us during this session
+			for name,_ in pairs(RIC._receivedWhisperAuthors) do -- Add people who whispered us during this session
 				nameLookup[name] = true
 			end
-			local raidMembers = getRaidMembers() -- Get raid members
+			local raidMembers = RIC.getRaidMembers() -- Get raid members
 			for name,_ in pairs(raidMembers) do
 				nameLookup[name] = true
 			end
@@ -145,12 +142,12 @@ function RIC:OnEnable() -- Called when the addon is enabled
 		end,
 		OnAccept = function(self, data, data2)
 			local text = self.editBox:GetText()
-			RIC_Roster_Browser.addNameToRoster(text)
+			RIC._Roster_Browser.addNameToRoster(text)
 		end,
 	}
 
 	-- Set up chat filters
-	RIC_Chat_Manager.setupFilter()
+	RIC._RIC_Chat_Manager.setupFilter()
 
 	-- Set checkboxes according to config
 	for i, val in ipairs(RIC.db.profile.DisplayRanks) do
@@ -168,86 +165,90 @@ function RIC:OnEnable() -- Called when the addon is enabled
 	_G["RIC_OtherBox"]:SetChecked(true)
 
 	-- Update table views
-	RIC_Guild_Browser.buildGuildList()
-	RIC_Roster_Browser.buildRosterRaidList()
+	RIC._Guild_Browser.buildGuildList()
+	RIC._Roster_Browser.buildRosterRaidList()
 
-	RIC:OnEnableGroupview()
-	RIC:OnEnableRosterManagerView()
-	RIC:OnEnableImportView()
-	RIC:OnEnableMinimap()
+	addon:OnEnableGroupview()
+	addon:OnEnableRosterManagerView()
+	addon:OnEnableImportView()
+	addon:OnEnableMinimap()
 
-	RIC_setScale()
+	RIC.RIC_setScale()
 end
 
-function RIC:OnDisable()
+function addon:OnDisable()
     -- Called when the addon is disabled
 end
 
-function RIC:GUILD_ROSTER_UPDATE()
+function addon:GUILD_ROSTER_UPDATE()
 	-- Update list views
-	RIC_Guild_Browser.buildGuildList()
-	RIC_Roster_Browser.buildRosterRaidList()
+	RIC._Guild_Browser.buildGuildList()
+	RIC._Roster_Browser.buildRosterRaidList()
 end
 
-function RIC:CHAT_MSG_WHISPER(event, msg, author, ...)
+function addon:CHAT_MSG_WHISPER(event, msg, author, ...)
 	if author ~= nil then -- For some reason this can be nil sometimes?
-		RIC_Roster_Browser.inviteWhisper(removeServerFromName(author), msg) -- Remove server tag from name
+		RIC._Roster_Browser.inviteWhisper(RIC.removeServerFromName(author), msg) -- Remove server tag from name
 	else
-		RIC:Print(L["Whisper_Author_Unknown"])
+		addon:Print(L["Whisper_Author_Unknown"])
 	end
 end
 
-function RIC:CHAT_MSG_SYSTEM(event, msg)
-	RIC_Roster_Browser.processSystemMessage(msg)
-	RIC_Guild_Browser.drawTable()
+function addon:CHAT_MSG_SYSTEM(event, msg)
+	RIC._Roster_Browser.processSystemMessage(msg)
+	RIC._Guild_Browser.drawTable()
 end
 
-function RIC:PARTY_LEADER_CHANGED()
+function addon:PARTY_LEADER_CHANGED()
 	if (IsInGroup() or IsInRaid()) then
 		if not UnitIsGroupLeader("player") then -- Check if we have lead now. If not, we either gave it away or were not lead before either, so definitely stop any current invite phase
-			RIC_Roster_Browser.endInvitePhase()
+			RIC._Roster_Browser.endInvitePhase()
 		end
 	else
 		-- We are not in a group/raid at all - definitely stop invite phase in that case!
-		RIC_Roster_Browser.endInvitePhase()
+		RIC._Roster_Browser.endInvitePhase()
 	end
 end
 
-function RIC:PLAYER_LOGOUT()
+function addon:PLAYER_LOGOUT()
 	-- We are exiting/logging out/reloading UI.
 	-- In all of these cases, the invite phase cannot continue since player is offline and/or our internal addon variables are reset
 	-- Therefore, end invite phase now, so people are properly notified that invite phase is stopped
 	-- TODO SendChatMessage does not seem to work here anymore (no guild message can be seen), on logout or exit. Reloadui works?
-	RIC_Roster_Browser.endInvitePhase()
+	RIC._Roster_Browser.endInvitePhase()
 end
 
 function RICMainFrame_OnShow()
-	RIC_Guild_Browser.setVisibleRanks()
-	RIC_Guild_Browser.buildGuildList()
+	RIC._Guild_Browser.setVisibleRanks()
+	RIC._Guild_Browser.buildGuildList()
 end
 
 -- Main update function being called every few seconds - update roster and guild lists and the invite status
-function RIC_OnUpdate()
+function RIC.RIC_OnUpdate()
 	-- Trigger durability checks for all raid members and send warnings if they have joined the raid
-	RIC_Durability_Manager.checkDurabilities()
+	RIC._Durability_Manager.checkDurabilities()
 
 	-- Handle roster invites
-	RIC_Roster_Browser.sendInvites()
+	RIC._Roster_Browser.sendInvites()
 
 	-- Update guild and roster views
-	RIC_Roster_Browser.buildRosterRaidList()
-	RIC_Guild_Browser.buildGuildList()
-
-	-- Update player tooltip every few seconds while hovering over player entry in roster
-	RIC_Roster_Browser.setPlayerTooltip()
-
-	-- Update status icons in group view
-	RIC_Group_Manager.draw()
+	if RIC_MainFrame:IsVisible() then
+		RIC._Roster_Browser.buildRosterRaidList()
+		RIC._Guild_Browser.buildGuildList()
+		-- Update player tooltip every few seconds while hovering over player entry in roster
+		RIC._Roster_Browser.setPlayerTooltip()
+	end
+	if RIC.groups:IsVisible() then
+		-- Update status icons in group view
+		RIC._Group_Manager.draw()
+	end
 end
 
-function RIC_setScale()
+function RIC.RIC_setScale()
 	RIC_MainFrame:SetScale(RIC.db.profile.MainFrameScale)
 	RIC.groups.frame:SetScale(RIC.db.profile.MainFrameScale)
 	RIC.rosters.frame:SetScale(RIC.db.profile.MainFrameScale)
 	RIC.import.frame:SetScale(RIC.db.profile.MainFrameScale)
 end
+
+_G.RIC = RIC

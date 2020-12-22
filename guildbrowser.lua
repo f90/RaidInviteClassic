@@ -1,3 +1,4 @@
+local addonName, RIC = ...
 local sortMethod = "asc"
 local currSortIndex = 1
 local guildList = {}
@@ -6,7 +7,7 @@ local selectedList = {}
 local totalGuildNumber = 0
 local totalNumber = 0
 
-function RIC_Guild_Browser.setVisibleRanks()
+function RIC._Guild_Browser.setVisibleRanks()
 	local numRanks = GuildControlGetNumRanks()
 	for i, val in ipairs(RIC.db.profile.DisplayRanks) do
 		if i <= numRanks then
@@ -19,20 +20,20 @@ function RIC_Guild_Browser.setVisibleRanks()
 	end
 end
 
-function RIC_Guild_Browser.updateOffset(val)
+function RIC._Guild_Browser.updateOffset(val)
 	-- Activates when slider is dragged, gives continuous value -> change to integer
 	guildOffset = math.floor(val)
-	RIC_Guild_Browser.drawTable()
+	RIC._Guild_Browser.drawTable()
 end
 
 -- Function: buildGuildList
 -- Purpose: Builds data for listing guild members
-function RIC_Guild_Browser.buildGuildList()
+function RIC._Guild_Browser.buildGuildList() -- TODO: Called OnUpdate
 	totalGuildNumber = 0
 	totalNumber = 0
-	guildList = {}
+	wipe(guildList)
 
-	local guildMembers = RIC_Guild_Manager.getGuildMembers()
+	local guildMembers = RIC._Guild_Manager.getGuildMembers()
 
 	for name, data in pairs(guildMembers) do
 		if RIC.db.profile.ShowOffline or data["online"] then
@@ -50,13 +51,18 @@ function RIC_Guild_Browser.buildGuildList()
 	end
 
 	-- Clear selection from people who are not shown
-	local newSelectedList = {}
-	for _, val in ipairs(guildList) do
-		if selectedList[val[1]] ~= nil then
-			newSelectedList[val[1]] = 1
+	for name, selected in pairs(selectedList) do
+		local found = false
+		for _, val in pairs(guildList) do
+			if name == val[1] then
+				found = true
+				break
+			end
+		end
+		if not found then
+			selectedList[name] = nil
 		end
 	end
-	selectedList = newSelectedList
 
 	-- Set up sliders
 	if totalGuildNumber > 20 then
@@ -76,18 +82,18 @@ function RIC_Guild_Browser.buildGuildList()
 		_G["RIC_GuildSlider"]:SetValue(guildOffset)
 	end
 
-	RIC_Guild_Browser.sortTable(currSortIndex)
-	RIC_Guild_Browser.drawTable()
+	RIC._Guild_Browser.sortTable(currSortIndex)
+	RIC._Guild_Browser.drawTable()
 end
 
 -- Function: drawTable
 -- Purpose: Displays the data for the faux
 --		scrolling table.
-function RIC_Guild_Browser.drawTable()
+function RIC._Guild_Browser.drawTable()
 	for ci = 1, 20 do
 		local theRow = guildList[ci+guildOffset]
 		if theRow then
-			_G["RIC_GuildMemberFrameEntry"..ci.."Name"]:SetText(getClassColor(theRow[4]) .. theRow[1])
+			_G["RIC_GuildMemberFrameEntry"..ci.."Name"]:SetText(RIC.getClassColor(theRow[4]) .. theRow[1])
 			if theRow[5] then
 				_G["RIC_GuildMemberFrameEntry"..ci.."Rank"]:SetText(theRow[2])
 			else
@@ -107,27 +113,27 @@ function RIC_Guild_Browser.drawTable()
 	end
 end
 
-function RIC_Guild_Browser.addSelectedToRoster()
+function RIC._Guild_Browser.addSelectedToRoster()
 	-- Fetch names of selected people and add to roster
 	for _, val in ipairs(guildList) do
 		if selectedList[val[1]] ~= nil then
-			RIC_Roster_Browser.addFromGuildBrowser(val[1])
+			RIC._Roster_Browser.addFromGuildBrowser(val[1])
 		end
 	end
 	-- Reset selection --TODO maybe dont show people at all in guild list that are already in roster
-	RIC_Guild_Browser.clearSelection()
+	RIC._Guild_Browser.clearSelection()
 	-- Rebuild rosterRaidList
-	RIC_Roster_Browser.buildRosterRaidList()
+	RIC._Roster_Browser.buildRosterRaidList()
 end
 
-function RIC_Guild_Browser.clearSelection()
-	selectedList = {}
-	RIC_Guild_Browser.drawTable()
+function RIC._Guild_Browser.clearSelection()
+	wipe(selectedList)
+	RIC._Guild_Browser.drawTable()
 end
 
-function RIC_Guild_Browser.selectAll()
-	selectedList = {}
-	local guildMembers = RIC_Guild_Manager.getGuildMembers()
+function RIC._Guild_Browser.selectAll()
+	wipe(selectedList)
+	local guildMembers = RIC._Guild_Manager.getGuildMembers()
 	for name, data in pairs(guildMembers) do
 		if RIC.db.profile.ShowOffline or data["online"] then
 			if RIC.db.profile.DisplayRanks[data["rankIndex"]] then
@@ -135,10 +141,10 @@ function RIC_Guild_Browser.selectAll()
 			end
 		end
 	end
-	RIC_Guild_Browser.drawTable()
+	RIC._Guild_Browser.drawTable()
 end
 
-function RIC_Guild_Browser.selectRow(rowNum)
+function RIC._Guild_Browser.selectRow(rowNum)
 	local theRow = guildList[rowNum+guildOffset]
 	if theRow then
 		local theName = theRow[1]
@@ -151,23 +157,23 @@ function RIC_Guild_Browser.selectRow(rowNum)
 		end
 	end
 
-	RIC_Guild_Browser.drawTable()
+	RIC._Guild_Browser.drawTable()
 end
 
 
-function RIC_Guild_Browser.rankBoxToggle(numID)
+function RIC._Guild_Browser.rankBoxToggle(numID)
 	local toggleCheck = _G["RIC_ShowRank"..numID]:GetChecked()
 	RIC.db.profile.DisplayRanks[numID] = toggleCheck
-	RIC_Guild_Browser.buildGuildList()
+	RIC._Guild_Browser.buildGuildList()
 end
 
-function RIC_Guild_Browser.offlineBoxToggle()
+function RIC._Guild_Browser.offlineBoxToggle()
 	local toggleCheck = _G["RIC_ShowOfflineBox"]:GetChecked()
 	RIC.db.profile.ShowOffline = toggleCheck
-	RIC_Guild_Browser.buildGuildList()
+	RIC._Guild_Browser.buildGuildList()
 end
 
-function RIC_Guild_Browser.sliderButtonPushed(dir)
+function RIC._Guild_Browser.sliderButtonPushed(dir)
 	local currValue = math.floor(_G["RIC_GuildSlider"]:GetValue())
 	if (dir == 1) and currValue > 0 then
 		newVal = currValue-3
@@ -184,7 +190,7 @@ function RIC_Guild_Browser.sliderButtonPushed(dir)
 	end
 end
 
-function RIC_Guild_Browser.quickScroll(self, delta)
+function RIC._Guild_Browser.quickScroll(self, delta)
 	local currValue = math.floor(_G["RIC_GuildSlider"]:GetValue())
 	if (delta > 0) and currValue > 0 then
 		newVal = currValue-1
@@ -201,11 +207,11 @@ function RIC_Guild_Browser.quickScroll(self, delta)
 	end
 end
 
-function RIC_Guild_Browser.SystemFilter(chatFrame, event, message)
+function RIC._Guild_Browser.SystemFilter(chatFrame, event, message)
 	return true
 end
 
-function RIC_Guild_Browser.sortClicked(id)
+function RIC._Guild_Browser.sortClicked(id)
 	-- Update how we should be sorting
 	if currSortIndex == id then -- if we're already sorting this one
 		if sortMethod == "asc" then -- then switch the order
@@ -219,42 +225,45 @@ function RIC_Guild_Browser.sortClicked(id)
 	end
 
 	-- Sort Table
-	RIC_Guild_Browser.sortTable(currSortIndex)
+	RIC._Guild_Browser.sortTable(currSortIndex)
 
 	-- Update listing
-	RIC_Guild_Browser.drawTable()
+	RIC._Guild_Browser.drawTable()
 end
 
 -- Function: sortTable
 -- Input: Column Header to sort by
 -- Purpose: Sorts the guild member listing table
 --		so that it's easily viewable
-function RIC_Guild_Browser.sortTable(id)
+local name_sorter = function(v1, v2)
+	if sortMethod == "desc" then
+		return v1 and v1[1] > v2[1]
+	else
+		return v1 and v1[1] < v2[1]
+	end
+end
+local rank_sorter = function(v1, v2)
+	if sortMethod == "desc" then
+		return v1 and v1[3] > v2[3]
+	else
+		return v1 and v1[3] < v2[3]
+	end
+end
+local selection_sorter = function(v1, v2)
+	if v1 == nil then return false end
+	if v2 == nil then return true end
+	if sortMethod == "asc" then
+		return ((selectedList[v1[1]] ~= nil) and (selectedList[v2[1]] == nil))
+	else
+		return ((selectedList[v2[1]] ~= nil) and (selectedList[v1[1]] == nil))
+	end
+end
+function RIC._Guild_Browser.sortTable(id)
 	if (id == 1) then -- Char Name sorting (alphabetically)
-		table.sort(guildList, function(v1, v2)
-			if sortMethod == "desc" then
-				return v1 and v1[1] > v2[1]
-			else
-				return v1 and v1[1] < v2[1]
-			end
-		end)
+		table.sort(guildList, name_sorter)
 	elseif (id == 2) then -- Guild Rank sorting (numerically)
-		table.sort(guildList, function(v1, v2)
-			if sortMethod == "desc" then
-				return v1 and v1[3] > v2[3]
-			else
-				return v1 and v1[3] < v2[3]
-			end
-		end)
+		table.sort(guildList, rank_sorter)
 	elseif (id == 3) then -- Selected sorting
-		table.sort(guildList, function(v1, v2)
-			if v1 == nil then return false end
-			if v2 == nil then return true end
-			if sortMethod == "asc" then
-				return ((selectedList[v1[1]] ~= nil) and (selectedList[v2[1]] == nil))
-			else
-				return ((selectedList[v2[1]] ~= nil) and (selectedList[v1[1]] == nil))
-			end
-		end)
+		table.sort(guildList, selection_sorter)
 	end
 end
