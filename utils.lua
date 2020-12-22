@@ -194,7 +194,7 @@ function RIC.removeServerFromName(name)
 end
 
 function RIC.countFrequency(list, value)
-    n = 0
+    local n = 0
     for k,v in pairs(list) do
         if v == value then
             n = n+1

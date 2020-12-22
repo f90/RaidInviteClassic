@@ -1111,7 +1111,7 @@
 				PanelTemplates_SetTab(RIC_MainFrame, 1)
     	        RIC_TabPage1:Show()
 				RIC_TabPage2:Hide()
-				RICMainFrame_OnShow()
+				RIC.MainFrame_OnShow()
 			</OnShow>
 		</Scripts>
 	</Frame>

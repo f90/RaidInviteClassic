@@ -1,4 +1,5 @@
 local addonName, RIC = ...
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local sortMethod = "asc"
 local currSortIndex = 1
 local rosterOffset = 0
@@ -239,6 +240,7 @@ end
 
 function RIC._Roster_Browser.sliderButtonPushed(dir)
 	local currValue = math.floor(_G["RIC_RosterSlider"]:GetValue())
+	local newVal
 	if (dir == 1) and currValue > 0 then
 		newVal = currValue-3
 		if newVal < 0 then
@@ -256,6 +258,7 @@ end
 
 function RIC._Roster_Browser.quickScroll(self, delta)
 	local currValue = math.floor(_G["RIC_RosterSlider"]:GetValue())
+	local newVal
 	if (delta > 0) and currValue > 0 then
 		newVal = currValue-1
 		if newVal < 0 then
@@ -373,7 +376,7 @@ function RIC._Roster_Browser.invite(person, reactive, guildMembers)
 	if RIC.hashLength(raidMembers) >= MAX_RAID_MEMBERS then
 		if reactive then
 			-- React to whisper that the raid is full, but dont change any invite status
-			RIC.SendChatMessageRIC(L["Codewords_Raid_Full"], "WHISPER", nil, author)
+			RIC.SendChatMessageRIC(L["Codewords_Raid_Full"], "WHISPER", nil, person)
 			inviteStatusInfoList[person] = {time(), L["Invite_Whisper_Failed_Raid_Full"]}
 		else
 			-- Our invite failed because the raid was full - dont try again for now
@@ -386,7 +389,7 @@ function RIC._Roster_Browser.invite(person, reactive, guildMembers)
 
 	-- Check if this is a guild member but offline - in this case we don't even need to try an invite, since this clogs up the chat with invite error messages :)
 	if not reactive then -- If reacting to invite request, the player is definitely online!
-		guildMembers = guildMembers or getGuildMembers() -- Retrieve guild member list if not given to us as argument
+		guildMembers = guildMembers or RIC._Guild_Manager.getGuildMembers() -- Retrieve guild member list if not given to us as argument
 		if (guildMembers[person] ~= nil) and (not guildMembers[person]["online"]) then
 			-- Invite for this person will fail because they are offline - dont invite, instead record invite attempt time and set to failed invite status
 			inviteStatusList[person] = RIC.RIC_InviteStatus["INVITE_FAILED"]

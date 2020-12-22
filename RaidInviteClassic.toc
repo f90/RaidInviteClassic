@@ -9,7 +9,7 @@
 
 libs.xml
 
-localization/locales.xml
+localization\locales.xml
 
 globals.lua
 config.lua

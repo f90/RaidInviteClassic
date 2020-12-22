@@ -1,4 +1,5 @@
 local addonName, RIC = ...
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local newPlayerList,newCodewords = {},{}
 -- For converting whitelist and blacklist textboxes into player tables
 function RIC._Codewords_Handler.buildPlayerList(playerListString)

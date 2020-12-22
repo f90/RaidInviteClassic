@@ -3,6 +3,7 @@ local addonName, RIC = ...
 -- This module is a display wrapper for LibDurability.
 
 local LD = LibStub("LibDurability")
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local durability = {}
 local playersNeedWarning = {} -- Set to a certain timestamp if a player needs a durability check/warning at this point
 

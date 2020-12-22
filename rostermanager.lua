@@ -2,6 +2,7 @@ local addonName, RIC = ...
 local AceGUI = LibStub("AceGUI-3.0")
 local LD = LibStub("LibDeflate")
 local LSM = LibStub("LibSharedMedia-3.0")
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local DEFAULT_FONT = LSM.MediaTable.font[LSM:GetDefault('font')]
 
 local selectedRoster
@@ -396,7 +397,7 @@ function RIC._Roster_Manager.send()
 	-- Try sending via raid channel
 	if IsInRaid() then
 		if UnitIsGroupLeader("player") then
-			RIC.SendComm(msg, "RAID")
+			RIC.SendComm(comm_msg, "RAID")
 			RIC:Print(L["Roster_Sent_Successfully_Raid"])
 		else
 			-- We are in raid but not leader - we are NOT allowed to overwrite other people's roster
@@ -407,7 +408,7 @@ function RIC._Roster_Manager.send()
 	-- Try sending via guild channel
 	if IsInGuild() then
 		if CanEditOfficerNote() then
-			RIC.SendComm(msg, "GUILD")
+			RIC.SendComm(comm_msg, "GUILD")
 			RIC:Print(L["Roster_Sent_Successfully_Guild"])
 		else
 			-- We are in a guild but not an "officer" - we are NOT allowed to overwrite other people's roster

@@ -2,6 +2,7 @@ local addonName, RIC = ...
 local AceGUI = LibStub("AceGUI-3.0")
 local LD = LibStub("LibDeflate")
 local LSM = LibStub("LibSharedMedia-3.0")
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local DEFAULT_FONT = LSM.MediaTable.font[LSM:GetDefault('font')]
 
 local inCombat = false
@@ -26,8 +27,9 @@ function RIC:OnEnableGroupview()
 	self.groups:EnableResize(false)
 	self.groups:SetTitle("Group assignments")
 	self.groups:SetLayout("Flow")
-	_G["GroupFrame"] = self.groups.frame
-	table.insert(UISpecialFrames, "GroupFrame")
+	local groupFrameName = addonName.."GroupFrame"
+	_G[groupFrameName] = self.groups.frame
+	table.insert(UISpecialFrames, groupFrameName)
 	self:HookScript(self.groups.frame, "OnShow", function() RIC._Group_Manager.draw() end)
 	self:HookScript(self.groups.frame, "OnHide", function() _G["RIC_OpenGroupWindow"]:SetText("View groups") end)
 
@@ -102,18 +104,10 @@ function RIC:OnEnableGroupview()
 
 	self.unassignAll = AceGUI:Create("Button")
 	self.unassignAll:SetText("Unassign all players")
-	self.unassignAll.textColor = {}
-	self.unassignAll.textColor.r = r
-	self.unassignAll.textColor.g = g
-	self.unassignAll.textColor.b = b
 	self.unassignAll:SetCallback("OnClick", function() RIC._Group_Manager.unassignAll() end)
 
 	self.rearrangeRaid = AceGUI:Create("Button")
 	self.rearrangeRaid:SetText(L["Group_Assign_Rearrange"])
-	self.rearrangeRaid.textColor = {}
-	self.rearrangeRaid.textColor.r = r
-	self.rearrangeRaid.textColor.g = g
-	self.rearrangeRaid.textColor.b = b
 	self.rearrangeRaid:SetCallback("OnClick", function() RIC._Group_Manager.rearrangeRaid() end)
 
 	AceGUI:RegisterLayout("GroupLayout", function()
@@ -161,6 +155,7 @@ end
 
 local groupNames = {}
 function RIC._Group_Manager.flattenGroups() -- TODO: Called OnUpdate
+	wipe(groupNames)
 	for name, position in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 		if position > 0 then
 			local row = math.ceil(position/5)
@@ -412,7 +407,7 @@ function RIC._Group_Manager.getMove()
 	wipe(possibleMoves)
 	-- Go through raid members
 	for name, data in pairs(raidPlayers) do
-		targetPosition = RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name]
+		local targetPosition = RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name]
 		if targetPosition ~= nil then -- If player is not in roster, we ignore that player
 			local currGroup = data["subgroup"]
 			local targetGroup = math.ceil(targetPosition/5)

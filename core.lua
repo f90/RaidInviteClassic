@@ -1,11 +1,10 @@
 -- Author      : Daniel Stoller
 local addonName, RIC = ...
 local addon = LibStub("AceAddon-3.0"):NewAddon(RIC, addonName, "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceHook-3.0", "AceSerializer-3.0")
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 -- Called when the addon is loaded
 function addon:OnInitialize()
-	-- Setup global locale object
-	L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 
 	-- Setup options
 	local options, defaults = RIC.getOptions()
@@ -22,7 +21,7 @@ end
 function addon:processConsoleCommand(cmd)
 	cmd = cmd:lower()
 	if cmd == "" then -- Toggle visibility
-		RIC_MainFrame:SetShown(RIC_MainFrame:IsVisible())
+		RIC_MainFrame:SetShown(not RIC_MainFrame:IsVisible())
 	elseif cmd == "show" then
 		RIC_MainFrame:Show()
 	elseif cmd == "hide" then
@@ -218,7 +217,7 @@ function addon:PLAYER_LOGOUT()
 	RIC._Roster_Browser.endInvitePhase()
 end
 
-function RICMainFrame_OnShow()
+function RIC.MainFrame_OnShow()
 	RIC._Guild_Browser.setVisibleRanks()
 	RIC._Guild_Browser.buildGuildList()
 end

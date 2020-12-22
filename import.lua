@@ -2,6 +2,7 @@ local addonName, RIC = ...
 local AceGUI = LibStub("AceGUI-3.0")
 local LD = LibStub("LibDeflate")
 local LSM = LibStub("LibSharedMedia-3.0")
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local DEFAULT_FONT = LSM.MediaTable.font[LSM:GetDefault('font')]
 local newList = {}
 

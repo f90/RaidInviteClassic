@@ -175,6 +175,7 @@ end
 
 function RIC._Guild_Browser.sliderButtonPushed(dir)
 	local currValue = math.floor(_G["RIC_GuildSlider"]:GetValue())
+	local newVal
 	if (dir == 1) and currValue > 0 then
 		newVal = currValue-3
 		if newVal < 0 then
@@ -192,6 +193,7 @@ end
 
 function RIC._Guild_Browser.quickScroll(self, delta)
 	local currValue = math.floor(_G["RIC_GuildSlider"]:GetValue())
+	local newVal
 	if (delta > 0) and currValue > 0 then
 		newVal = currValue-1
 		if newVal < 0 then

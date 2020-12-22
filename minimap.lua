@@ -24,7 +24,7 @@ function RIC:OnEnableMinimap()
 	self.minimapIcon:Show(addonName)
 	RIC.MinimapButton_Update()
 
-	RIC.minimapIconPopup = CreateContextPopup(function() print("UPDATE") end)
+	RIC.minimapIconPopup = RIC.CreateContextPopup(function() print("UPDATE") end)
 end
 
 function RIC.MinimapButton_Update()
