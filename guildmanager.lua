@@ -5,17 +5,15 @@ local guildMemberWentOffline = {} -- Set to true when a guild member just went o
 
 local output = {}
 function RIC._Guild_Manager.getGuildMembers()
+    wipe(output)
     local in_guild = IsInGuild()
     if not in_guild then return output end
-    local numMembers = GetNumGuildMembers(true)
+    local numMembers = GetNumGuildMembers()
     if ( in_guild and numMembers == 0 ) then
         GuildRoster()
         return output
     end
-    local prev_roster_count = RIC.table_count(output)
-    if numMembers ~= prev_roster_count then
-        wipe(output)
-    end
+
     for ci=1, numMembers do
         local name, rank, rankIndex, level, class, zone, note, officernote, online, status, classFileName = GetGuildRosterInfo(ci)
 
