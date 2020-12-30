@@ -1,3 +1,4 @@
+local addonName, RIC = ...
 -- POPUP MENU CODE BELOW
 local PopupDepth
 local function PopupClick(self, arg1, arg2, checked)
@@ -108,7 +109,7 @@ local function PopupShow(self,where,x,y)
 	self._y=y
 end
 
-function CreateContextPopup(TableCallback)
+function RIC.CreateContextPopup(TableCallback)
 	local popup={}
 	popup._Frame=CreateFrame("Frame", nil, UIParent, "UIDropDownMenuTemplate")
 	popup._Frame._GPIPRIVAT_TableCallback=TableCallback

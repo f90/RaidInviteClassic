@@ -2,14 +2,14 @@
 ## Title: Raid Invite Classic
 ## Author: Daniel Stoller
 ## Notes: Attempts to help guild and raid leaders automate the invitation process.
-## Version: 2.2.1
+## Version: 2.2.2
 ## SavedVariables: RICDB
 ## OptionalDeps: Ace3
 ## X-Embeds: Ace3
 
 libs.xml
 
-localization/locales.xml
+localization\locales.xml
 
 globals.lua
 config.lua

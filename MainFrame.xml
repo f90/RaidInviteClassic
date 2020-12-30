@@ -2,7 +2,7 @@
 	<Button name="RIC_GuildHeader" virtual="true">
 		<Scripts>
 			<OnClick>
-				RIC_Guild_Browser.sortClicked(self:GetID())
+				RIC._Guild_Browser.sortClicked(self:GetID())
 			</OnClick>
 			<OnEnter>
 				_G[self:GetName().."BG"]:SetVertexColor(1, 1, 1, 1)
@@ -76,7 +76,7 @@
 				_G[self:GetName().."BG"]:Hide()
 			</OnLeave>
 			<OnClick>
-				RIC_Guild_Browser.selectRow(self:GetID())
+				RIC._Guild_Browser.selectRow(self:GetID())
 			</OnClick>
 		</Scripts>
 		<NormalTexture name="$parentBG">
@@ -86,7 +86,7 @@
 	<Button name="RIC_RosterHeader" virtual="true">
 		<Scripts>
 			<OnClick>
-				RIC_Roster_Browser.sortClicked(self:GetID())
+				RIC._Roster_Browser.sortClicked(self:GetID())
 			</OnClick>
 			<OnEnter>
 				_G[self:GetName().."BG"]:SetVertexColor(1, 1, 1, 1)
@@ -164,14 +164,14 @@
 			</OnLoad>
 			<OnEnter>
 				_G[self:GetName().."BG"]:Show()
-				RIC_Roster_Browser.showPlayerTooltip(self, self:GetID())
+				RIC._Roster_Browser.showPlayerTooltip(self, self:GetID())
 			</OnEnter>
 			<OnLeave>
 				_G[self:GetName().."BG"]:Hide()
-				RIC_Roster_Browser.hidePlayerTooltip(self:GetID())
+				RIC._Roster_Browser.hidePlayerTooltip(self:GetID())
 			</OnLeave>
 			<OnClick>
-				RIC_Roster_Browser.selectRow(self:GetID())
+				RIC._Roster_Browser.selectRow(self:GetID())
 			</OnClick>
 		</Scripts>
 		<NormalTexture name="$parentBG">
@@ -312,10 +312,10 @@
 						</Layers>
 						<Scripts>
 							<OnEnter>
-								RIC_Roster_Browser.showRosterTooltip()
+								RIC._Roster_Browser.showRosterTooltip()
 							</OnEnter>
 							<OnLeave>
-								RIC_Roster_Browser.hideRosterTooltip()
+								RIC._Roster_Browser.hideRosterTooltip()
 							</OnLeave>
 						</Scripts>
 					</Frame>
@@ -375,7 +375,7 @@
 						</Frames>
 						<Scripts>
 							<OnMouseWheel>
-								RIC_Roster_Browser.quickScroll(self, delta)
+								RIC._Roster_Browser.quickScroll(self, delta)
 							</OnMouseWheel>
 						</Scripts>
 					</Frame>
@@ -408,7 +408,7 @@
 										</Anchors>
 										<Scripts>
 											<OnClick>
-												RIC_Roster_Browser.sliderButtonPushed(1)
+												RIC._Roster_Browser.sliderButtonPushed(1)
 											</OnClick>
 										</Scripts>
 									</Button>
@@ -418,14 +418,14 @@
 										</Anchors>
 										<Scripts>
 											<OnClick>
-												RIC_Roster_Browser.sliderButtonPushed(2)
+												RIC._Roster_Browser.sliderButtonPushed(2)
 											</OnClick>
 										</Scripts>
 									</Button>
 								</Frames>
 								<Scripts>
 									<OnValueChanged>
-										RIC_Roster_Browser.updateOffset(self:GetValue())
+										RIC._Roster_Browser.updateOffset(self:GetValue())
 									</OnValueChanged>
 								</Scripts>
 								<ThumbTexture name="$parentThumbTexture" inherits="UIPanelScrollBarButton" file="Interface\Buttons\UI-ScrollBar-Knob">
@@ -460,7 +460,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Roster_Manager.toggle()
+								RIC._Roster_Manager.toggle()
 							</OnClick>
 						</Scripts>
 					</Button>
@@ -475,7 +475,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Import_Manager.toggle()
+								RIC._Import_Manager.toggle()
 							</OnClick>
 						</Scripts>
 					</Button>
@@ -490,7 +490,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Roster_Browser.selectAll()
+								RIC._Roster_Browser.selectAll()
 							</OnClick>
 						</Scripts>
 					</Button>
@@ -505,7 +505,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Roster_Browser.clearSelection()
+								RIC._Roster_Browser.clearSelection()
 							</OnClick>
 						</Scripts>
 					</Button>
@@ -520,7 +520,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Roster_Browser.addSelectedToRoster()
+								RIC._Roster_Browser.addSelectedToRoster()
 							</OnClick>
 						</Scripts>
 					</Button>
@@ -535,7 +535,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Roster_Browser.removeFromRoster()
+								RIC._Roster_Browser.removeFromRoster()
 							</OnClick>
 						</Scripts>
 					</Button>
@@ -550,7 +550,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Group_Manager.toggle()
+								RIC._Group_Manager.toggle()
 							</OnClick>
 						</Scripts>
 					</Button>
@@ -565,7 +565,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Roster_Browser.toggleInvitePhase()
+								RIC._Roster_Browser.toggleInvitePhase()
 							</OnClick>
 						</Scripts>
 					</Button>
@@ -582,7 +582,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Roster_Browser.buildRosterRaidList()
+								RIC._Roster_Browser.buildRosterRaidList()
 							</OnClick>
 						</Scripts>
 						<NormalTexture file="Interface\AddOns\RaidInviteClassic\img\checkmark_grey"/>
@@ -602,7 +602,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Roster_Browser.buildRosterRaidList()
+								RIC._Roster_Browser.buildRosterRaidList()
 							</OnClick>
 						</Scripts>
 						<NormalTexture file="Interface\AddOns\RaidInviteClassic\img\plus_grey"/>
@@ -622,7 +622,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Roster_Browser.buildRosterRaidList()
+								RIC._Roster_Browser.buildRosterRaidList()
 							</OnClick>
 						</Scripts>
 						<NormalTexture file="Interface\AddOns\RaidInviteClassic\img\dash_grey"/>
@@ -642,7 +642,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Roster_Browser.buildRosterRaidList()
+								RIC._Roster_Browser.buildRosterRaidList()
 							</OnClick>
 						</Scripts>
 						<NormalTexture file="Interface\AddOns\RaidInviteClassic\img\dots_grey"/>
@@ -662,7 +662,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Roster_Browser.buildRosterRaidList()
+								RIC._Roster_Browser.buildRosterRaidList()
 							</OnClick>
 						</Scripts>
 						<NormalTexture file="Interface\AddOns\RaidInviteClassic\img\red_cross_grey"/>
@@ -682,7 +682,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Roster_Browser.buildRosterRaidList()
+								RIC._Roster_Browser.buildRosterRaidList()
 							</OnClick>
 						</Scripts>
 						<NormalTexture file="Interface\AddOns\RaidInviteClassic\img\lightning_grey"/>
@@ -702,7 +702,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Roster_Browser.buildRosterRaidList()
+								RIC._Roster_Browser.buildRosterRaidList()
 							</OnClick>
 						</Scripts>
 						<NormalTexture file="Interface\AddOns\RaidInviteClassic\img\question_mark_grey"/>
@@ -767,7 +767,7 @@
 						</Frames>
 						<Scripts>
 							<OnMouseWheel>
-								RIC_Guild_Browser.quickScroll(self, delta)
+								RIC._Guild_Browser.quickScroll(self, delta)
 							</OnMouseWheel>
 						</Scripts>
 					</Frame>
@@ -800,7 +800,7 @@
 										</Anchors>
 										<Scripts>
 											<OnClick>
-												RIC_Guild_Browser.sliderButtonPushed(1)
+												RIC._Guild_Browser.sliderButtonPushed(1)
 											</OnClick>
 										</Scripts>
 									</Button>
@@ -810,14 +810,14 @@
 										</Anchors>
 										<Scripts>
 											<OnClick>
-												RIC_Guild_Browser.sliderButtonPushed(2)
+												RIC._Guild_Browser.sliderButtonPushed(2)
 											</OnClick>
 										</Scripts>
 									</Button>
 								</Frames>
 								<Scripts>
 									<OnValueChanged>
-										RIC_Guild_Browser.updateOffset(self:GetValue())
+										RIC._Guild_Browser.updateOffset(self:GetValue())
 									</OnValueChanged>
 								</Scripts>
 								<ThumbTexture name="$parentThumbTexture" inherits="UIPanelScrollBarButton" file="Interface\Buttons\UI-ScrollBar-Knob">
@@ -852,7 +852,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Guild_Browser.selectAll()
+								RIC._Guild_Browser.selectAll()
 							</OnClick>
 						</Scripts>
 					</Button>
@@ -867,7 +867,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Guild_Browser.clearSelection()
+								RIC._Guild_Browser.clearSelection()
 							</OnClick>
 						</Scripts>
 					</Button>
@@ -879,7 +879,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Guild_Browser.offlineBoxToggle()
+								RIC._Guild_Browser.offlineBoxToggle()
 							</OnClick>
 						</Scripts>
 					</CheckButton>
@@ -891,7 +891,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Guild_Browser.rankBoxToggle(self:GetID())
+								RIC._Guild_Browser.rankBoxToggle(self:GetID())
 							</OnClick>
 						</Scripts>
 					</CheckButton>
@@ -903,7 +903,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Guild_Browser.rankBoxToggle(self:GetID())
+								RIC._Guild_Browser.rankBoxToggle(self:GetID())
 							</OnClick>
 						</Scripts>
 					</CheckButton>
@@ -915,7 +915,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Guild_Browser.rankBoxToggle(self:GetID())
+								RIC._Guild_Browser.rankBoxToggle(self:GetID())
 							</OnClick>
 						</Scripts>
 					</CheckButton>
@@ -927,7 +927,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Guild_Browser.rankBoxToggle(self:GetID())
+								RIC._Guild_Browser.rankBoxToggle(self:GetID())
 							</OnClick>
 						</Scripts>
 					</CheckButton>
@@ -939,7 +939,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Guild_Browser.rankBoxToggle(self:GetID())
+								RIC._Guild_Browser.rankBoxToggle(self:GetID())
 							</OnClick>
 						</Scripts>
 					</CheckButton>
@@ -951,7 +951,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Guild_Browser.rankBoxToggle(self:GetID())
+								RIC._Guild_Browser.rankBoxToggle(self:GetID())
 							</OnClick>
 						</Scripts>
 					</CheckButton>
@@ -963,7 +963,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Guild_Browser.rankBoxToggle(self:GetID())
+								RIC._Guild_Browser.rankBoxToggle(self:GetID())
 							</OnClick>
 						</Scripts>
 					</CheckButton>
@@ -975,7 +975,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Guild_Browser.rankBoxToggle(self:GetID())
+								RIC._Guild_Browser.rankBoxToggle(self:GetID())
 							</OnClick>
 						</Scripts>
 					</CheckButton>
@@ -987,7 +987,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Guild_Browser.rankBoxToggle(self:GetID())
+								RIC._Guild_Browser.rankBoxToggle(self:GetID())
 							</OnClick>
 						</Scripts>
 					</CheckButton>
@@ -999,7 +999,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Guild_Browser.rankBoxToggle(self:GetID())
+								RIC._Guild_Browser.rankBoxToggle(self:GetID())
 							</OnClick>
 						</Scripts>
 					</CheckButton>
@@ -1014,10 +1014,10 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								RIC_Guild_Browser.addSelectedToRoster()
+								RIC._Guild_Browser.addSelectedToRoster()
 							</OnClick>
 						</Scripts>
-		
+
 					</Button>
 				</Frames>
 			</Frame>
@@ -1111,7 +1111,7 @@
 				PanelTemplates_SetTab(RIC_MainFrame, 1)
     	        RIC_TabPage1:Show()
 				RIC_TabPage2:Hide()
-				RICMainFrame_OnShow()
+				RIC.MainFrame_OnShow()
 			</OnShow>
 		</Scripts>
 	</Frame>

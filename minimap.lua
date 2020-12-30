@@ -1,10 +1,11 @@
+local addonName, RIC = ...
 function RIC:OnEnableMinimap()
 	local iconDataBroker = LibStub("LibDataBroker-1.1"):NewDataObject("RICMinimapIcon", {
 		type = "data source",
-		text = "Raid Invite Classic",
-		label = "Raid Invite Classic",
+		text = addonName,
+		label = addonName,
 		icon = "Interface\\AddOns\\RaidInviteClassic\\img\\minimap",
-		OnClick = function(self, button, down) RIC_MinimapButton_Clicked(self, button) end,
+		OnClick = function(self, button, down) RIC.MinimapButton_Clicked(self, button) end,
 	    OnTooltipShow = function(tooltip)
 			tooltip:SetText("|cFFFF7D0ARaid Invite Classic|r\n" ..
 					"|cFFFFFFFFRoster:|r " .. RIC.db.realm.CurrentRoster .. "\n" ..
@@ -19,22 +20,22 @@ function RIC:OnEnableMinimap()
 		end,
 	})
 	self.minimapIcon = LibStub("LibDBIcon-1.0")
-	self.minimapIcon:Register("Raid Invite Classic", iconDataBroker, RIC.db.profile)
-	self.minimapIcon:Show("Raid Invite Classic")
-	RIC_MinimapButton_Update()
+	self.minimapIcon:Register(addonName, iconDataBroker, RIC.db.profile)
+	self.minimapIcon:Show(addonName)
+	RIC.MinimapButton_Update()
 
-	RIC.minimapIconPopup = CreateContextPopup(function() print("UPDATE") end)
+	RIC.minimapIconPopup = RIC.CreateContextPopup(function() print("UPDATE") end)
 end
 
-function RIC_MinimapButton_Update()
+function RIC.MinimapButton_Update()
 	if RIC.db.profile.hide then
-		RIC.minimapIcon:Hide("Raid Invite Classic")
+		RIC.minimapIcon:Hide(addonName)
 	else
-		RIC.minimapIcon:Show("Raid Invite Classic")
+		RIC.minimapIcon:Show(addonName)
 	end
 end
 
-function RIC_MinimapButton_Clicked(self,button)
+function RIC.MinimapButton_Clicked(self,button)
 	if button == "LeftButton" then
 		if not IsShiftKeyDown() and not IsControlKeyDown() and not IsAltKeyDown() then
 			-- Left click: Toggle window
@@ -45,15 +46,15 @@ function RIC_MinimapButton_Clicked(self,button)
 			end
 		elseif IsShiftKeyDown() and not IsControlKeyDown() and not IsAltKeyDown() then
 			-- Shift Left click: Start/stop invite phase
-			RIC_Roster_Browser.toggleInvitePhase()
+			RIC._Roster_Browser.toggleInvitePhase()
 		elseif not IsShiftKeyDown() and IsControlKeyDown() and not IsAltKeyDown() then
 			-- Ctrl-Left click: Arrange raid groups
-			RIC_Group_Manager.rearrangeRaid("MinimapButton")
+			RIC._Group_Manager.rearrangeRaid("MinimapButton")
 		end
 	elseif button == "RightButton" then
 		if not IsShiftKeyDown() and not IsControlKeyDown() and not IsAltKeyDown() then
 			-- Right click: Quick-switch rosters
-			RIC_PopupMinimap(self)
+			RIC.PopupMinimap(self)
 		elseif IsShiftKeyDown() and not IsControlKeyDown() and not IsAltKeyDown() then
 			InterfaceOptionsFrame_OpenToCategory(RIC.optionsFrame)
 			InterfaceOptionsFrame_OpenToCategory(RIC.optionsFrame)
@@ -61,15 +62,15 @@ function RIC_MinimapButton_Clicked(self,button)
 	end
 end
 
-function RIC_PopupMinimap(frame)
+function RIC.PopupMinimap(frame)
 	if not RIC.minimapIconPopup:Wipe(frame:GetName()) then
 		return
 	end
 	RIC.minimapIconPopup:AddItem("Select roster:",true)
 	RIC.minimapIconPopup:AddItem("",true)
 
-	for rosterName, _ in pairsByKeys(RIC.db.realm.RosterList) do
-		RIC.minimapIconPopup:AddItem(rosterName,(rosterName == RIC.db.realm.CurrentRoster), RIC_QuickSwitchRoster, rosterName)
+	for rosterName, _ in RIC.pairsByKeys(RIC.db.realm.RosterList) do
+		RIC.minimapIconPopup:AddItem(rosterName,(rosterName == RIC.db.realm.CurrentRoster), RIC.QuickSwitchRoster, rosterName)
 	end
 
 	RIC.minimapIconPopup:AddItem("",true)
@@ -77,6 +78,6 @@ function RIC_PopupMinimap(frame)
 	RIC.minimapIconPopup:Show(frame,0,0)
 end
 
-function RIC_QuickSwitchRoster(rosterName)
-	RIC_Roster_Manager.setRoster(rosterName)
+function RIC.QuickSwitchRoster(rosterName)
+	RIC._Roster_Manager.setRoster(rosterName)
 end

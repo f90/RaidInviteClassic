@@ -1,17 +1,18 @@
+local addonName, RIC = ...
 -- Author      : Daniel Stoller
 
-RIC_Version = "2.2.1"
+RIC._Version = GetAddOnMetadata(addonName,"Version")
 
 -- MODULES
-RIC_Guild_Browser = {}
-RIC_Roster_Browser = {}
-RIC_Roster_Manager = {}
-RIC_Codewords_Handler = {}
-RIC_Guild_Manager = {}
-RIC_Durability_Manager = {}
-RIC_Chat_Manager = {}
-RIC_Group_Manager = {}
-RIC_Import_Manager = {}
+RIC._Guild_Browser = {}
+RIC._Roster_Browser = {}
+RIC._Roster_Manager = {}
+RIC._Codewords_Handler = {}
+RIC._Guild_Manager = {}
+RIC._Durability_Manager = {}
+RIC._RIC_Chat_Manager = {}
+RIC._Group_Manager = {}
+RIC._Import_Manager = {}
 
-RIC_UpdateInterval = 1.0
-RIC_ChatString = "[RIC]:"
+RIC._UpdateInterval = 1.0
+RIC._ChatString = "[RIC]:"
