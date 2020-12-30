@@ -326,7 +326,7 @@ function RIC._Roster_Browser.inviteWhisper(author, msg)
 
 		-- Check if we are currently allowing invite requests
 		if RIC.db.profile.CodewordOnlyDuringInvite and (not invitePhaseActive) then
-			RIC.SendChatMessageRIC(L["Codewords_Invite_Phase"], "WHISPER", nil, author)
+			RIC.SendChatMessage(L["Codewords_Invite_Phase"], "WHISPER", nil, author)
 			return
 		end
 
@@ -339,14 +339,14 @@ function RIC._Roster_Browser.inviteWhisper(author, msg)
 
 		-- Check if author is in rosterList, otherwise deny request (send whisper back to person)
 		if RIC.db.profile.RosterWhispersOnly and (RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][author] == nil) then
-			RIC.SendChatMessageRIC(L["Codewords_Not_In_Roster"], "WHISPER", nil, author)
+			RIC.SendChatMessage(L["Codewords_Not_In_Roster"], "WHISPER", nil, author)
 			return
 		end
 
 		-- Check if person is guild member
 		if RIC.db.profile.GuildWhispersOnly then
 			if guildMembers[author] == nil then
-				RIC.SendChatMessageRIC(L["Codewords_Not_In_Guild"], "WHISPER", nil, author)
+				RIC.SendChatMessage(L["Codewords_Not_In_Guild"], "WHISPER", nil, author)
 				return
 			end
 		end
@@ -367,7 +367,7 @@ function RIC._Roster_Browser.invite(person, reactive, guildMembers)
 	local raidMembers = RIC.getRaidMembers()
 	if raidMembers[person] ~= nil then
 		if reactive then -- If we invite based on whisper, tell player he is already in the raid!
-			RIC.SendChatMessageRIC(L["Codewords_Already_In_Raid"], "WHISPER", nil, person)
+			RIC.SendChatMessage(L["Codewords_Already_In_Raid"], "WHISPER", nil, person)
 		end
 		return
 	end
@@ -376,7 +376,7 @@ function RIC._Roster_Browser.invite(person, reactive, guildMembers)
 	if RIC.tabLength(raidMembers) >= MAX_RAID_MEMBERS then
 		if reactive then
 			-- React to whisper that the raid is full, but dont change any invite status
-			RIC.SendChatMessageRIC(L["Codewords_Raid_Full"], "WHISPER", nil, person)
+			RIC.SendChatMessage(L["Codewords_Raid_Full"], "WHISPER", nil, person)
 			inviteStatusInfoList[person] = {time(), L["Invite_Whisper_Failed_Raid_Full"]}
 		else
 			-- Our invite failed because the raid was full - dont try again for now
@@ -423,7 +423,7 @@ function RIC._Roster_Browser.invite(person, reactive, guildMembers)
 	else
 		-- If we react to whisper, tell the person we cant invite them
 		if reactive then
-			RIC.SendChatMessageRIC(L["Codewords_Invite_Rights"], "WHISPER", nil, person)
+			RIC.SendChatMessage(L["Codewords_Invite_Rights"], "WHISPER", nil, person)
 		end
 	end
 end
@@ -439,7 +439,7 @@ function RIC._Roster_Browser.processSystemMessage(msg)
 			inviteStatusInfoList[playerName] = {time(), L["Invite_Failed_Already_In_Group"]}
 			inviteTimeList[playerName] = time() -- We sent the invite just now, so save current time as last time we attempted invite
 			if invitePhaseActive then -- Only notify if we are in the invite phase
-				RIC.SendChatMessageRIC(L["Already_In_Group"], "WHISPER", nil, playerName)
+				RIC.SendChatMessage(L["Already_In_Group"], "WHISPER", nil, playerName)
 			end
 		end
 	elseif string.find(msg, string.gsub(ERR_JOINED_GROUP_S, "%%s", "%%S+")) then -- Player joined group
@@ -541,7 +541,7 @@ function RIC._Roster_Browser.startInvitePhase()
 
 			-- Notify via guild message
 			if RIC.db.profile.NotifyInvitePhaseStart then
-				RIC.SendChatMessageRIC(L["Invite_Start"] ,"GUILD" ,nil ,nil)
+				RIC.SendChatMessage(L["Invite_Start"] ,"GUILD" ,nil ,nil)
 			end
 
 			-- Notify codewords via guild
@@ -566,7 +566,7 @@ function RIC._Roster_Browser.endInvitePhase()
 
 		-- Notify via guild message
 		if RIC.db.profile.NotifyInvitePhaseEnd then
-			RIC.SendChatMessageRIC(L["Invite_End"] ,"GUILD", nil ,nil)
+			RIC.SendChatMessage(L["Invite_End"] ,"GUILD", nil ,nil)
 		end
 
 		-- Notify codewords via guild

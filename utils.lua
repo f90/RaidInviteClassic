@@ -166,7 +166,7 @@ function RIC.IsRaidAssistant(player)
 	return UnitIsGroupLeader(player) == true or UnitIsGroupAssistant(player) == true
 end
 
-function RIC.SendChatMessageRIC(msg, chatType, language, channel)
+function RIC.SendChatMessage(msg, chatType, language, channel)
     if msg ~= nil and string.utf8len(msg) > 0 then -- Check if message is non-nil and not empty (disabled in settings)
         SendChatMessage(RIC._ChatString .. " " .. msg, chatType, language, channel)
     end

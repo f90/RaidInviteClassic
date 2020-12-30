@@ -82,14 +82,14 @@ function RIC._Codewords_Handler.startInvitePhase()
 			end
 
 			theMsg = theMsg .. " " .. L["For_An_Invite"]
-			RIC.SendChatMessageRIC(theMsg ,"GUILD" ,nil ,nil)
+			RIC.SendChatMessage(theMsg ,"GUILD" ,nil ,nil)
 		end
 	end
 end
 
 function RIC._Codewords_Handler.endInvitePhase()
 	if RIC.db.profile.CodewordNotifyEnd then
-		RIC.SendChatMessageRIC(L["Codewords_End"] ,"GUILD" ,nil ,nil)
+		RIC.SendChatMessage(L["Codewords_End"] ,"GUILD" ,nil ,nil)
 	end
 end
 
