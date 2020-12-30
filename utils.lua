@@ -242,7 +242,7 @@ function RIC.rtrim(s)
 end
 
 function RIC.reverseMap(assocTable)
-    wipe(reversed)
+    local reversed = {}
 	for key, val in pairs(assocTable) do
 		reversed[val] = key
 	end
