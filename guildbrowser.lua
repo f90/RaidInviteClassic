@@ -50,7 +50,7 @@ function RIC._Guild_Browser.buildGuildList() -- TODO: Called OnUpdate
 		end
 	end
 
-	-- Clear selection from people who are not shown
+	-- Clear selection from people who are not shown --TODO this is slow: len(selectedList)*len(guildList) complexity. better create lookup of guildList names first, then use that within loop over selectedList
 	for name, selected in pairs(selectedList) do
 		local found = false
 		for _, val in pairs(guildList) do

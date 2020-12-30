@@ -9,7 +9,7 @@ function RIC._Guild_Manager.getGuildMembers()
     local in_guild = IsInGuild()
     if not in_guild then return output end
     local numMembers = GetNumGuildMembers()
-    if ( in_guild and numMembers == 0 ) then
+    if (in_guild and numMembers == 0 ) then -- Only request guild data if we are in guild, but appear to not have any guild members to look through
         GuildRoster()
         return output
     end
