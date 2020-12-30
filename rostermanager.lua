@@ -279,7 +279,7 @@ end
 
 function RIC._Roster_Manager.delete()
 	-- Make sure we always have at least ONE roster to work with!
-	if RIC.hashLength(RIC.db.realm.RosterList) > 1 then
+	if RIC.tabLength(RIC.db.realm.RosterList) > 1 then
 		RIC.db.realm.RosterList[selectedRoster] = nil
 		for rosterName, rosterData in RIC.pairsByKeys(RIC.db.realm.RosterList) do
 			if selectedRoster == RIC.db.realm.CurrentRoster then -- If this was the roster we are currently using, switch to another one
@@ -326,7 +326,7 @@ function RIC._Roster_Manager.requestRosters()
 end
 
 function RIC._Roster_Manager.isValidRosterList(rosterLists)
-	if rosterLists == nil or RIC.hashLength(rosterLists) == 0 then
+	if rosterLists == nil or RIC.tabLength(rosterLists) == 0 then
 		return false
 	end
 	-- Check if all created roster lists are non-nil

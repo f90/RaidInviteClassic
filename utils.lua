@@ -2,7 +2,7 @@ local addonName, RIC = ...
 -- Class list lookup table (classFilename -> Localised Name) - Make sure to call this exactly ONCE before its needed!
 local classFilenameToIndexTable, classIndexToFilenameTable, output, reversed = {}, {}, {}, {}
 local function buildClassLists()
-    if RIC.table_count(classFilenameToIndexTable) > 0 then return end
+    if RIC.tabLength(classFilenameToIndexTable) > 0 then return end
     for i=1,100 do -- TODO GetNumClasses function does not exist in this Classic API version yet?
         local classInfo = C_CreatureInfo.GetClassInfo(i)
         if classInfo ~= nil then
@@ -28,17 +28,6 @@ RIC.InviteStatus = {
     INVITE_PENDING=2,
     INVITE_FAILED=3
 }
-
-
-function RIC.table_count(t)
-  local count = 0
-  if type(t) == "table" then
-    for k,v in pairs(t) do
-      count = count+1
-    end
-  end
-  return count
-end
 
 function RIC.trim_special_chars(char_name)
     return char_name:gsub("[%c%p%s]", "")
@@ -249,12 +238,16 @@ function RIC.reverseMap(assocTable)
     return reversed
 end
 
-function RIC.hashLength(assocTable)
-    local n = 0
+function RIC.tabLength(assocTable)
     if assocTable == nil then
         return 0
     end
 
+    if type(assocTable) ~= "table" then
+        return 0
+    end
+
+    local n = 0
     for k,v in pairs(assocTable) do
         n = n+1
     end

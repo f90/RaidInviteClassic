@@ -105,7 +105,7 @@ function RIC._Import_Manager.importRoster(rosterString)
 	end
 
 	-- If we have a non-empty list, we parsed successfully: Overwrite current roster list
-	if RIC.hashLength(newList) > 0 then
+	if RIC.tabLength(newList) > 0 then
 		RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster] = RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster] or {}
 		wipe(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster])
 		for k,v in pairs(newList) do
@@ -138,7 +138,7 @@ function RIC._Import_Manager.generateRosterList()
 		end
 	else
 		-- Don't use group positions at all - in this case, put single separator in the beginning, then normal dump
-		if RIC.hashLength(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) > 0 then
+		if RIC.tabLength(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) > 0 then
 			rosterString = "\n"
 			for name, _ in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 				rosterString = rosterString .. name .. "\n"

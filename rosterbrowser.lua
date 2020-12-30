@@ -125,7 +125,7 @@ function RIC._Roster_Browser.buildRosterRaidList() -- TODO: Called OnUpdate
 	end
 
 	-- Show current roster size as text
-	_G["RIC_RosterNumberText"]:SetText("Roster: " .. RIC.hashLength(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]))
+	_G["RIC_RosterNumberText"]:SetText("Roster: " .. RIC.tabLength(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]))
 
 	-- Sort according to current sorting index
 	RIC._Roster_Browser.sortTable(rosterRaidListVisible, currSortIndex)
@@ -181,7 +181,7 @@ function RIC._Roster_Browser.drawTable()
 	end
 
 	-- Enable/disable remove button based on selection
-	_G["RIC_RemoveFromRoster"]:SetEnabled(RIC.hashLength(selectedList) > 0)
+	_G["RIC_RemoveFromRoster"]:SetEnabled(RIC.tabLength(selectedList) > 0)
 end
 
 function RIC._Roster_Browser.showStatusSymbol(status)
@@ -373,7 +373,7 @@ function RIC._Roster_Browser.invite(person, reactive, guildMembers)
 	end
 
 	-- Check if raid full
-	if RIC.hashLength(raidMembers) >= MAX_RAID_MEMBERS then
+	if RIC.tabLength(raidMembers) >= MAX_RAID_MEMBERS then
 		if reactive then
 			-- React to whisper that the raid is full, but dont change any invite status
 			RIC.SendChatMessageRIC(L["Codewords_Raid_Full"], "WHISPER", nil, person)
@@ -400,11 +400,11 @@ function RIC._Roster_Browser.invite(person, reactive, guildMembers)
 	end
 
 	-- Check if we have assist or lead in raid so we can actually invite someone (or we are alone at the moment)
-	if (RIC.hashLength(raidMembers)==0) or (UnitIsGroupAssistant("player") or UnitIsGroupLeader("player")) then
+	if (RIC.tabLength(raidMembers)==0) or (UnitIsGroupAssistant("player") or UnitIsGroupLeader("player")) then
 		-- Either this is a reactive invite, so it's fine. It cannot be an active invite unless the raid leader does it, so thats also fine.
 		-- Now check if we are still in group/alone (not RAID) and have to delay some invitations because too many are pending!
-		local num_possible_invites_in_group = 5 - RIC.hashLength(raidMembers)
-		if RIC.hashLength(raidMembers) == 0 then
+		local num_possible_invites_in_group = 5 - RIC.tabLength(raidMembers)
+		if RIC.tabLength(raidMembers) == 0 then
 			num_possible_invites_in_group = 4 -- If we didnt open a group, raidMembers is empty. But only 4 invites possible (us excluded)
 		end
 		-- If we are in raid - invite. If not, check if we have some slots in group leftover to invite people into
@@ -448,7 +448,7 @@ function RIC._Roster_Browser.processSystemMessage(msg)
 		if invitePhaseActive then
 			-- Convert to raid group if group exists and has at least two members
 			local raidMembers = RIC.getRaidMembers()
-			if RIC.hashLength(raidMembers) >= 2 then
+			if RIC.tabLength(raidMembers) >= 2 then
 				ConvertToRaid()
 
 				-- Set master looter
@@ -526,7 +526,7 @@ end
 function RIC._Roster_Browser.startInvitePhase()
 	local raidMembers = RIC.getRaidMembers()
 	if not invitePhaseActive then -- Check if invite phase was disabled before, otherwise do nothing
-		if ((RIC.hashLength(raidMembers)==0) or UnitIsGroupLeader("player")) then -- CHeck that we are alone or a raid/group leader
+		if ((RIC.tabLength(raidMembers)==0) or UnitIsGroupLeader("player")) then -- CHeck that we are alone or a raid/group leader
 			-- Reset variables that remember who was invited/declined invite and when
 			wipe(inviteStatusList)
 			wipe(inviteTimeList)
@@ -687,7 +687,7 @@ end
 
 -- Adds people selected in roster browser (raid members) to roster, or if none selected, opens pop up menu to accept a typed player name
 function RIC._Roster_Browser.addSelectedToRoster()
-	if RIC.hashLength(selectedList) == 0 then -- Nothing selected - open up dialog window to enter custom name
+	if RIC.tabLength(selectedList) == 0 then -- Nothing selected - open up dialog window to enter custom name
 		-- Show player entry popup window
 		StaticPopup_Show("ROSTER_PLAYER_ENTRY")
 	else -- Add selected people to roster. Some might already be in the roster, but that's fine
@@ -731,7 +731,7 @@ end
 
 -- Remove people from roster selected in roster browser
 function RIC._Roster_Browser.removeFromRoster()
-	if RIC.hashLength(selectedList) > 0 then
+	if RIC.tabLength(selectedList) > 0 then
 		for name,_ in pairs(selectedList) do
 			RIC._Roster_Browser.remove(name)
 		end
