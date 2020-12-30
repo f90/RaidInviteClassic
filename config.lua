@@ -63,7 +63,7 @@ function RIC.getOptions()
 						max = 2.0,
 						set = function(info, val)
 							RIC.db.profile.MainFrameScale = val
-							RIC.RIC_setScale()
+							RIC.setScale()
 						end,
 						get = function(info)
 							return RIC.db.profile.MainFrameScale

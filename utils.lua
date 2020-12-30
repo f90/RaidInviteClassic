@@ -13,7 +13,7 @@ local function buildClassLists()
 end
 
 --Based on that: Symbols
-RIC.RIC_Status = {
+RIC.Status = {
     READY=1,
     EXTRA=2,
     NOT_INVITED=3,
@@ -23,7 +23,7 @@ RIC.RIC_Status = {
     OTHER=7
 }
 
-RIC.RIC_InviteStatus = {
+RIC.InviteStatus = {
     NOT_INVITED=1,
     INVITE_PENDING=2,
     INVITE_FAILED=3
@@ -54,36 +54,36 @@ function RIC.getStatusSymbol(in_raid, in_roster, online, invite_status)
     --Question mark symbol - Everything else
 
     if in_raid and in_roster then
-        return RIC.RIC_Status["READY"]
+        return RIC.Status["READY"]
     elseif in_raid and (not in_roster) then
-        return RIC.RIC_Status["EXTRA"]
-    elseif (not in_raid) and (online==true) and in_roster and ((invite_status==RIC.RIC_InviteStatus["NOT_INVITED"]) or (invite_status == nil)) then
-        return RIC.RIC_Status["NOT_INVITED"]
-    elseif (not in_raid) and ((online==true) or (online==nil)) and in_roster and (invite_status==RIC.RIC_InviteStatus["INVITE_PENDING"]) then
-        return RIC.RIC_Status["INVITE_PENDING"]
-    elseif (not in_raid) and ((online==true) or (online==nil)) and in_roster and (invite_status==RIC.RIC_InviteStatus["INVITE_FAILED"]) then
-        return RIC.RIC_Status["INVITE_FAILED"]
+        return RIC.Status["EXTRA"]
+    elseif (not in_raid) and (online==true) and in_roster and ((invite_status==RIC.InviteStatus["NOT_INVITED"]) or (invite_status == nil)) then
+        return RIC.Status["NOT_INVITED"]
+    elseif (not in_raid) and ((online==true) or (online==nil)) and in_roster and (invite_status==RIC.InviteStatus["INVITE_PENDING"]) then
+        return RIC.Status["INVITE_PENDING"]
+    elseif (not in_raid) and ((online==true) or (online==nil)) and in_roster and (invite_status==RIC.InviteStatus["INVITE_FAILED"]) then
+        return RIC.Status["INVITE_FAILED"]
     elseif (not in_raid) and (online==false) and in_roster then
-        return RIC.RIC_Status["MISSING"]
+        return RIC.Status["MISSING"]
     else
-        return RIC.RIC_Status["OTHER"]
+        return RIC.Status["OTHER"]
     end
 end
 
 function RIC.getStatusSymbolImagePath(status)
-    if status == RIC.RIC_Status["READY"] then
+    if status == RIC.Status["READY"] then
         return "Interface\\AddOns\\RaidInviteClassic\\img\\checkmark"
-    elseif status == RIC.RIC_Status["EXTRA"] then
+    elseif status == RIC.Status["EXTRA"] then
         return "Interface\\AddOns\\RaidInviteClassic\\img\\plus"
-    elseif status == RIC.RIC_Status["NOT_INVITED"] then
+    elseif status == RIC.Status["NOT_INVITED"] then
         return "Interface\\AddOns\\RaidInviteClassic\\img\\dash"
-    elseif status == RIC.RIC_Status["INVITE_PENDING"] then
+    elseif status == RIC.Status["INVITE_PENDING"] then
         return "Interface\\AddOns\\RaidInviteClassic\\img\\dots"
-    elseif status == RIC.RIC_Status["INVITE_FAILED"] then
+    elseif status == RIC.Status["INVITE_FAILED"] then
         return "Interface\\AddOns\\RaidInviteClassic\\img\\red_cross"
-    elseif status == RIC.RIC_Status["MISSING"] then
+    elseif status == RIC.Status["MISSING"] then
         return "Interface\\AddOns\\RaidInviteClassic\\img\\lightning"
-    elseif status == RIC.RIC_Status["OTHER"] then
+    elseif status == RIC.Status["OTHER"] then
         return "Interface\\AddOns\\RaidInviteClassic\\img\\question_mark"
     else
         return nil

@@ -31,7 +31,7 @@ function addon:processConsoleCommand(cmd)
 		RIC.groups.frame:SetPoint("CENTER", "UIParent", "CENTER", 0, 0)
 		RIC.rosters.frame:SetPoint("CENTER", "UIParent", "CENTER", 0, 0)
 		RIC.db.profile.MainFrameScale = 1
-		RIC.RIC_setScale()
+		RIC.setScale()
 		-- Reset minimap position
 		RIC.db.profile.minimapPos = 0
 		RIC.MinimapButton_Update()
@@ -172,7 +172,7 @@ function addon:OnEnable() -- Called when the addon is enabled
 	addon:OnEnableImportView()
 	addon:OnEnableMinimap()
 
-	RIC.RIC_setScale()
+	RIC.setScale()
 end
 
 function addon:OnDisable()
@@ -243,7 +243,7 @@ function RIC.RIC_OnUpdate()
 	end
 end
 
-function RIC.RIC_setScale()
+function RIC.setScale()
 	RIC_MainFrame:SetScale(RIC.db.profile.MainFrameScale)
 	RIC.groups.frame:SetScale(RIC.db.profile.MainFrameScale)
 	RIC.rosters.frame:SetScale(RIC.db.profile.MainFrameScale)
