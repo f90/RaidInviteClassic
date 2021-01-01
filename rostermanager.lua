@@ -211,7 +211,7 @@ function RIC._Roster_Manager.draw()
 		end
 		rosterNum = rosterNum + 1
 	end
-	-- Delete extra labels
+	-- Hide extra labels (cannot delete them since GUI elements can not be deleted)
 	while rosterNum <= #RIC.rosters.rosterList.labels do
 		RIC.rosters.rosterList.labels[rosterNum].name = nil
 		RIC.rosters.rosterList.labels[rosterNum]:SetText(nil)
@@ -237,9 +237,17 @@ function RIC._Roster_Manager.add(rosterName)
 		message("A roster named " .. rosterName .. " already exists!")
 		return false
 	else
-		RIC.db.realm.RosterList[rosterName] = {}
-		RIC._Roster_Manager.draw()
-		return true
+		-- Remove whitespace at start and end of rosterName
+		rosterName = rosterName:match("^%s*(.-)%s*$")
+		-- Check if rosterName is valid
+		if string.utf8len(rosterName) > 0 then
+			RIC.db.realm.RosterList[rosterName] = {}
+			RIC._Roster_Manager.draw()
+			return true
+		else
+			message("Roster could not be created - invalid roster name: " .. rosterName)
+			return false
+		end
 	end
 end
 
