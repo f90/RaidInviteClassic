@@ -1,6 +1,6 @@
 local addonName, RIC = ...
 -- Class list lookup table (classFilename -> Localised Name) - Make sure to call this exactly ONCE before its needed!
-local classFilenameToIndexTable, classIndexToFilenameTable, output, reversed = {}, {}, {}, {}
+local classFilenameToIndexTable, classIndexToFilenameTable = {}, {}
 local function buildClassLists()
     if RIC.tabLength(classFilenameToIndexTable) > 0 then return end
     for i=1,100 do -- TODO GetNumClasses function does not exist in this Classic API version yet?
@@ -192,8 +192,17 @@ function RIC.countFrequency(list, value)
     return n
 end
 
+function RIC.overwriteTable(target, source)
+    assert(target ~= nil and type(target == "table"))
+    wipe(target)
+    for k,v in pairs(source) do
+        target[k] = v
+    end
+end
+
+local raidMemberList = {}
 function RIC.getRaidMembers()
-    wipe(output)
+    wipe(raidMemberList)
     for ci=1, MAX_RAID_MEMBERS do
         local name, rank, subgroup, level, class, classFileName, zone, online, isDead, role, isML = GetRaidRosterInfo(ci)
         -- Set online to boolean variable
@@ -205,7 +214,7 @@ function RIC.getRaidMembers()
 
         if name ~= nil then
             -- Add player
-            output[name] = {
+            raidMemberList[name] = {
             name=name,
             rank=rank,
             level=level,
@@ -221,7 +230,7 @@ function RIC.getRaidMembers()
             RIC.db.realm.KnownPlayerClasses[name] = RIC.classFilenameToIndex(classFileName)
         end
     end
-    return output
+    return raidMemberList
 end
 
 function RIC.rtrim(s)

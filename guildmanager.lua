@@ -3,15 +3,21 @@ local guildMembersLoginTime = {} -- Track when guild members log in
 local guildMemberCameOnline = {} -- Set to true when a guild member came online, set back to nil as soon as we reset the invite state as a reaction to this
 local guildMemberWentOffline = {} -- Set to true when a guild member just went offline, set back to nil as soon as we update status information as a reaction to this
 
-local output = {}
+local updateGuildList = false
+local guildList = {}
 function RIC._Guild_Manager.getGuildMembers()
-    wipe(output)
     local in_guild = IsInGuild()
-    if not in_guild then return output end
+    if not in_guild then return guildList
+    end
     local numMembers = GetNumGuildMembers()
     if (in_guild and numMembers == 0 ) then -- Only request guild data if we are in guild, but appear to not have any guild members to look through
         GuildRoster()
-        return output
+        return guildList
+    end
+
+    if updateGuildList then -- If guild members have potentially changed, build guild member info table again from scratch. Otherwise reuse old table to avoid table garbage that needs to be collected all the time
+        wipe(guildList)
+        updateGuildList = false
     end
 
     for ci=1, numMembers do
@@ -43,26 +49,33 @@ function RIC._Guild_Manager.getGuildMembers()
                 guildMemberCameOnline[name] = nil
             end
 
-            output[name] = {
-                rank=rank,
-                rankIndex=rankIndex+1, -- Free up index 0 for non-guildies here
-                level=level,
-                class=class,
-                zone=zone,
-                note=note,
-                officernote=officernote,
-                online=online_val, -- true or false
-                status=status,
-                cameOnlineAt=guildMembersLoginTime[name], -- nil if offline, otherwise shows time when they came online
-                justCameOnline=guildMemberCameOnline[name], -- true if this player has JUST come online AND invite status was not reset yet, otherwise nil
-                classFileName=classFileName,
-            }
+            -- Write info about player into guildList. Reuse existing player table if possible, to avoid excessive garbage collection
+            if guildList[name] == nil then
+                guildList[name] = {}
+            end
+            guildList[name]["rank"] = rank
+            guildList[name]["rankIndex"] = rankIndex + 1 -- Free up index 0 for non-guildies here
+            guildList[name]["level"] = level
+            guildList[name]["class"] = class
+            guildList[name]["zone"] = zone
+            guildList[name]["note"] = note
+            guildList[name]["officernote"] = officernote
+            guildList[name]["online"] = online_val -- true or false
+            guildList[name]["status"] = status
+            guildList[name]["cameOnlineAt"] = guildMembersLoginTime[name] -- nil if offline, otherwise shows time when they came online
+            guildList[name]["justCameOnline"] = guildMemberCameOnline[name] -- true if this player has JUST come online AND invite status was not reset yet, otherwise nil
+            guildList[name]["classFileName"] = classFileName
 
             -- Save detected class in database
             RIC.db.realm.KnownPlayerClasses[name] = RIC.classFilenameToIndex(classFileName)
         end
     end
-    return output
+    return guildList
+end
+
+function RIC._Guild_Manager.wipeGuildList()
+    -- Guild members might have changed - set dirty flag so that next time we will completely rebuild the guild table
+    updateGuildList = true
 end
 
 function RIC._Guild_Manager.resetCameOnlineFlag(name)

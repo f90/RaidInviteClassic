@@ -180,6 +180,7 @@ function addon:OnDisable()
 end
 
 function addon:GUILD_ROSTER_UPDATE()
+	RIC._Guild_Manager.wipeGuildList() -- Force rebuild of the internal guild member table since members might have changed - dont want to keep old entries!
 	-- Update list views
 	RIC._Guild_Browser.buildGuildList()
 	RIC._Roster_Browser.buildRosterRaidList()
