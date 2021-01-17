@@ -1,14 +1,15 @@
 local addonName, RIC = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
-local newPlayerList,newCodewords = {},{}
+
 -- For converting whitelist and blacklist textboxes into player tables
 function RIC._Codewords_Handler.buildPlayerList(playerListString)
+	local newPlayerList = {}
 	if playerListString == nil then
+		RIC.print("WARNING: Got fed an invalid player list string - resetting player black/white list!")
 		return newPlayerList
 	end
-	wipe(newPlayerList)
 	-- Use newlines, colons, comma or space to separate characters
-	for playerName in playerListString:gmatch("[^;,%.%s]+)") do
+	for playerName in playerListString:gmatch("[^%s%c%p]+") do
 		local p = RIC.trim_special_chars(playerName)
 		if string.utf8len(p) > 1 then
 			-- Add player
@@ -32,6 +33,7 @@ function RIC._Codewords_Handler.getPlayerListString(playerList)
 	return playerListString
 end
 
+local newCodewords = {}
 function RIC._Codewords_Handler.buildCodeWords(newCodewordString)
 	if newCodewordString == nil then
 		return newCodewords

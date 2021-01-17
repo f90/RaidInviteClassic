@@ -345,7 +345,7 @@ function RIC.getOptions()
             MasterLooter = false,
             HideOutgoingWhispers = false,
 
-			Codewords = RIC._Codewords_Handler.buildCodeWords("invite"),
+			Codewords = {"invite"},
 			CodewordOnlyDuringInvite = true,
 			CodewordOnlyInGroup = true,
 			CodewordNotifyStart = true,
