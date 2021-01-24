@@ -309,7 +309,7 @@ end
 -- Process an invite request whisper from one particular person
 function RIC._Roster_Browser.inviteWhisper(author, msg)
 	-- Check if message is an invite request, otherwise ignore
-	if (not RIC._Codewords_Handler.containsCodeword(msg)) then
+	if (not RIC._Codewords_Handler.isInviteWhisper(msg)) then
 		return
 	end
 

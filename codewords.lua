@@ -95,6 +95,15 @@ function RIC._Codewords_Handler.endInvitePhase()
 	end
 end
 
+function RIC._Codewords_Handler.isInviteWhisper(msg)
+	-- Checks if this message counts as an invite whisper (return true) or not, depending on settings checking if message equals OR contains a codeword
+	if RIC.db.profile.CodewordExactMatch then
+		return RIC._Codewords_Handler.equalsCodeword(msg)
+	else
+		return RIC._Codewords_Handler.containsCodeword(msg)
+	end
+end
+
 function RIC._Codewords_Handler.containsCodeword(msg)
 	-- In case our addon is sending a message to us, ignore it!
 	if string.find(msg, RIC._ChatString, 1, true) ~= nil then

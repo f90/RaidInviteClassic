@@ -308,6 +308,19 @@ function RIC.getOptions()
 						end
 					},
 
+					invitewhispercheck = {
+						name = "Exact match",
+						desc = "Toggle this on if you only want to invite people that whisper you EXACTLY one of the codewords (ignoring upper/lowercase). When this is off, the whisper message only needs to CONTAIN one of the codewords.",
+						type = "toggle",
+						order = 7,
+						set = function(info, val)
+							RIC.db.profile.CodewordExactMatch = val;
+						end,
+						get = function(info)
+							return RIC.db.profile.CodewordExactMatch
+						end
+					},
+
 					hidecodewordwhispers = {
 						name = "Hide codeword whispers",
 						desc = "Hide incoming whispers from your chat that contain NOTHING but a codeword. When activated, the addon still processes these whispers normally, they are just hidden from your view.",
@@ -346,6 +359,7 @@ function RIC.getOptions()
             HideOutgoingWhispers = false,
 
 			Codewords = {"invite"},
+			CodewordExactMatch = false,
 			CodewordOnlyDuringInvite = true,
 			CodewordOnlyInGroup = true,
 			CodewordNotifyStart = true,
