@@ -97,8 +97,24 @@ local function GetEditBoxAutoCompleteResults(text,valueList)
 end
 
 function EditBoxAutoComplete_OnLoad(self)
-	self:SetBackdropBorderColor(TOOLTIP_DEFAULT_COLOR.r, TOOLTIP_DEFAULT_COLOR.g, TOOLTIP_DEFAULT_COLOR.b);
-	self:SetBackdropColor(TOOLTIP_DEFAULT_BACKGROUND_COLOR.r, TOOLTIP_DEFAULT_BACKGROUND_COLOR.g, TOOLTIP_DEFAULT_BACKGROUND_COLOR.b);	
+	-- Add backdrop
+	if BackdropTemplateMixin then -- For WoW >9.0 version
+		self.background = CreateFrame("Frame", nil, self, "BackdropTemplate")
+		self.background:SetAllPoints()
+		backdropInfo = {
+			bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
+			edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+			tile = true,
+			tileSize = 32,
+			edgeSize = 32,
+			insets = { left = 11, right = 12, top = 12, bottom = 9, },
+		}
+		self.background:SetBackdrop(backdropInfo)
+		self.background:SetFrameLevel(self:GetFrameLevel())
+	else -- WoW <9.0 version
+		self:SetBackdropBorderColor(TOOLTIP_DEFAULT_COLOR.r, TOOLTIP_DEFAULT_COLOR.g, TOOLTIP_DEFAULT_COLOR.b);
+		self:SetBackdropColor(TOOLTIP_DEFAULT_BACKGROUND_COLOR.r, TOOLTIP_DEFAULT_BACKGROUND_COLOR.g, TOOLTIP_DEFAULT_BACKGROUND_COLOR.b);
+	end
 	AutoCompleteInstructions:SetText("|cffbbbbbb"..PRESS_TAB.."|r");
 end
 
