@@ -1100,6 +1100,22 @@
     	        PanelTemplates_SetNumTabs(RIC_MainFrame, 2)
 	            PanelTemplates_SetTab(RIC_MainFrame, 1)
 				self:RegisterForDrag("LeftButton")
+
+				-- Add backdrop for WoW >=9.0
+				if BackdropTemplateMixin then
+					self.background = CreateFrame("Frame", nil, self, "BackdropTemplate")
+					self.background:SetAllPoints()
+					backdropInfo = {
+						bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
+						edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+						tile = true,
+						tileSize = 32,
+						edgeSize = 32,
+						insets = { left = 11, right = 12, top = 12, bottom = 9, },
+					}
+					self.background:SetBackdrop(backdropInfo)
+					self.background:SetFrameLevel(self:GetFrameLevel())
+				end
 			</OnLoad>
 			<OnDragStart>
 				self:StartMoving()
