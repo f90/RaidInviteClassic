@@ -692,7 +692,7 @@ function RIC._Roster_Browser.addSelectedToRoster()
 		StaticPopup_Show("ROSTER_PLAYER_ENTRY")
 	else -- Add selected people to roster. Some might already be in the roster, but that's fine
 		for name,_ in pairs(selectedList) do
-			RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] = 0
+			RIC._Roster_Browser.addNameToRoster(name, false)
 		end
 	end
 
@@ -706,17 +706,25 @@ function RIC._Roster_Browser.addSelectedToRoster()
 	RIC._Group_Manager.draw(true)
 end
 
-function RIC._Roster_Browser.addNameToRoster(name)
-	-- Remove server name from input text, then trim any special characters
-	local trimmed_name = RIC.removeServerFromName(name)
-	trimmed_name = RIC.trim_special_chars(trimmed_name)
-	if string.utf8len(trimmed_name) > 1 and string.utf8len(trimmed_name) < 13 then -- -- Char names in WoW need to be between 2 and 12 (inclusive) chars long
-		-- Add to roster list
-		RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][trimmed_name] = 0
-		-- Update list
-		RIC._Roster_Browser.buildRosterRaidList()
-		-- Redraw group view to reflect change
-		RIC._Group_Manager.draw(true)
+function RIC._Roster_Browser.addNameToRoster(name, update_view)
+	-- General function to add a character to the current roster
+
+	-- Preprocess name and check if it's valid format
+	local trimmed_name = RIC.addServerToName(name)
+	trimmed_name = RIC.trim_char_name(trimmed_name)
+	local char_name, server_name = RIC.split_char_name(trimmed_name)
+	if string.utf8len(char_name) > 1 and string.utf8len(char_name) < 13 then -- -- Char names in WoW need to be between 2 and 12 (inclusive) chars long
+		-- Add to roster list in case this char is not already in it
+		if RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][trimmed_name] == nil then
+			RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][trimmed_name] = 0
+
+			if update_view then -- Optionally update UI if this was requested by the caller
+				-- Update list
+				RIC._Roster_Browser.buildRosterRaidList()
+				-- Redraw group view to reflect change
+				RIC._Group_Manager.draw(true)
+			end
+		end
 	end
 end
 
@@ -745,19 +753,6 @@ function RIC._Roster_Browser.removeFromRoster()
 
 	-- Redraw group view to reflect change
 	RIC._Group_Manager.draw(true)
-end
-
--- Add people that were selected in guild browser (if any)
-function RIC._Roster_Browser.addFromGuildBrowser(name)
-	-- Check if name is already in roster
-	if RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] == nil then
-		-- Add to roster
-		RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name] = 0
-		-- Update data and view
-		RIC._Roster_Browser.buildRosterRaidList()
-		-- Redraw group view to reflect change
-		RIC._Group_Manager.draw(true)
-	end
 end
 
 -- Can be called by other modules to ask for a players class and invite status information

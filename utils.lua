@@ -29,8 +29,22 @@ RIC.InviteStatus = {
     INVITE_FAILED=3
 }
 
-function RIC.trim_special_chars(char_name)
-    return char_name:gsub("[%c%p%s]", "")
+function RIC.trim_char_name(name)
+    local char_name, server_name = RIC.split_char_name(name)
+    if server_name ~= nil then
+        return char_name:gsub("[%c%p%s]", "") .. "-" .. server_name:gsub("[%c%p%s]", "")
+    else
+        return (char_name:gsub("[%c%p%s]", ""))
+    end
+end
+
+function RIC.split_char_name(name)
+    local dashPosStart, dashPosEnd = string.find(name, "-", 1, true)
+    if dashPosStart ~= nil then -- Check if name has a dash and therefore a realm name in it
+        return strsub(name, 1, dashPosStart-1), strsub(name, dashPosStart+1):gsub("[%c%p%s]", "")
+    else
+        return name, nil
+    end
 end
 
 function RIC.getStatusSymbol(in_raid, in_roster, online, invite_status)
@@ -182,6 +196,16 @@ function RIC.removeServerFromName(name)
     end
 end
 
+function RIC.addServerToName(name)
+    -- Adds server name to character names in case they are not there, e.g. "Tim" -> "Tim-Patchwerk"
+    local char_name, server_name = RIC.split_char_name(name)
+    if server_name then -- Non-nil server_name -> Valid format
+        return name
+    else
+        return char_name .. "-" .. GetRealmName() -- No dash found - assume this player is on our current realm
+    end
+end
+
 function RIC.countFrequency(list, value)
     local n = 0
     for k,v in pairs(list) do
@@ -205,14 +229,17 @@ function RIC.getRaidMembers()
     wipe(raidMemberList)
     for ci=1, MAX_RAID_MEMBERS do
         local name, rank, subgroup, level, class, classFileName, zone, online, isDead, role, isML = GetRaidRosterInfo(ci)
-        -- Set online to boolean variable
-        if (online == 1) or (online == true) then
-            online = true
-        else
-            online = false
-        end
-
         if name ~= nil then
+            -- Set online to boolean variable
+            if (online == 1) or (online == true) then
+                online = true
+            else
+                online = false
+            end
+
+            -- Add server name to char name in case we don't get it from the group
+            name = RIC.addServerToName(name)
+
             -- Add player
             raidMemberList[name] = {
             name=name,
