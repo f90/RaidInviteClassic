@@ -187,7 +187,7 @@ function RIC._Group_Manager.SetLabel(label, statusLabel, name)
 	if name then
 		-- Set label
 		label.name = name
-		label:SetText(name)
+		label:SetText(RIC.displayName(name))
 		local playerInfo = RIC._Roster_Browser.getPlayerInfo(name)
 		local classColor
 		if playerInfo ~= nil then

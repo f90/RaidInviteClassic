@@ -206,6 +206,15 @@ function RIC.addServerToName(name)
     end
 end
 
+function RIC.displayName(name)
+    -- Displays a character name with or without server name appended, depending on the current configuration
+    if  RIC.db.profile.ShowCharRealms then
+        return name -- We internally work with "char-realm" representation, so nothing to do here
+    else
+        return (RIC.split_char_name(name)) -- Only take first element of (char_name, server_name) tuple
+    end
+end
+
 function RIC.countFrequency(list, value)
     local n = 0
     for k,v in pairs(list) do

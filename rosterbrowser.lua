@@ -158,7 +158,7 @@ function RIC._Roster_Browser.drawTable()
 	for ci = 1, 20 do
 		local row = rosterRaidListVisible[ci+rosterOffset]
 		if row then
-			_G["RIC_RosterFrameEntry"..ci.."Name"]:SetText(RIC.getClassColor(row.classFileName) .. row.name)
+			_G["RIC_RosterFrameEntry"..ci.."Name"]:SetText(RIC.getClassColor(row.classFileName) .. RIC.displayName(row.name))
 			_G["RIC_RosterFrameEntry"..ci.."Rank"]:SetText(row.guildRank)
 			_G["RIC_RosterFrameEntry"..ci]:Show()
 			if selectedList[row.name] and selectedList[row.name] == 1 then
