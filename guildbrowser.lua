@@ -117,13 +117,15 @@ function RIC._Guild_Browser.addSelectedToRoster()
 	-- Fetch names of selected people and add to roster
 	for _, val in ipairs(guildList) do
 		if selectedList[val[1]] ~= nil then
-			RIC._Roster_Browser.addFromGuildBrowser(val[1])
+			RIC._Roster_Browser.addNameToRoster(val[1], false)
 		end
 	end
 	-- Reset selection --TODO maybe dont show people at all in guild list that are already in roster
 	RIC._Guild_Browser.clearSelection()
 	-- Rebuild rosterRaidList
 	RIC._Roster_Browser.buildRosterRaidList()
+	-- Redraw group view to reflect change
+	RIC._Group_Manager.draw(true)
 end
 
 function RIC._Guild_Browser.clearSelection()

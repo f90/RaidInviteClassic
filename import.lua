@@ -7,15 +7,15 @@ local DEFAULT_FONT = LSM.MediaTable.font[LSM:GetDefault('font')]
 local newList = {}
 
 function RIC:OnEnableImportView()
-  self.import = AceGUI:Create("Window")
+	self.import = AceGUI:Create("Window")
 	self.import:Hide()
 	self.import:EnableResize(false)
 	self.import:SetTitle("Import roster list")
 	self.import:SetLayout("Flow")
-    --self:HookScript(self.import.frame, "OnShow", function() RIC._Group_Manager.draw() end)
+	--self:HookScript(self.import.frame, "OnShow", function() RIC._Group_Manager.draw() end)
 	--self:HookScript(self.import.frame, "OnHide", function() _G["RIC_OpenGroupWindow"]:SetText("View groups") end)
-  self.import:SetWidth(200)
-  self.import:SetHeight(380)
+	self.import:SetWidth(250)
+	self.import:SetHeight(380)
 
 	self.import.container = AceGUI:Create("SimpleGroup")
 	self.import.container:SetFullWidth(true)
@@ -23,15 +23,15 @@ function RIC:OnEnableImportView()
 	self.import.container:SetLayout("Fill") -- important!
 	self.import:AddChild(self.import.container)
 
-  self.import.scroll = AceGUI:Create("ScrollFrame")
+	self.import.scroll = AceGUI:Create("ScrollFrame")
 	self.import.scroll:SetLayout("Flow")
-  self.import.container:AddChild(self.import.scroll)
+	self.import.container:AddChild(self.import.scroll)
 
-  self.import.editbox = AceGUI:Create("MultiLineEditBox")
+	self.import.editbox = AceGUI:Create("MultiLineEditBox")
 	self.import.editbox:SetLabel("Roster List")
-  self.import.editbox:SetCallback("OnEnterPressed", RIC._Import_Manager.confirmRoster)
+	self.import.editbox:SetCallback("OnEnterPressed", RIC._Import_Manager.confirmRoster)
 	self.import.editbox:SetNumLines(20)
-  self.import.scroll:AddChild(self.import.editbox)
+	self.import.scroll:AddChild(self.import.editbox)
 end
 
 function RIC._Import_Manager.toggle()
@@ -65,8 +65,8 @@ function RIC._Import_Manager.importRoster(rosterString)
 	-- Determine whether list is unordered (ONE separator in beginning) or not
 	local useGroupPositions = true
 	if (#parsedList > 1) -- We immediately encounter ONE separator - this means group positions are NOT used at all!
-			and (string.utf8len(RIC.trim_special_chars(parsedList[1])) == 0)
-			and (string.utf8len(RIC.trim_special_chars(parsedList[2])) > 0) then
+			and (string.utf8len(RIC.trim_char_name(parsedList[1])) == 0)
+			and (string.utf8len(RIC.trim_char_name(parsedList[2])) > 0) then
 				useGroupPositions = false
 	end
 	-- Parse names one by one, add to temp list
@@ -74,19 +74,23 @@ function RIC._Import_Manager.importRoster(rosterString)
 	local skippedNames = ""
 	local fixedNames = ""
 	for i, val in ipairs(parsedList) do
-		local name = RIC.trim_special_chars(val)
-		if name ~= val then
+		-- Clean up name input
+		local orig_char_name, _ = RIC.split_char_name(val)
+		local name = RIC.trim_char_name(RIC.addServerToName(val))
+		local char_name, _ = RIC.split_char_name(name)
+
+		if char_name ~= orig_char_name then
 			-- We removed special chars from the input in hopes of fixing the char name - notify user!
-			fixedNames = fixedNames .. val .. " -> " .. name .. "\n"
+			fixedNames = fixedNames .. orig_char_name .. " -> " .. char_name .. "\n"
 		end
-		if string.utf8len(name) > 1 and string.utf8len(name) < 13 then -- Char names in WoW need to be between 2 and 12 (inclusive) chars long
+		if string.utf8len(char_name) > 1 and string.utf8len(char_name) < 13 then -- Char names in WoW need to be between 2 and 12 (inclusive) chars long
 			if i <= 40 and useGroupPositions then -- Use group positions for first 40 raiders?
 				newList[name] = i
 			else
 				newList[name] = 0
 			end
 		else
-			if string.utf8len(name) > 0 then -- Add to list of skipped names if they are faulty and are non empty
+			if string.utf8len(char_name) > 0 then -- Add to list of skipped names if they are faulty and are non empty
 				skippedNames = skippedNames .. val .. "\n"
 			end
 		end

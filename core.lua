@@ -113,7 +113,7 @@ function addon:OnEnable() -- Called when the addon is enabled
 				if self.autoCompleted ~= true then -- Add player on enter, if enter was not meant for confirming autocomplete suggestion
 					local text = self:GetText()
 					StaticPopup_Hide("ROSTER_PLAYER_ENTRY")
-					RIC._Roster_Browser.addNameToRoster(text)
+					RIC._Roster_Browser.addNameToRoster(text, true)
 				end
 			end)
 
@@ -141,7 +141,7 @@ function addon:OnEnable() -- Called when the addon is enabled
 		end,
 		OnAccept = function(self, data, data2)
 			local text = self.editBox:GetText()
-			RIC._Roster_Browser.addNameToRoster(text)
+			RIC._Roster_Browser.addNameToRoster(text, true)
 		end,
 	}
 
@@ -188,7 +188,7 @@ end
 
 function addon:CHAT_MSG_WHISPER(event, msg, author, ...)
 	if author ~= nil then -- For some reason this can be nil sometimes?
-		RIC._Roster_Browser.inviteWhisper(RIC.removeServerFromName(author), msg) -- Remove server tag from name
+		RIC._Roster_Browser.inviteWhisper(RIC.addServerToName(author), msg)
 	else
 		addon:Print(L["Whisper_Author_Unknown"])
 	end

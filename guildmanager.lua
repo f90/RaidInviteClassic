@@ -30,8 +30,8 @@ function RIC._Guild_Manager.getGuildMembers()
                 online_val = true
             end
 
-            -- name contains "name-servername" but GetRaidRosterInfo does not give us server info. Since this is a classic addon, simply remove server name here and deal ONLY with char names
-            name = RIC.removeServerFromName(name)
+            -- Make sure we always use "name-servername" as internal representation for characters
+            name = RIC.addServerToName(name)
 
             -- Update last-login/logoff time and set justCameOnline-flag
             if online_val then
