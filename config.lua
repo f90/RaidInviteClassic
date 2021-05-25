@@ -42,6 +42,18 @@ function RIC.getOptions()
 				name = "GUI",
 				type = "group",
 				args = {
+					showcharrealms = {
+						name = "Show player realms",
+						desc = "Show realm names for all characters displayed in the addon, e.g. display 'Tim-Patchwerk' instead of just 'Tim'",
+						type = "toggle",
+						set = function(info, val)
+							RIC.db.profile.ShowCharRealms = val;
+						end,
+						get = function(info)
+							return RIC.db.profile.ShowCharRealms
+						end
+					},
+
 					minimapshow = {
 						name = "Hide minimap icon",
 						desc = "Tick to hide minimap icon",
@@ -369,7 +381,8 @@ function RIC.getOptions()
 			ShowOffline = true,
 			DisplayRanks = {true, true, true, true, true, true, true, true, true, true},
 
-			InviteInterval = 120.0
+			InviteInterval = 120.0,
+			ShowCharRealms = false
         },
 
 		realm = {

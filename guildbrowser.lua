@@ -93,7 +93,7 @@ function RIC._Guild_Browser.drawTable()
 	for ci = 1, 20 do
 		local theRow = guildList[ci+guildOffset]
 		if theRow then
-			_G["RIC_GuildMemberFrameEntry"..ci.."Name"]:SetText(RIC.getClassColor(theRow[4]) .. theRow[1])
+			_G["RIC_GuildMemberFrameEntry"..ci.."Name"]:SetText(RIC.getClassColor(theRow[4]) .. RIC.displayName(theRow[1]))
 			if theRow[5] then
 				_G["RIC_GuildMemberFrameEntry"..ci.."Rank"]:SetText(theRow[2])
 			else
