@@ -635,6 +635,7 @@ function RIC._Roster_Browser.setPlayerTooltip() -- TODO: Called OnUpdate
 
 			-- Set tooltip
 			GameTooltip:ClearLines()
+			GameTooltip:AddLine(theName)
 			GameTooltip:AddLine("|cFFFFFFFFOnline:|r " .. online)
 			if details ~= nil then
 				GameTooltip:AddLine("|cFFFFFFFFStatus:|r " .. details[2] .. " (" .. date("%H:%M:%S", details[1]) .. ")") -- Show time and detail of last event
