@@ -400,7 +400,7 @@ end
 local comm_msg = {}
 function RIC._Roster_Manager.send()
 	comm_msg["key"] = "OVERWRITE_ROSTERS"
-	comm_msg["sender"] = UnitName("player")
+	comm_msg["sender"] = RIC.getUnitFullName("player")
 	comm_msg["value"] = RIC.db.realm.RosterList
 
 	-- Try sending via raid channel
