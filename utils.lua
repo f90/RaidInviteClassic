@@ -30,6 +30,7 @@ RIC.InviteStatus = {
 }
 
 function RIC.trim_char_name(name)
+    -- Removes whitespace and special characters from char+realm names. Realm names must be normalized beforehand!
     local char_name, server_name = RIC.split_char_name(name)
     if server_name ~= nil then
         return char_name:gsub("[%c%p%s]", "") .. "-" .. server_name:gsub("[%c%p%s]", "")
@@ -41,7 +42,7 @@ end
 function RIC.split_char_name(name)
     local dashPosStart, dashPosEnd = string.find(name, "-", 1, true)
     if dashPosStart ~= nil then -- Check if name has a dash and therefore a realm name in it
-        return strsub(name, 1, dashPosStart-1), strsub(name, dashPosStart+1):gsub("[%c%p%s]", "")
+        return strsub(name, 1, dashPosStart-1), strsub(name, dashPosStart+1)
     else
         return name, nil
     end
@@ -186,6 +187,15 @@ function RIC.SendChatMessage(msg, chatType, language, channel)
     end
 end
 
+function RIC.getUnitFullName(unit)
+    -- Wraper for UnitFullName, ensuring output is ALWAYS (name-normalizedrealm). Only works properly for player chars!
+    local name, realm = UnitFullName(unit)
+    if not realm then
+        realm = GetNormalizedRealmName()
+    end
+    return name .. "-" .. realm
+end
+
 function RIC.removeServerFromName(name)
     -- Removes server names from full names, e.g. "Tim-Patchwerk" -> "Tim"
     local dashPosStart, dashPosEnd = string.find(name, "-", 1, true)
@@ -202,7 +212,7 @@ function RIC.addServerToName(name)
     if server_name then -- Non-nil server_name -> Valid format
         return name
     else
-        return char_name .. "-" .. GetRealmName() -- No dash found - assume this player is on our current realm
+        return char_name .. "-" .. GetNormalizedRealmName() -- No dash found - assume this player is on our current realm
     end
 end
 

@@ -359,7 +359,7 @@ end
 -- Invites one particular person
 function RIC._Roster_Browser.invite(person, reactive, guildMembers)
 	-- Check if person is the character you are playing right now
-	if person == UnitName("player") then
+	if person == RIC.getUnitFullName("player") then
 		return
 	end
 
@@ -428,9 +428,21 @@ function RIC._Roster_Browser.invite(person, reactive, guildMembers)
 	end
 end
 
+function RIC._Roster_Browser.parseNameFromSystemMessage(msg, systemEvent)
+	-- Assuming the chat message stems from the system and therefore has a standard wording,
+	-- try to extract the character name involved. If parsing fails since this message does not fit a system one, return nil
+	local playerName = string.find(msg, string.gsub(systemEvent, "%%s", "(%%S+)"))
+	if playerName then
+		-- Parse and process player name
+		playerName = string.match(msg, string.gsub(systemEvent, "%%s", "(%%S+)"))
+		playerName = RIC.addServerToName(playerName)
+	end
+	return playerName
+end
+
 function RIC._Roster_Browser.processSystemMessage(msg)
-	if string.find(msg, string.gsub(ERR_ALREADY_IN_GROUP_S, "%%s", "(%%S+)")) then -- This person is already in a group
-		local playerName = string.match(msg, string.gsub(ERR_ALREADY_IN_GROUP_S, "%%s", "(%%S+)"))
+	if RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_ALREADY_IN_GROUP_S) then -- This person is already in a group
+		local playerName = RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_ALREADY_IN_GROUP_S)
 		-- Check if player is already in raid. In that case, we accidentally tried to invite that player MANUALLY -> Ignore this message
 		local raidMembers = RIC.getRaidMembers()
 		if raidMembers[playerName] == nil then
@@ -442,8 +454,8 @@ function RIC._Roster_Browser.processSystemMessage(msg)
 				RIC.SendChatMessage(L["Already_In_Group"], "WHISPER", nil, playerName)
 			end
 		end
-	elseif string.find(msg, string.gsub(ERR_JOINED_GROUP_S, "%%s", "%%S+")) then -- Player joined group
-		local playerName = string.match(msg, string.gsub(ERR_JOINED_GROUP_S, "%%s", "(%%S+)"))
+	elseif RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_JOINED_GROUP_S) then -- Player joined group
+		local playerName = RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_JOINED_GROUP_S)
 		RIC._Durability_Manager.setPlayerWarning(playerName) -- Set this player to be flagged for durability check soon
 		if invitePhaseActive then
 			-- Convert to raid group if group exists and has at least two members
@@ -453,7 +465,7 @@ function RIC._Roster_Browser.processSystemMessage(msg)
 
 				-- Set master looter
 				if RIC.db.profile.MasterLooter then
-					SetLootMethod("master", UnitName("player"))
+					SetLootMethod("master", RIC.getUnitFullName("player"))
 				end
 			end
 		end
@@ -461,38 +473,38 @@ function RIC._Roster_Browser.processSystemMessage(msg)
 		-- Update invite status
 		inviteStatusList[playerName] = nil
 		inviteStatusInfoList[playerName] = {time(), L["Player_Joined"]}
-	elseif string.find(msg, string.gsub(ERR_RAID_MEMBER_ADDED_S, "%%s", "%%S+")) then -- Player joined raid group
-		local playerName = string.match(msg, string.gsub(ERR_RAID_MEMBER_ADDED_S, "%%s", "(%%S+)"))
+	elseif RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_RAID_MEMBER_ADDED_S) then -- Player joined raid group
+		local playerName = RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_RAID_MEMBER_ADDED_S)
 		RIC._Durability_Manager.setPlayerWarning(playerName) -- Set this player to be flagged for durability check soon
 
 		-- Update invite status
 		inviteStatusList[playerName] = nil
 		inviteStatusInfoList[playerName] = {time(), L["Player_Joined"]}
-	elseif string.find(msg, string.gsub(ERR_LEFT_GROUP_S, "%%s", "%%S+")) then -- Player left group
-		local playerName = string.match(msg, string.gsub(ERR_LEFT_GROUP_S, "%%s", "(%%S+)"))
+	elseif RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_LEFT_GROUP_S) then -- Player left group
+		local playerName = RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_LEFT_GROUP_S)
 		-- Set invite status
 		inviteStatusList[playerName] = RIC.InviteStatus["NOT_INVITED"]
 		inviteStatusInfoList[playerName] = {time(), L["Player_Left"]}
 		inviteTimeList[playerName] = time() -- Act as if we just tried to invite him, to prevent from instant re-invite
-	elseif string.find(msg, string.gsub(ERR_RAID_MEMBER_REMOVED_S, "%%s", "%%S+")) then -- Player left raid group
-		local playerName = string.match(msg, string.gsub(ERR_RAID_MEMBER_REMOVED_S, "%%s", "(%%S+)"))
+	elseif RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_RAID_MEMBER_REMOVED_S) then -- Player left raid group
+		local playerName = RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_RAID_MEMBER_REMOVED_S)
 		-- Set invite status
 		inviteStatusList[playerName] = RIC.InviteStatus["NOT_INVITED"]
 		inviteStatusInfoList[playerName] = {time(), L["Player_Left"]}
 		inviteTimeList[playerName] = time() -- Act as if we just tried to invite him, to prevent from instant re-invite
-	elseif string.find(msg, string.gsub(ERR_INVITE_PLAYER_S, "%%s", "%%S+")) then -- sent Valid Invitation
-		local playerName = string.match(msg, string.gsub(ERR_INVITE_PLAYER_S, "%%s", "(%%S+)"))
+	elseif RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_INVITE_PLAYER_S) then -- sent Valid Invitation
+		local playerName = RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_INVITE_PLAYER_S)
 		-- Set invite status
 		inviteStatusList[playerName] = RIC.InviteStatus["INVITE_PENDING"]
 		inviteStatusInfoList[playerName] = {time(), L["Invite_Pending"]}
 		-- dont need to do anything else - we assume its valid except if we get an error. time was already set when we triggered the invite
-	elseif string.find(msg, string.gsub(ERR_BAD_PLAYER_NAME_S, "%%s", "%%S+")) then -- Player was not online
-		local playerName = string.match(msg, string.gsub(ERR_BAD_PLAYER_NAME_S, "%%s", "(%%S+)"))
+	elseif RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_BAD_PLAYER_NAME_S) then -- Player was not online
+		local playerName = RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_BAD_PLAYER_NAME_S)
 		-- Set invite status
 		inviteStatusList[playerName] = RIC.InviteStatus["INVITE_FAILED"]
 		inviteStatusInfoList[playerName] = {time(), L["Invite_Failed_Not_Online"]}
-	elseif string.find(msg, string.gsub(ERR_DECLINE_GROUP_S, "%%s", "%%S+")) then -- Player declined invitation
-		local playerName = string.match(msg, string.gsub(ERR_DECLINE_GROUP_S, "%%s", "(%%S+)"))
+	elseif RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_DECLINE_GROUP_S) then -- Player declined invitation
+		local playerName = RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_DECLINE_GROUP_S)
 		inviteStatusList[playerName] = RIC.InviteStatus["INVITE_FAILED"]
 		-- Check the invite time. If its about 60s ago, we assume the invite expired, otherwise it was declined
 		if inviteTimeList[playerName] and (time() - inviteTimeList[playerName] >= 59) then
@@ -712,7 +724,7 @@ function RIC._Roster_Browser.addNameToRoster(name, update_view)
 	-- Preprocess name and check if it's valid format
 	local trimmed_name = RIC.addServerToName(name)
 	trimmed_name = RIC.trim_char_name(trimmed_name)
-	local char_name, server_name = RIC.split_char_name(trimmed_name)
+	local char_name, _ = RIC.split_char_name(trimmed_name)
 	if string.utf8len(char_name) > 1 and string.utf8len(char_name) < 13 then -- -- Char names in WoW need to be between 2 and 12 (inclusive) chars long
 		-- Add to roster list in case this char is not already in it
 		if RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][trimmed_name] == nil then
