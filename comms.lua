@@ -13,7 +13,7 @@ function RIC.SendComm(message, channel)
 end
 
 function RIC:OnCommReceived(prefix, message, distribution, sender)
-	if prefix ~= "ricroster" or sender == UnitName("player") or not message then
+	if prefix ~= "ricroster" or sender == RIC.getUnitFullName("player") or not message then
 		return
 	end
 
@@ -58,7 +58,7 @@ function RIC:OnCommReceived(prefix, message, distribution, sender)
 		return
 	end
 
-	if key == "ROSTERS" and message["asker"] == UnitName("player") and message["value"] then
+	if key == "ROSTERS" and message["asker"] == RIC.getUnitFullName("player") and message["value"] then
 		RIC._Roster_Manager.addReceivedRosters(message["value"], sender)
 		return
 	end

@@ -11,7 +11,7 @@ function RIC._Codewords_Handler.buildPlayerList(playerListString)
 	-- Use newlines, colons, comma or space to separate characters
 	for playerName in playerListString:gmatch("[^;, \n]+") do
 		local p = RIC.trim_char_name(RIC.addServerToName(playerName))
-		local char_name = RIC.split_char_name(p)
+		local char_name, _ = RIC.split_char_name(p)
 		if string.utf8len(char_name) > 1 then
 			-- Add player
 			newPlayerList[p] = true
