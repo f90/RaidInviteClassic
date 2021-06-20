@@ -51,9 +51,8 @@ L["Roster_Sent_Successfully_Guild"] = "Roster wurden erfolgreich an Gildenmitgli
 -- Raid group assignments status
 L["Group_Assign_Not_In_Raid"] = "KANN NICHT ORDNEN - NICHT IM RAID"
 L["Group_Assign_Is_Arranged"] = "RAID IST GEORDNET"
+L["Group_Assign_Is_Not_Arranged"] = "RAID IST NICHT GEORDNET"
 L["Group_Assign_No_Rights"] = "KANN NICHT ORDNEN - KEIN RAID LEITER/ASISSTENT"
 L["Group_Assign_In_Combat"] = "KANN NICHT ORDNEN - IM KAMPF"
 L["Group_Assign_In_Progress"] = "ORDNE..."
-L["Group_Assign_In_Progress_Remote"] = "WIRD GEORDNET VON"
 L["Group_Assign_Rearrange"] = "ORDNE RAID"
-L["Group_Assign_Entered_Combat"] = "Raidanordnung angehalten, da du in den Kampf gekommen bist!"

@@ -48,16 +48,6 @@ function RIC:OnCommReceived(prefix, message, distribution, sender)
 		return
 	end
 
-	if key == "SWAP_IN_PROGRESS" then
-		RIC._Group_Manager.receiveInProgress(sender)
-		return
-	end
-
-	if key == "SWAP_END" then
-		RIC._Group_Manager.receiveEndProgress()
-		return
-	end
-
 	if key == "ASK_ROSTERS" then
 		response["key"] = "ROSTERS"
 		response["asker"] = sender
