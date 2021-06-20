@@ -30,6 +30,9 @@ RIC.InviteStatus = {
 }
 
 function RIC.trim_char_name(name)
+    if name == nil then
+        return nil -- Trimming an empty name results in another empty name
+    end
     -- Removes whitespace and special characters from char+realm names. Realm names must be normalized beforehand!
     local char_name, server_name = RIC.split_char_name(name)
     if server_name ~= nil then
@@ -40,6 +43,9 @@ function RIC.trim_char_name(name)
 end
 
 function RIC.split_char_name(name)
+    if name == nil then -- Empty name - return empty name and server
+        return nil, nil
+    end
     local dashPosStart, dashPosEnd = string.find(name, "-", 1, true)
     if dashPosStart ~= nil then -- Check if name has a dash and therefore a realm name in it
         return strsub(name, 1, dashPosStart-1), strsub(name, dashPosStart+1)
@@ -192,13 +198,32 @@ function RIC.removeServerFromName(name)
     end
 end
 
+local charToRealm = {}
 function RIC.addServerToName(name)
+    if name == nil then -- Empty name - return empty name
+        return nil
+    end
     -- Adds server name to character names in case they are not there, e.g. "Tim" -> "Tim-Patchwerk"
     local char_name, server_name = RIC.split_char_name(name)
     if server_name then -- Non-nil server_name -> Valid format
+        charToRealm[char_name] = server_name
         return name
     else
-        return char_name .. "-" .. GetNormalizedRealmName() -- No dash found - assume this player is on our current realm
+        local realm = GetNormalizedRealmName()
+        if realm == nil then
+            -- During zonein/zoneout, GetNormalizedRealmName can return nil sometimes (bug)
+            -- As workaround, guess realm based on what realm this character was on before
+            -- TODO This is imperfect: two players with same name cannot be distinguished.
+            -- This should correct itself on the next update cycle though since we constantly update the raid list
+            if charToRealm[char_name] then
+                return char_name .. "-" .. charToRealm[char_name]
+            else
+                return char_name
+            end
+        else
+            charToRealm[char_name] = realm
+           return char_name .. "-" .. realm -- No dash found - assume this player is on our current realm
+        end
     end
 end
 
