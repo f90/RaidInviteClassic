@@ -13,10 +13,18 @@ function RIC.SendComm(message, channel)
 end
 
 function RIC:OnCommReceived(prefix, message, distribution, sender)
+	-- All addon communication is captured by this function through the AceComm library.
+	-- See AceComm for documentation on the inputs to this function.
+
+	-- Make sure that our sender follows the "charname-realmname" template
+	sender = RIC.addServerToName(sender)
+
+	-- If our addon-specific prefix is not set, or this is our own message, or the message is empty, ignore it
 	if prefix ~= "ricroster" or sender == RIC.getUnitFullName("player") or not message then
 		return
 	end
 
+	-- Check if message can be properly decoded, otherwise print warnings
 	local decoded = LD:DecodeForWoWAddonChannel(message)
 	if not decoded then
 		RIC:Print("Could not decode addon message. Sender needs to update to the latest version of cleangroupassigns!")
@@ -36,7 +44,7 @@ function RIC:OnCommReceived(prefix, message, distribution, sender)
 
 	local key = message["key"]
 	if not key then
-		RIC:Print("Failed to parse deserialized comm.")
+		RIC:Print("Failed to parse deserialized comm: Message key missing")
 		return
 	end
 

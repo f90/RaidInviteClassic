@@ -141,20 +141,6 @@ function RIC.indexToClassname(index)
     return classIndexToFilenameTable[index]["className"]
 end
 
-function RIC.charLength(str)
-	local b = string.byte(str, 1)
-	if b then
-		if b >= 194 and b < 224 then
-			return 2
-		elseif b >= 224 and b < 240 then
-			return 3
-		elseif b >= 240 and b < 245 then
-			return 4
-		end
-	end
-	return 1
-end
-
 function RIC.getSortedTableKeys(t, f)
     local a = {}
     for n in pairs(t) do table.insert(a, n) end
@@ -233,14 +219,6 @@ function RIC.countFrequency(list, value)
         end
     end
     return n
-end
-
-function RIC.overwriteTable(target, source)
-    assert(target ~= nil and type(target == "table"))
-    wipe(target)
-    for k,v in pairs(source) do
-        target[k] = v
-    end
 end
 
 local raidMemberList = {}
