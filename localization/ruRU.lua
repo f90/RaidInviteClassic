@@ -51,9 +51,8 @@ L["Roster_Sent_Successfully_Guild"] = "Rosters were successfully sent to all gui
 -- Raid group assignments status
 L["Group_Assign_Not_In_Raid"] = "CANNOT REARRANGE - NOT IN A RAID GROUP"
 L["Group_Assign_Is_Arranged"] = "RAID IS ARRANGED"
+L["Group_Assign_Is_Not_Arranged"] = "RAID IS NOT ARRANGED"
 L["Group_Assign_No_Rights"] = "CANNOT REARRANGE - NOT A RAID LEADER OR ASSISTANT"
 L["Group_Assign_In_Combat"] = "CANNOT REARRANGE - IN COMBAT"
 L["Group_Assign_In_Progress"] = "REARRANGING..."
-L["Group_Assign_In_Progress_Remote"] = "REARRANGEMENT IN PROGRESS BY"
 L["Group_Assign_Rearrange"] = "REARRANGE RAID"
-L["Group_Assign_Entered_Combat"] = "Rearranging stopped since you entered combat!"
