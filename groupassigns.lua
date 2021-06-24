@@ -5,6 +5,8 @@ local LSM = LibStub("LibSharedMedia-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local DEFAULT_FONT = LSM.MediaTable.font[LSM:GetDefault('font')]
 
+local actorButton = nil
+local inProgress = false
 local inCombat = false
 local isDraggingLabel = false
 local shouldUpdatePlayerBank = false
@@ -392,27 +394,27 @@ end
 
 function RIC._Group_Manager.sortGroup(simulate)
 	-- Get current raid setup info
-	local idToGroup = {} -- Maps index to group number (if this slot is used)
-	local nameToId = {} -- Maps name to raid index
+	local raidIndexToGroup = {} -- Maps index to group number (if this slot is used)
+	local nameToRaidIndex = {} -- Maps name to raid index
 	local groupSizes = { 0, 0, 0, 0, 0, 0, 0, 0} -- Count number of players in each group
 	for i = 1, 40 do
 		local name, _, subgroup = GetRaidRosterInfo(i) -- TODO Maybe switch to getRaidMembers
 		if name ~= nil then
 			name = RIC.addServerToName(name)
-			nameToId[name] = i
-			idToGroup[i] = subgroup
+			nameToRaidIndex[name] = i
+			raidIndexToGroup[i] = subgroup
 			groupSizes[subgroup] = groupSizes[subgroup] + 1
 		end
 	end
 
 	-- For desired raid setup, get mapping from raid index in sorted group to raid index of that person in current group
 	local missingPlayers = ""
-	local indexMap = {}
+	local posToRaidIndex = {}
 	for currName, targetPos in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 		if (targetPos > 0) then -- This player appears in the group setup
-			local currPos = nameToId[currName]
+			local currPos = nameToRaidIndex[currName]
 			if currPos then -- If this player is in the raid...
-				indexMap[targetPos] = currPos
+				posToRaidIndex[targetPos] = currPos
 			else
 				missingPlayers = missingPlayers .. currName .. ", " -- Player is not in the raid!
 			end
@@ -427,8 +429,8 @@ function RIC._Group_Manager.sortGroup(simulate)
 	for group = 1, 8 do
 		for j = 1, 5 do
 			local index = (group - 1) * 5 + j
-			if (indexMap[index] ~= nil) then
-				idToTargetGroup[indexMap[index]] = group
+			if (posToRaidIndex[index] ~= nil) then
+				idToTargetGroup[posToRaidIndex[index]] = group
 			end
 		end
 	end
@@ -436,10 +438,10 @@ function RIC._Group_Manager.sortGroup(simulate)
 	-- Iterate through raid positions, put people into these positions one after the other
 	for targetGroup = 1, 8 do
 		for j = 1, 5 do
-			local targetIndex = (targetGroup - 1) * 5 + j
-			local currentIndex = indexMap[targetIndex]
+			local targetPos = (targetGroup - 1) * 5 + j -- Target position in the arranged raid to set now (1 to 40)
+			local currentIndex = posToRaidIndex[targetPos] -- Look up raid index of player that should be at the target position
 			if(currentIndex ~= nil) then -- If the person from the group setup is actually in the raid...
-				local currentGroup = idToGroup[currentIndex]
+				local currentGroup = raidIndexToGroup[currentIndex]
 				if (currentGroup == targetGroup) then
 					-- Player is already in the correct group - nothing to do!
 				elseif(groupSizes[targetGroup] < 5) then
@@ -449,7 +451,7 @@ function RIC._Group_Manager.sortGroup(simulate)
 					-- Target group has free slots - just put player there directly
 					SetRaidSubgroup(currentIndex, targetGroup)
 
-					idToGroup[currentIndex] = targetGroup
+					raidIndexToGroup[currentIndex] = targetGroup
 
 					-- Update group sizes
 					groupSizes[currentGroup] = groupSizes[currentGroup] - 1
@@ -463,14 +465,14 @@ function RIC._Group_Manager.sortGroup(simulate)
 
 					local swapped = false
 					for otherId = 1, 40 do
-						if(idToGroup[otherId] == targetGroup and idToTargetGroup[otherId] ~= targetGroup) then
+						if(raidIndexToGroup[otherId] == targetGroup and idToTargetGroup[otherId] ~= targetGroup) then
 							-- Swap groups
 							swapped = true
 							SwapRaidSubgroup(otherId, currentIndex)
 
 							-- Update data structures
-							idToGroup[otherId] = idToGroup[currentIndex]
-							idToGroup[currentIndex] = targetGroup
+							raidIndexToGroup[otherId] = raidIndexToGroup[currentIndex]
+							raidIndexToGroup[currentIndex] = targetGroup
 							break
 						end
 					end
@@ -517,6 +519,10 @@ function RIC._Group_Manager.getArrangeStatus()
 		return "Group_Assign_In_Combat"
 	end
 
+	if inProgress then
+		return "Group_Assign_In_Progress"
+	end
+
 	return "Group_Assign_Is_Not_Arranged"
 end
 
@@ -537,17 +543,32 @@ function RIC._Group_Manager.updateArrangeBox()
 end
 
 function RIC._Group_Manager.rearrangeRaid(actor)
+	actorButton = actor
 	local status = RIC._Group_Manager.getArrangeStatus()
 	if status == "Group_Assign_Is_Not_Arranged" then -- Check to see whether we can start
 		-- Start rearranging!
+		inProgress = true
+		RIC._Group_Manager.updateArrangeBox()
 		if actor == "MinimapButton" then -- Textual feedback in case we use minimap
 			RIC:Print(L["Group_Assign_In_Progress"])
 		end
 		RIC._Group_Manager.sortGroup(false)
+		-- Output results after a delay (wait for WoW to switch players and update the group info)
+		C_Timer.After(0.5, RIC._Group_Manager.finishRearrangeRaid)
+	else
+		RIC._Group_Manager.rearrangeRaidResponse()
 	end
+end
 
-	-- Output results
-	if actor == "MinimapButton" then
+function RIC._Group_Manager.finishRearrangeRaid()
+	-- Triggered some extra time after actually swapping players, to stop the rearrangement phase and output results
+	inProgress = false
+	RIC._Group_Manager.rearrangeRaidResponse()
+end
+
+function RIC._Group_Manager.rearrangeRaidResponse()
+	-- Output results/status after user made OR requested a rearrangement of groups
+	if actorButton == "MinimapButton" then
 		-- Give console feedback since we cant see arrange box when using minimap
 		RIC:Print(L[RIC._Group_Manager.getArrangeStatus()])
 	end
