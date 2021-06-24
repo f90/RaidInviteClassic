@@ -5,19 +5,15 @@ local LSM = LibStub("LibSharedMedia-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
 local DEFAULT_FONT = LSM.MediaTable.font[LSM:GetDefault('font')]
 
-local inCombat = false
-local inSwap = false
-local remoteInSwap = false
-local remoteSender = "NONE"
-local moveCounter = 0
 local actorButton = nil
-
+local inProgress = false
+local inCombat = false
 local isDraggingLabel = false
 local shouldUpdatePlayerBank = false
 
 function RIC:OnEnableGroupview()
 	-- Add event listeners
-	self:RegisterEvent("GROUP_ROSTER_UPDATE", function() RIC._Group_Manager.OnRosterUpdate() end)
+	self:RegisterEvent("GROUP_ROSTER_UPDATE", function() RIC._Group_Manager.updateArrangeBox() end)
 	self:RegisterEvent("PLAYER_REGEN_DISABLED", function() RIC._Group_Manager.onEnterCombat() end)
 	self:RegisterEvent("PLAYER_REGEN_ENABLED", function() RIC._Group_Manager.onExitCombat() end)
 
@@ -139,7 +135,7 @@ function RIC:OnEnableGroupview()
 	self.groups:SetLayout("GroupLayout")
 	self.groups:DoLayout()
 
-	RIC._Group_Manager.OnRosterUpdate()
+	RIC._Group_Manager.updateArrangeBox()
 end
 
 function RIC._Group_Manager.toggle()
@@ -396,152 +392,106 @@ function RIC._Group_Manager.unassignAll()
 	RIC._Group_Manager.draw(true)
 end
 
--- Checks for potential player swaps by comparing current to desired group setup.
--- Returns true if a swap was found and attempted, false otherwise
-local possibleMoves = {}
-local move_sorter = function(a,b)
-	return a[1] < b[1]
-end
-function RIC._Group_Manager.getMove()
-	local raidPlayers = RIC.getRaidMembers()
-	wipe(possibleMoves)
-	-- Go through raid members
-	for name, data in pairs(raidPlayers) do
-		local targetPosition = RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][name]
-		if targetPosition ~= nil then -- If player is not in roster, we ignore that player
-			local currGroup = data["subgroup"]
-			local targetGroup = math.ceil(targetPosition/5)
-			if (targetPosition > 0) and (currGroup ~= targetGroup) then -- Only do something if the player is not in the list of unassigned players and not in the desired group
-				-- Check target group for gplayers
-				local targetGroupSize = 0
-				for otherName, otherData in pairs(raidPlayers) do
-					if otherData["subgroup"] == targetGroup then -- Potential swap partner?
-						local otherTargetPosition = RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][otherName]
-						targetGroupSize = targetGroupSize + 1
-						local move = {cmd="SWAP", fromName=name, from=data["index"], toName=otherName, to=otherData["index"]}
-						if otherTargetPosition ~= nil then -- Swap candidate is also on the roster
-							local otherTargetGroup = math.ceil(otherTargetPosition/5)
-							if otherTargetGroup == currGroup then -- If this person needs to go into the group that we want to move the other player out of, perfect match - priority 1
-								table.insert(possibleMoves, {1, move})
-							elseif otherTargetGroup ~= targetGroup then -- If this person needs to go into another group, but not the ones we swap someone out of, priority 2
-								table.insert(possibleMoves, {3, move})
-							end -- If swap candidate is already in his correct group, dont swap them!
-						else
-							-- Swap candidate is not on the roster - we dont care where to put them, but also dont want to move them around unnecessarily
-							table.insert(possibleMoves,{4, move})
+function RIC._Group_Manager.sortGroup(simulate)
+	-- Get current raid setup info
+	local raidIndexToGroup = {} -- Maps index to group number (if this slot is used)
+	local nameToRaidIndex = {} -- Maps name to raid index
+	local groupSizes = { 0, 0, 0, 0, 0, 0, 0, 0} -- Count number of players in each group
+	for i = 1, 40 do
+		local name, _, subgroup = GetRaidRosterInfo(i) -- TODO Maybe switch to getRaidMembers
+		if name ~= nil then
+			name = RIC.addServerToName(name)
+			nameToRaidIndex[name] = i
+			raidIndexToGroup[i] = subgroup
+			groupSizes[subgroup] = groupSizes[subgroup] + 1
+		end
+	end
+
+	-- For desired raid setup, get mapping from raid index in sorted group to raid index of that person in current group
+	local missingPlayers = ""
+	local posToRaidIndex = {}
+	for currName, targetPos in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
+		if (targetPos > 0) then -- This player appears in the group setup
+			local currPos = nameToRaidIndex[currName]
+			if currPos then -- If this player is in the raid...
+				posToRaidIndex[targetPos] = currPos
+			else
+				missingPlayers = missingPlayers .. currName .. ", " -- Player is not in the raid!
+			end
+		end
+	end
+	if (not simulate) and (string.utf8len(missingPlayers) > 0) then
+		RIC:Print("WARNING: Players " .. missingPlayers .. " can not be assigned to their raid group since they are not in the raid!")
+	end
+
+	-- Check which raid index position needs to be moved to which group
+	local idToTargetGroup = {}
+	for group = 1, 8 do
+		for j = 1, 5 do
+			local index = (group - 1) * 5 + j
+			if (posToRaidIndex[index] ~= nil) then
+				idToTargetGroup[posToRaidIndex[index]] = group
+			end
+		end
+	end
+
+	-- Iterate through raid positions, put people into these positions one after the other
+	for targetGroup = 1, 8 do
+		for j = 1, 5 do
+			local targetPos = (targetGroup - 1) * 5 + j -- Target position in the arranged raid to set now (1 to 40)
+			local currentIndex = posToRaidIndex[targetPos] -- Look up raid index of player that should be at the target position
+			if(currentIndex ~= nil) then -- If the person from the group setup is actually in the raid...
+				local currentGroup = raidIndexToGroup[currentIndex]
+				if (currentGroup == targetGroup) then
+					-- Player is already in the correct group - nothing to do!
+				elseif(groupSizes[targetGroup] < 5) then
+					if simulate then -- If we are checking whether raid is arranged, do nothing and report back
+						return false
+					end
+					-- Target group has free slots - just put player there directly
+					SetRaidSubgroup(currentIndex, targetGroup)
+
+					raidIndexToGroup[currentIndex] = targetGroup
+
+					-- Update group sizes
+					groupSizes[currentGroup] = groupSizes[currentGroup] - 1
+					groupSizes[targetGroup] = groupSizes[targetGroup] + 1
+				else
+					-- Target group full - someone must be there that is NOT in the group setup,
+					-- or in the group setup but in the wrong group, and thus is blocking the spot
+					if simulate then -- If we are checking whether raid is arranged, do nothing and report back
+						return false
+					end
+
+					local swapped = false
+					for otherId = 1, 40 do
+						if(raidIndexToGroup[otherId] == targetGroup and idToTargetGroup[otherId] ~= targetGroup) then
+							-- Swap groups
+							swapped = true
+							SwapRaidSubgroup(otherId, currentIndex)
+
+							-- Update data structures
+							raidIndexToGroup[otherId] = raidIndexToGroup[currentIndex]
+							raidIndexToGroup[currentIndex] = targetGroup
+							break
 						end
 					end
-				end
-				-- If target group is not full, we can also put that player into the target group directly
-				if targetGroupSize < 5 then
-					local move = {cmd="SET", fromName=name, from=data["index"], to=targetGroup}
-					table.insert(possibleMoves, {2, move})
+					assert(swapped) -- It must be possible to swap the desired player into the group since there has to be at least one player that doesn't belong in that group
 				end
 			end
 		end
 	end
-	-- We added all possible moves to the list. Sort it and select highest-priority one. If empty, raid is arranged!
-	if #possibleMoves > 0 then
-		table.sort(possibleMoves, move_sorter)
-		local bestPriority, bestMove = possibleMoves[1][1], possibleMoves[1][2]
-		--if bestMove["cmd"] == "SWAP" then
-		--	print("PRIO " .. tostring(bestPriority) .. ": " .. bestMove["cmd"] .. " Player: " .. bestMove["fromName"] .. ", Target Player: " .. bestMove["toName"])
-		--else
-		--	print("PRIO " .. tostring(bestPriority) .. ": " .. bestMove["cmd"] .. " Player: " .. bestMove["fromName"] .. ", to empty group: " .. bestMove["to"])
-		--end
-		return bestMove
-	else
-		return nil
-	end
-end
 
-function RIC._Group_Manager.move(action)
-	if action.cmd == "SWAP" then
-		SwapRaidSubgroup(action.from, action.to)
-	elseif action.cmd == "SET" then
-		SetRaidSubgroup(action.from, action.to)
-	else
-		RIC:Print("|cFFFF0000ERROR: Move not detected|r")
-	end
-	moveCounter = moveCounter + 1
-end
-
-function RIC._Group_Manager.startSwap()
-	inSwap = true
-	moveCounter = 0
-	RIC._Group_Manager.sendInProgress()
-	RIC._Group_Manager.updateArrangeBox()
-	if actorButton == "MinimapButton" then -- Textual feedback in case we use minimap
-		RIC:Print(L["Group_Assign_In_Progress"])
+	-- End sorting process
+	if (not simulate) then
+		RIC._Group_Manager.flattenGroups()
 	end
 
-	-- Find possible moves and start swapping if there are any
-	local action = RIC._Group_Manager.getMove()
-	if action == nil then -- No swap needed
-		-- Group setup was already correct and we didn't find any swap candidate - stop! In other case, OnRosterUpdate will trigger
-		RIC._Group_Manager.StopSwap()
-	else
-		RIC._Group_Manager.move(action)
-	end
-end
-
-function RIC._Group_Manager.StopSwap()
-	inSwap = false
-	moveCounter = 0
-	RIC._Group_Manager.sendEndProgress()
-	RIC._Group_Manager.flattenGroups()
-	RIC._Group_Manager.updateArrangeBox()
-	if actorButton == "MinimapButton" then
-		-- Give console feedback since we cant see arrange box when using minimap
-		RIC:Print(RIC._Group_Manager.getStatusMessage(RIC._Group_Manager.checkArrangable()))
-	end
-end
-
-function RIC._Group_Manager.OnRosterUpdate()
-	if remoteInSwap then -- Don't do anything if a remote swap is in progress
-		if inSwap then
-			RIC:Print("|cFFFF0000ERROR: Our group swap was interrupted by a remote swap. Stopping...|r")
-			inSwap = false
-			moveCounter = 0
-		end
-		return
-	end
-
-	RIC._Group_Manager.updateArrangeBox()
-
-	if inSwap then
-		-- Stop after too many swaps
-		if moveCounter > 100 then
-			RIC:Print("|cFFFF0000ERROR: Something went wrong, we are still stuck rearranging after 100 swaps. Terminating...|r")
-			RIC._Group_Manager.StopSwap()
-			return
-		end
-
-		-- Check if we can continue swapping
-		local status = RIC._Group_Manager.checkArrangable()
-		if status ~= "Group_Assign_In_Progress" then -- Stop if we have some problem, except if the "problem" is that we are currently swapping
-			--print("STOPPING: " .. L[status])
-			RIC._Group_Manager.StopSwap()
-			return
-		end
-
-		-- Try next swap. If we dont have any swap candidates anymore, stop!
-		local action = RIC._Group_Manager.getMove()
-		if action == nil then
-			--print("NO MOVE FOUND - STOPPING")
-			RIC._Group_Manager.StopSwap()
-		else
-			RIC._Group_Manager.move(action)
-		end
-	end
+	return true
 end
 
 function RIC._Group_Manager.onEnterCombat()
 	inCombat = true
-	if inSwap then
-		RIC:Print(L["Group_Assign_Entered_Combat"])
-		RIC._Group_Manager.StopSwap()
-	end
 	RIC._Group_Manager.updateArrangeBox()
 end
 
@@ -551,12 +501,12 @@ function RIC._Group_Manager.onExitCombat()
 end
 
 -- Checks whether we can currently rearrange the raid, and if not, why. Returns the reason as a status message
-function RIC._Group_Manager.checkArrangable()
+function RIC._Group_Manager.getArrangeStatus()
 	if not IsInRaid() then
 		return "Group_Assign_Not_In_Raid"
 	end
 
-	if RIC._Group_Manager.getMove() == nil then
+	if RIC._Group_Manager.sortGroup(true) then
 		-- Our roster is already arranged as desired!
 		return "Group_Assign_Is_Arranged"
 	end
@@ -565,27 +515,23 @@ function RIC._Group_Manager.checkArrangable()
 		return "Group_Assign_No_Rights"
 	end
 
-	if (InCombatLockdown() == true) or (inCombat == true) then
+	if (InCombatLockdown() == true) or inCombat then
 		return "Group_Assign_In_Combat"
 	end
 
-	if inSwap then
+	if inProgress then
 		return "Group_Assign_In_Progress"
 	end
 
-	if remoteInSwap then
-		return "Group_Assign_In_Progress_Remote"
-	end
-
-	return "Group_Assign_Rearrange"
+	return "Group_Assign_Is_Not_Arranged"
 end
 
 -- Check whether raid is arrangable and set arrange box text accordingly.
 function RIC._Group_Manager.updateArrangeBox()
-	local status = RIC._Group_Manager.checkArrangable()
-	RIC.rearrangeRaid:SetText(RIC._Group_Manager.getStatusMessage(status))
-	if status == "Group_Assign_Rearrange" then
-		-- Rearranging is possible
+	local status = RIC._Group_Manager.getArrangeStatus()
+	RIC.rearrangeRaid:SetText(L[status])
+	if status == "Group_Assign_Is_Not_Arranged" then
+		-- Rearranging is possible, otherwise status would give the reason why it's not possible
 		RIC.rearrangeRaid:SetDisabled(false)
 		RIC.rearrangeRaid.frame:EnableMouse(true)
 		RIC.rearrangeRaid.text:SetTextColor(1.0, 1.0, 1.0)
@@ -596,49 +542,35 @@ function RIC._Group_Manager.updateArrangeBox()
 	end
 end
 
-function RIC._Group_Manager.getStatusMessage(status)
-	if status == "Group_Assign_In_Progress_Remote" then
-		return L[status] .. " " .. remoteSender
-	else
-		return L[status]
-	end
-end
-
 function RIC._Group_Manager.rearrangeRaid(actor)
 	actorButton = actor
-	local status = RIC._Group_Manager.checkArrangable()
-	if status == "Group_Assign_Rearrange" then -- Check to see whether we can start
-		RIC._Group_Manager.startSwap()
-	else
+	local status = RIC._Group_Manager.getArrangeStatus()
+	if status == "Group_Assign_Is_Not_Arranged" then -- Check to see whether we can start
+		-- Start rearranging!
+		inProgress = true
 		RIC._Group_Manager.updateArrangeBox()
-		if actor == "MinimapButton" then -- We initiated this through the minimap button - we need some kind of non-GUI feedback now!
-			RIC:Print(RIC._Group_Manager.getStatusMessage(RIC._Group_Manager.checkArrangable()))
+		if actor == "MinimapButton" then -- Textual feedback in case we use minimap
+			RIC:Print(L["Group_Assign_In_Progress"])
 		end
+		RIC._Group_Manager.sortGroup(false)
+		-- Output results after a delay (wait for WoW to switch players and update the group info)
+		C_Timer.After(0.5, RIC._Group_Manager.finishRearrangeRaid)
+	else
+		RIC._Group_Manager.rearrangeRaidResponse()
 	end
 end
 
-function RIC._Group_Manager.sendInProgress()
-	local message = {
-		key = "SWAP_IN_PROGRESS",
-	}
-	RIC.SendComm(message,"RAID")
+function RIC._Group_Manager.finishRearrangeRaid()
+	-- Triggered some extra time after actually swapping players, to stop the rearrangement phase and output results
+	inProgress = false
+	RIC._Group_Manager.rearrangeRaidResponse()
 end
 
-function RIC._Group_Manager.sendEndProgress()
-	local message = {
-		key = "SWAP_END",
-	}
-	RIC.SendComm(message,"RAID")
-end
-
-function RIC._Group_Manager.receiveInProgress(sender)
-	remoteInSwap = true
-	remoteSender = sender
-	RIC._Group_Manager.updateArrangeBox()
-end
-
-function RIC._Group_Manager.receiveEndProgress()
-	remoteInSwap = false
-	remoteSender = "NONE"
+function RIC._Group_Manager.rearrangeRaidResponse()
+	-- Output results/status after user made OR requested a rearrangement of groups
+	if actorButton == "MinimapButton" then
+		-- Give console feedback since we cant see arrange box when using minimap
+		RIC:Print(L[RIC._Group_Manager.getArrangeStatus()])
+	end
 	RIC._Group_Manager.updateArrangeBox()
 end
