@@ -85,7 +85,9 @@ function RIC._Import_Manager.importRoster(rosterString)
 		end
 		if string.utf8len(char_name) > 1 and string.utf8len(char_name) < 13 then -- Char names in WoW need to be between 2 and 12 (inclusive) chars long
 			if i <= 40 and useGroupPositions then -- Use group positions for first 40 raiders?
-				newList[name] = i
+				if not newList[name] then -- If we encounter a duplicate, don't reset the first position we found
+					newList[name] = i
+				end
 			else
 				newList[name] = 0
 			end
