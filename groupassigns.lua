@@ -150,7 +150,7 @@ function RIC._Group_Manager.toggle()
 end
 
 local groupNames = {}
-function RIC._Group_Manager.flattenGroups() -- TODO: Called OnUpdate
+function RIC._Group_Manager.flattenGroups()
 	wipe(groupNames)
 	for name, position in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 		if position > 0 then
@@ -245,7 +245,7 @@ function RIC._Group_Manager.assignGroupLabelFunctionality(label)
 	end)
 end
 
-function RIC._Group_Manager.draw(rosterChanged) -- TODO: Called OnUpdate
+function RIC._Group_Manager.draw(rosterChanged)
 	RIC._Group_Manager.showPlayerBank()
 	RIC._Group_Manager.flattenGroups()
 	if rosterChanged then
@@ -282,7 +282,7 @@ function RIC._Group_Manager.drawGroupLabels()
 end
 
 
-function RIC._Group_Manager.showPlayerBank() -- TODO: Called OnUpdate
+function RIC._Group_Manager.showPlayerBank()
 	if isDraggingLabel then
 		shouldUpdatePlayerBank = true
 		return

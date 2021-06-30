@@ -18,7 +18,7 @@ do
 	LD:Register(RIC._Durability_Manager, processPlayerDurability)
 end
 
-function RIC._Durability_Manager.checkDurabilities() -- TODO: Called OnUpdate
+function RIC._Durability_Manager.checkDurabilities()
 	local raidMembers = RIC.getRaidMembers()-- Get current list of raid members
 	-- Go through all players that joined and might still need a warning
 	for player,_ in pairs(playersNeedWarning) do

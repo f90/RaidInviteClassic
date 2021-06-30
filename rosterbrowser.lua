@@ -20,7 +20,7 @@ local classFreq = {}
 local tooltipRow = nil
 local tooltipActive = false
 
-function RIC._Roster_Browser.buildRosterRaidList() -- TODO: Called OnUpdate
+function RIC._Roster_Browser.buildRosterRaidList()
 	-- Get current guild info
 	-- Checks guild member list for people who JUST came online.
 	-- In that case, set their invite status to NOT_INVITED since they cannot have a pending invitation,
@@ -274,7 +274,7 @@ function RIC._Roster_Browser.quickScroll(self, delta)
 	end
 end
 
-function RIC._Roster_Browser.sendInvites() -- TODO: Called OnUpdate
+function RIC._Roster_Browser.sendInvites()
 	if invitePhaseActive then
 		local raidMembers = RIC.getRaidMembers()
 		local guildMembers = RIC._Guild_Manager.getGuildMembers() -- Retrieve this so invite function can check if people are online
@@ -283,22 +283,21 @@ function RIC._Roster_Browser.sendInvites() -- TODO: Called OnUpdate
 		for name,_ in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 			-- Check if already in raid group
 			if raidMembers[name] == nil then
+				local status = inviteStatusList[name]
 				-- If not in raid group, check if we already invited that person or not
-				if (inviteStatusList[name] == nil) or (inviteStatusList[name] == RIC.InviteStatus["NOT_INVITED"]) then
-					-- Not invited before. Could have been in group and then left though, so check last invite date in case its there
-					if (inviteTimeList[name] == nil) or ((time() - inviteTimeList[name]) > RIC.db.profile.InviteInterval) then
+				if status == nil or status == RIC.InviteStatus["NOT_INVITED"] or status == RIC.InviteStatus["INVITE_FAILED"] then
+					-- Not invited before, or person left the group, or last invite failed
+					-- -> Check if its time to reinvite based on InviteInterval
+					if (inviteTimeList[name] == nil) or
+							(RIC.db.profile.InviteIntervalActive and ((time() - inviteTimeList[name]) > RIC.db.profile.InviteInterval)) then
+						-- Person was never invited, or last invite was too long ago - invite!
 						RIC._Roster_Browser.invite(name, false, guildMembers)
 					end
-				elseif inviteStatusList[name] == RIC.InviteStatus["INVITE_PENDING"] then
+				elseif status == RIC.InviteStatus["INVITE_PENDING"] then
 					-- Check for how long invite was pending, if its too long set to failed
 					if (time() - inviteTimeList[name]) > 61 then -- After 60s, invite expires when not accepted or declined, so invite failed
 						inviteStatusList[name] = RIC.InviteStatus["INVITE_FAILED"]
 						inviteStatusInfoList[name] = {time(), L["Invite_Failed_Expired"]}
-					end
-				elseif inviteStatusList[name] == RIC.InviteStatus["INVITE_FAILED"] then
-					-- Check last invite time, if longer than invite frequency, try inviting again!
-					if (inviteTimeList[name] == nil) or ((time() - inviteTimeList[name]) > RIC.db.profile.InviteInterval) then
-						RIC._Roster_Browser.invite(name, false, guildMembers)
 					end
 				end
 			end
@@ -601,7 +600,7 @@ function RIC._Roster_Browser.showPlayerTooltip(rowElement, rowNum)
 	RIC._Roster_Browser.setPlayerTooltip()
 end
 
-function RIC._Roster_Browser.setPlayerTooltip() -- TODO: Called OnUpdate
+function RIC._Roster_Browser.setPlayerTooltip()
 	if not tooltipActive then
 		return
 	end
@@ -641,7 +640,10 @@ function RIC._Roster_Browser.setPlayerTooltip() -- TODO: Called OnUpdate
 				GameTooltip:AddLine("|cFFFFFFFFStatus:|r " .. details[2] .. " (" .. date("%H:%M:%S", details[1]) .. ")") -- Show time and detail of last event
 			end
 			-- If there was a previous invite attempt, but player still not in raid, show when we plan to try inviting the next time
-			if invitePhaseActive and inviteTimeList[theName] ~= nil and raidMembers[theName] == nil then
+			if invitePhaseActive and
+					RIC.db.profile.InviteIntervalActive and
+					inviteTimeList[theName] ~= nil and
+					raidMembers[theName] == nil then
 				GameTooltip:AddLine("|cFFFFFFFFNext invite attempt in:|r " ..  inviteTimeList[theName]+RIC.db.profile.InviteInterval-time() .. " seconds (" ..
 						date("%H:%M:%S", inviteTimeList[theName]+RIC.db.profile.InviteInterval) .. ")")
 			end

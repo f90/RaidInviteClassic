@@ -10,10 +10,50 @@ function RIC.getOptions()
 				name = "General",
 				type = "group",
 				args = {
+					invitebreak = {
+						name = "Invites",
+						type = "header",
+						order = 0,
+					},
+
+					sendinvites = {
+						name = "Send invites",
+						desc = "Activate to send out invites during the invite phase. If deactivated, players MUST be manually invited or invite themselves using a whisper keyword!",
+						type = "toggle",
+						order = 5,
+						width = "full",
+						set = function(info, val)
+							RIC.db.profile.SendInvites = val;
+							if val == false then
+								RIC.db.profile.InviteIntervalActive = false
+							end
+						end,
+						get = function(info)
+							return RIC.db.profile.SendInvites
+						end
+					},
+
+					inviteintervalactive = {
+						name = "Periodic invites:",
+						desc = "Activate to send out invites regularly during the invite phase, to all people still missing after starting the invite phase. If deactivated, invites are only sent out once for each player",
+						type = "toggle",
+						order = 10,
+						set = function(info, val)
+							RIC.db.profile.InviteIntervalActive = val;
+						end,
+						get = function(info)
+							return RIC.db.profile.InviteIntervalActive
+						end,
+						disabled = function()
+							return (not RIC.db.profile.SendInvites)
+						end,
+					},
+
 					inviteinterval = {
 						name = "Invite interval (seconds)",
 						desc = "How often invites are sent out to those not in the raid yet. Lower times means people wait less for an invite, but they will get a lot of invite requests and possibly warnings.",
 						type = "range",
+						order = 11,
 						min = 70.0,
 						max = 1500,
 						set = function(info, val)
@@ -21,13 +61,23 @@ function RIC.getOptions()
 						end,
 						get = function(info)
 							return RIC.db.profile.InviteInterval
-						end
+						end,
+						disabled = function()
+							return not (RIC.db.profile.InviteIntervalActive and RIC.db.profile.SendInvites)
+						end,
+					},
+
+					otherbreak = {
+						name = "Other settings",
+						type = "header",
+						order = 30,
 					},
 
 					masterlooter = {
-						name = "Enable master looter",
+						name = "Set to master looter",
 						desc = "Set raid to master looter when starting the invite phase",
 						type = "toggle",
+						order = 35,
 						set = function(info, val)
 							RIC.db.profile.MasterLooter = val;
 						end,
@@ -381,6 +431,8 @@ function RIC.getOptions()
 			ShowOffline = true,
 			DisplayRanks = {true, true, true, true, true, true, true, true, true, true},
 
+			SendInvites = true,
+			InviteIntervalActive = true,
 			InviteInterval = 120.0,
 			ShowCharRealms = false
         },
