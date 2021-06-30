@@ -5,11 +5,11 @@ from zipfile import ZipFile
 OUTPUT_FOLDER = "zips"
 VERSIONS = ["BCC", "Classic", "Mainline"]
 
-def zip_files(file_paths, output_path):
+def zip_files(file_paths, output_path, subfolder=""):
     with ZipFile(output_path, 'w') as zip:
         # writing each file one by one
         for file in file_paths:
-            zip.write(file)
+            zip.write(file, os.path.join(subfolder, file))
 
 # Prepare output directory
 if not os.path.exists("zips"):
@@ -48,4 +48,4 @@ for version in VERSIONS:
     os.rename(tmp_toc_path, main_toc_path)
 
     # Zip everything
-    zip_files(files, os.path.join(OUTPUT_FOLDER, "RaidInviteClassic-" + version + ".zip"))
+    zip_files(files, os.path.join(OUTPUT_FOLDER, "RaidInviteClassic-" + version + ".zip"), "RaidInviteClassic")
