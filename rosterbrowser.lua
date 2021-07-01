@@ -280,16 +280,17 @@ function RIC._Roster_Browser.sendInvites()
 		local guildMembers = RIC._Guild_Manager.getGuildMembers() -- Retrieve this so invite function can check if people are online
 
 		-- Go through roster list, invite players not yet in raid, update invite status
-		for name,_ in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
+		for name, groupPos in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 			-- Check if already in raid group
 			if raidMembers[name] == nil then
 				local status = inviteStatusList[name]
 				-- If not in raid group, check if we already invited that person or not
 				if status == nil or status == RIC.InviteStatus["NOT_INVITED"] or status == RIC.InviteStatus["INVITE_FAILED"] then
 					-- Not invited before, or person left the group, or last invite failed
-					-- -> Check if its time to reinvite based on InviteInterval
-					if (inviteTimeList[name] == nil) or
-							(RIC.db.profile.InviteIntervalActive and ((time() - inviteTimeList[name]) > RIC.db.profile.InviteInterval)) then
+					-- -> Check if its time to reinvite based on InviteInterval and whether we invite ungrouped players
+					local inviteCheck = (inviteTimeList[name] == nil) or (RIC.db.profile.InviteIntervalActive and ((time() - inviteTimeList[name]) > RIC.db.profile.InviteInterval))
+					inviteCheck = inviteCheck and (RIC.db.profile.InviteUngrouped or (groupPos > 0))
+					if inviteCheck then
 						-- Person was never invited, or last invite was too long ago - invite!
 						RIC._Roster_Browser.invite(name, false, guildMembers)
 					end

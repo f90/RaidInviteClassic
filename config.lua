@@ -67,6 +67,23 @@ function RIC.getOptions()
 						end,
 					},
 
+					inviteungrouped = {
+						name = "Invite ungrouped",
+						desc = "Disable to prevent sending any invites to people on the roster list that are NOT assigned to any group (viewed as bench players)",
+						type = "toggle",
+						order = 15,
+						set = function(info, val)
+							RIC.db.profile.InviteUngrouped = val;
+						end,
+						get = function(info)
+							return RIC.db.profile.InviteUngrouped
+						end,
+						disabled = function()
+							return (not RIC.db.profile.SendInvites)
+						end,
+					},
+
+
 					otherbreak = {
 						name = "Other settings",
 						type = "header",
@@ -434,6 +451,7 @@ function RIC.getOptions()
 			SendInvites = true,
 			InviteIntervalActive = true,
 			InviteInterval = 120.0,
+			InviteUngrouped = true,
 			ShowCharRealms = false
         },
 
