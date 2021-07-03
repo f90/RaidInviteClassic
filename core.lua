@@ -190,7 +190,7 @@ function addon:CHAT_MSG_WHISPER(event, msg, author, ...)
 	if author ~= nil then -- For some reason this can be nil sometimes?
 		RIC._Roster_Browser.inviteWhisper(RIC.addServerToName(author), msg)
 	else
-		addon:Print(L["Whisper_Author_Unknown"])
+		addon:Print(RIC.db.profile.Lp["Whisper_Author_Unknown"])
 	end
 end
 
@@ -228,8 +228,10 @@ function RIC.RIC_OnUpdate()
 	-- Trigger durability checks for all raid members and send warnings if they have joined the raid
 	RIC._Durability_Manager.checkDurabilities()
 
-	-- Handle roster invites
-	RIC._Roster_Browser.sendInvites()
+	-- Handle roster invites, if invites are activated
+	if RIC.db.profile.SendInvites then
+		RIC._Roster_Browser.sendInvites()
+	end
 
 	-- Update guild and roster views
 	if RIC_MainFrame:IsVisible() then

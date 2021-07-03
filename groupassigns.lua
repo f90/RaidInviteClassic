@@ -103,7 +103,7 @@ function RIC:OnEnableGroupview()
 	self.unassignAll:SetCallback("OnClick", function() RIC._Group_Manager.unassignAll() end)
 
 	self.rearrangeRaid = AceGUI:Create("Button")
-	self.rearrangeRaid:SetText(L["Group_Assign_Rearrange"])
+	self.rearrangeRaid:SetText(RIC.db.profile.Lp["Group_Assign_Rearrange"])
 	self.rearrangeRaid:SetCallback("OnClick", function() RIC._Group_Manager.rearrangeRaid() end)
 
 	AceGUI:RegisterLayout("GroupLayout", function()
@@ -150,7 +150,7 @@ function RIC._Group_Manager.toggle()
 end
 
 local groupNames = {}
-function RIC._Group_Manager.flattenGroups() -- TODO: Called OnUpdate
+function RIC._Group_Manager.flattenGroups()
 	wipe(groupNames)
 	for name, position in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 		if position > 0 then
@@ -245,7 +245,7 @@ function RIC._Group_Manager.assignGroupLabelFunctionality(label)
 	end)
 end
 
-function RIC._Group_Manager.draw(rosterChanged) -- TODO: Called OnUpdate
+function RIC._Group_Manager.draw(rosterChanged)
 	RIC._Group_Manager.showPlayerBank()
 	RIC._Group_Manager.flattenGroups()
 	if rosterChanged then
@@ -282,7 +282,7 @@ function RIC._Group_Manager.drawGroupLabels()
 end
 
 
-function RIC._Group_Manager.showPlayerBank() -- TODO: Called OnUpdate
+function RIC._Group_Manager.showPlayerBank()
 	if isDraggingLabel then
 		shouldUpdatePlayerBank = true
 		return
@@ -529,7 +529,7 @@ end
 -- Check whether raid is arrangable and set arrange box text accordingly.
 function RIC._Group_Manager.updateArrangeBox()
 	local status = RIC._Group_Manager.getArrangeStatus()
-	RIC.rearrangeRaid:SetText(L[status])
+	RIC.rearrangeRaid:SetText(RIC.db.profile.Lp[status])
 	if status == "Group_Assign_Is_Not_Arranged" then
 		-- Rearranging is possible, otherwise status would give the reason why it's not possible
 		RIC.rearrangeRaid:SetDisabled(false)
@@ -550,7 +550,7 @@ function RIC._Group_Manager.rearrangeRaid(actor)
 		inProgress = true
 		RIC._Group_Manager.updateArrangeBox()
 		if actor == "MinimapButton" then -- Textual feedback in case we use minimap
-			RIC:Print(L["Group_Assign_In_Progress"])
+			RIC:Print(RIC.db.profile.Lp["Group_Assign_In_Progress"])
 		end
 		RIC._Group_Manager.sortGroup(false)
 		-- Output results after a delay (wait for WoW to switch players and update the group info)
@@ -570,7 +570,7 @@ function RIC._Group_Manager.rearrangeRaidResponse()
 	-- Output results/status after user made OR requested a rearrangement of groups
 	if actorButton == "MinimapButton" then
 		-- Give console feedback since we cant see arrange box when using minimap
-		RIC:Print(L[RIC._Group_Manager.getArrangeStatus()])
+		RIC:Print(RIC.db.profile.Lp[RIC._Group_Manager.getArrangeStatus()])
 	end
 	RIC._Group_Manager.updateArrangeBox()
 end

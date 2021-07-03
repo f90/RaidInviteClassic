@@ -11,6 +11,7 @@ local selectedList = {}
 
 -- Invite handling
 local invitePhaseActive = false
+local invitePhaseStartTime = nil
 local inviteStatusList = {}
 local inviteStatusInfoList = {}
 local inviteTimeList = {}
@@ -20,7 +21,7 @@ local classFreq = {}
 local tooltipRow = nil
 local tooltipActive = false
 
-function RIC._Roster_Browser.buildRosterRaidList() -- TODO: Called OnUpdate
+function RIC._Roster_Browser.buildRosterRaidList()
 	-- Get current guild info
 	-- Checks guild member list for people who JUST came online.
 	-- In that case, set their invite status to NOT_INVITED since they cannot have a pending invitation,
@@ -32,13 +33,13 @@ function RIC._Roster_Browser.buildRosterRaidList() -- TODO: Called OnUpdate
 		if data["justCameOnline"] == true then
 			-- This player just came online - reset their invite status!
 			inviteStatusList[name] = RIC.InviteStatus["NOT_INVITED"]
-			inviteStatusInfoList[name] = {time(), L["Guild_Member_Came_Online"]}
+			inviteStatusInfoList[name] = {time(), RIC.db.profile.Lp["Guild_Member_Came_Online"]}
 			inviteTimeList[name] = nil -- Doesn't matter when we last invited that person since they just logged in
 			RIC._Guild_Manager.resetCameOnlineFlag(name)
 		end
 		if data["justWentOffline"] == true then
 			-- This player just went offline - update status information
-			inviteStatusInfoList[name] = {time(), L["Guild_Member_Went_Offline"]}
+			inviteStatusInfoList[name] = {time(), RIC.db.profile.Lp["Guild_Member_Went_Offline"]}
 			RIC._Guild_Manager.resetWentOfflineFlag(name)
 		end
 	end
@@ -274,31 +275,32 @@ function RIC._Roster_Browser.quickScroll(self, delta)
 	end
 end
 
-function RIC._Roster_Browser.sendInvites() -- TODO: Called OnUpdate
-	if invitePhaseActive then
+function RIC._Roster_Browser.sendInvites()
+	if invitePhaseActive and (time() - invitePhaseStartTime > RIC.db.profile.InviteDelay) then
 		local raidMembers = RIC.getRaidMembers()
 		local guildMembers = RIC._Guild_Manager.getGuildMembers() -- Retrieve this so invite function can check if people are online
 
 		-- Go through roster list, invite players not yet in raid, update invite status
-		for name,_ in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
+		for name, groupPos in pairs(RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster]) do
 			-- Check if already in raid group
 			if raidMembers[name] == nil then
+				local status = inviteStatusList[name]
 				-- If not in raid group, check if we already invited that person or not
-				if (inviteStatusList[name] == nil) or (inviteStatusList[name] == RIC.InviteStatus["NOT_INVITED"]) then
-					-- Not invited before. Could have been in group and then left though, so check last invite date in case its there
-					if (inviteTimeList[name] == nil) or ((time() - inviteTimeList[name]) > RIC.db.profile.InviteInterval) then
+				if status == nil or status == RIC.InviteStatus["NOT_INVITED"] or status == RIC.InviteStatus["INVITE_FAILED"] then
+					-- Not invited before, or person left the group, or last invite failed
+					-- -> Check if its time to reinvite based on InviteInterval and whether we invite ungrouped players
+					local inviteCheck = (inviteTimeList[name] == nil) -- Definitely invite if not invited before
+					inviteCheck = inviteCheck or (RIC.db.profile.InviteIntervalActive and ((time() - inviteTimeList[name]) > RIC.db.profile.InviteInterval)) -- Invite if last invite was too long ago
+					inviteCheck = inviteCheck and (RIC.db.profile.InviteUngrouped or (groupPos > 0)) -- If we don't invite ungrouped players, definitely don't invite those
+					if inviteCheck then
+						-- Person was never invited, or last invite was too long ago - invite!
 						RIC._Roster_Browser.invite(name, false, guildMembers)
 					end
-				elseif inviteStatusList[name] == RIC.InviteStatus["INVITE_PENDING"] then
+				elseif status == RIC.InviteStatus["INVITE_PENDING"] then
 					-- Check for how long invite was pending, if its too long set to failed
 					if (time() - inviteTimeList[name]) > 61 then -- After 60s, invite expires when not accepted or declined, so invite failed
 						inviteStatusList[name] = RIC.InviteStatus["INVITE_FAILED"]
-						inviteStatusInfoList[name] = {time(), L["Invite_Failed_Expired"]}
-					end
-				elseif inviteStatusList[name] == RIC.InviteStatus["INVITE_FAILED"] then
-					-- Check last invite time, if longer than invite frequency, try inviting again!
-					if (inviteTimeList[name] == nil) or ((time() - inviteTimeList[name]) > RIC.db.profile.InviteInterval) then
-						RIC._Roster_Browser.invite(name, false, guildMembers)
+						inviteStatusInfoList[name] = {time(), RIC.db.profile.Lp["Invite_Failed_Expired"]}
 					end
 				end
 			end
@@ -326,7 +328,7 @@ function RIC._Roster_Browser.inviteWhisper(author, msg)
 
 		-- Check if we are currently allowing invite requests
 		if RIC.db.profile.CodewordOnlyDuringInvite and (not invitePhaseActive) then
-			RIC.SendChatMessage(L["Codewords_Invite_Phase"], "WHISPER", nil, author)
+			RIC.SendChatMessage(RIC.db.profile.Lp["Codewords_Invite_Phase"], "WHISPER", nil, author)
 			return
 		end
 
@@ -339,14 +341,14 @@ function RIC._Roster_Browser.inviteWhisper(author, msg)
 
 		-- Check if author is in rosterList, otherwise deny request (send whisper back to person)
 		if RIC.db.profile.RosterWhispersOnly and (RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][author] == nil) then
-			RIC.SendChatMessage(L["Codewords_Not_In_Roster"], "WHISPER", nil, author)
+			RIC.SendChatMessage(RIC.db.profile.Lp["Codewords_Not_In_Roster"], "WHISPER", nil, author)
 			return
 		end
 
 		-- Check if person is guild member
 		if RIC.db.profile.GuildWhispersOnly then
 			if guildMembers[author] == nil then
-				RIC.SendChatMessage(L["Codewords_Not_In_Guild"], "WHISPER", nil, author)
+				RIC.SendChatMessage(RIC.db.profile.Lp["Codewords_Not_In_Guild"], "WHISPER", nil, author)
 				return
 			end
 		end
@@ -367,7 +369,7 @@ function RIC._Roster_Browser.invite(person, reactive, guildMembers)
 	local raidMembers = RIC.getRaidMembers()
 	if raidMembers[person] ~= nil then
 		if reactive then -- If we invite based on whisper, tell player he is already in the raid!
-			RIC.SendChatMessage(L["Codewords_Already_In_Raid"], "WHISPER", nil, person)
+			RIC.SendChatMessage(RIC.db.profile.Lp["Codewords_Already_In_Raid"], "WHISPER", nil, person)
 		end
 		return
 	end
@@ -376,12 +378,12 @@ function RIC._Roster_Browser.invite(person, reactive, guildMembers)
 	if RIC.tabLength(raidMembers) >= MAX_RAID_MEMBERS then
 		if reactive then
 			-- React to whisper that the raid is full, but dont change any invite status
-			RIC.SendChatMessage(L["Codewords_Raid_Full"], "WHISPER", nil, person)
-			inviteStatusInfoList[person] = {time(), L["Invite_Whisper_Failed_Raid_Full"]}
+			RIC.SendChatMessage(RIC.db.profile.Lp["Codewords_Raid_Full"], "WHISPER", nil, person)
+			inviteStatusInfoList[person] = {time(), RIC.db.profile.Lp["Invite_Whisper_Failed_Raid_Full"]}
 		else
 			-- Our invite failed because the raid was full - dont try again for now
 			inviteStatusList[person] = RIC.InviteStatus["INVITE_FAILED"]
-			inviteStatusInfoList[person] = {time(), L["Invite_Failed_Raid_Full"]}
+			inviteStatusInfoList[person] = {time(), RIC.db.profile.Lp["Invite_Failed_Raid_Full"]}
 			inviteTimeList[person] = time()
 		end
 		return
@@ -393,7 +395,7 @@ function RIC._Roster_Browser.invite(person, reactive, guildMembers)
 		if (guildMembers[person] ~= nil) and (not guildMembers[person]["online"]) then
 			-- Invite for this person will fail because they are offline - dont invite, instead record invite attempt time and set to failed invite status
 			inviteStatusList[person] = RIC.InviteStatus["INVITE_FAILED"]
-			inviteStatusInfoList[person] = {time(), L["Invite_Skipped_Not_Online"]}
+			inviteStatusInfoList[person] = {time(), RIC.db.profile.Lp["Invite_Skipped_Not_Online"]}
 			inviteTimeList[person] = time()
 			return
 		end
@@ -411,19 +413,19 @@ function RIC._Roster_Browser.invite(person, reactive, guildMembers)
 		if IsInRaid() or ((num_possible_invites_in_group - RIC.countFrequency(inviteStatusList, RIC.InviteStatus["INVITE_PENDING"])) > 0) then
 			InviteUnit(person)
 			inviteStatusList[person] = RIC.InviteStatus["INVITE_PENDING"]
-			inviteStatusInfoList[person] = {time(), L["Invite_Pending"]}
+			inviteStatusInfoList[person] = {time(), RIC.db.profile.Lp["Invite_Pending"]}
 			inviteTimeList[person] = time()
 		else
 			-- Only reason we did not invite this person now is because our group doesnt allow more invites right now
 			-- Try in a few secs again, so pretend we never tried to invite in the first place
 			inviteStatusList[person] = RIC.InviteStatus["NOT_INVITED"]
-			inviteStatusInfoList[person] = {time(), L["Not_Invited_Converting_Raid"]}
+			inviteStatusInfoList[person] = {time(), RIC.db.profile.Lp["Not_Invited_Converting_Raid"]}
 			inviteTimeList[person] = nil
 		end
 	else
 		-- If we react to whisper, tell the person we cant invite them
 		if reactive then
-			RIC.SendChatMessage(L["Codewords_Invite_Rights"], "WHISPER", nil, person)
+			RIC.SendChatMessage(RIC.db.profile.Lp["Codewords_Invite_Rights"], "WHISPER", nil, person)
 		end
 	end
 end
@@ -448,10 +450,10 @@ function RIC._Roster_Browser.processSystemMessage(msg)
 		if raidMembers[playerName] == nil then
 			-- Set invite status
 			inviteStatusList[playerName] = RIC.InviteStatus["INVITE_FAILED"]
-			inviteStatusInfoList[playerName] = {time(), L["Invite_Failed_Already_In_Group"]}
+			inviteStatusInfoList[playerName] = {time(), RIC.db.profile.Lp["Invite_Failed_Already_In_Group"]}
 			inviteTimeList[playerName] = time() -- We sent the invite just now, so save current time as last time we attempted invite
 			if invitePhaseActive then -- Only notify if we are in the invite phase
-				RIC.SendChatMessage(L["Already_In_Group"], "WHISPER", nil, playerName)
+				RIC.SendChatMessage(RIC.db.profile.Lp["Already_In_Group"], "WHISPER", nil, playerName)
 			end
 		end
 	elseif RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_JOINED_GROUP_S) then -- Player joined group
@@ -472,45 +474,45 @@ function RIC._Roster_Browser.processSystemMessage(msg)
 
 		-- Update invite status
 		inviteStatusList[playerName] = nil
-		inviteStatusInfoList[playerName] = {time(), L["Player_Joined"]}
+		inviteStatusInfoList[playerName] = {time(), RIC.db.profile.Lp["Player_Joined"]}
 	elseif RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_RAID_MEMBER_ADDED_S) then -- Player joined raid group
 		local playerName = RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_RAID_MEMBER_ADDED_S)
 		RIC._Durability_Manager.setPlayerWarning(playerName) -- Set this player to be flagged for durability check soon
 
 		-- Update invite status
 		inviteStatusList[playerName] = nil
-		inviteStatusInfoList[playerName] = {time(), L["Player_Joined"]}
+		inviteStatusInfoList[playerName] = {time(), RIC.db.profile.Lp["Player_Joined"]}
 	elseif RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_LEFT_GROUP_S) then -- Player left group
 		local playerName = RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_LEFT_GROUP_S)
 		-- Set invite status
 		inviteStatusList[playerName] = RIC.InviteStatus["NOT_INVITED"]
-		inviteStatusInfoList[playerName] = {time(), L["Player_Left"]}
+		inviteStatusInfoList[playerName] = {time(), RIC.db.profile.Lp["Player_Left"]}
 		inviteTimeList[playerName] = time() -- Act as if we just tried to invite him, to prevent from instant re-invite
 	elseif RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_RAID_MEMBER_REMOVED_S) then -- Player left raid group
 		local playerName = RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_RAID_MEMBER_REMOVED_S)
 		-- Set invite status
 		inviteStatusList[playerName] = RIC.InviteStatus["NOT_INVITED"]
-		inviteStatusInfoList[playerName] = {time(), L["Player_Left"]}
+		inviteStatusInfoList[playerName] = {time(), RIC.db.profile.Lp["Player_Left"]}
 		inviteTimeList[playerName] = time() -- Act as if we just tried to invite him, to prevent from instant re-invite
 	elseif RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_INVITE_PLAYER_S) then -- sent Valid Invitation
 		local playerName = RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_INVITE_PLAYER_S)
 		-- Set invite status
 		inviteStatusList[playerName] = RIC.InviteStatus["INVITE_PENDING"]
-		inviteStatusInfoList[playerName] = {time(), L["Invite_Pending"]}
+		inviteStatusInfoList[playerName] = {time(), RIC.db.profile.Lp["Invite_Pending"]}
 		-- dont need to do anything else - we assume its valid except if we get an error. time was already set when we triggered the invite
 	elseif RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_BAD_PLAYER_NAME_S) then -- Player was not online
 		local playerName = RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_BAD_PLAYER_NAME_S)
 		-- Set invite status
 		inviteStatusList[playerName] = RIC.InviteStatus["INVITE_FAILED"]
-		inviteStatusInfoList[playerName] = {time(), L["Invite_Failed_Not_Online"]}
+		inviteStatusInfoList[playerName] = {time(), RIC.db.profile.Lp["Invite_Failed_Not_Online"]}
 	elseif RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_DECLINE_GROUP_S) then -- Player declined invitation
 		local playerName = RIC._Roster_Browser.parseNameFromSystemMessage(msg, ERR_DECLINE_GROUP_S)
 		inviteStatusList[playerName] = RIC.InviteStatus["INVITE_FAILED"]
 		-- Check the invite time. If its about 60s ago, we assume the invite expired, otherwise it was declined
 		if inviteTimeList[playerName] and (time() - inviteTimeList[playerName] >= 59) then
-			inviteStatusInfoList[playerName] = {time(), L["Invite_Failed_Expired"]}
+			inviteStatusInfoList[playerName] = {time(), RIC.db.profile.Lp["Invite_Failed_Expired"]}
 		else
-			inviteStatusInfoList[playerName] = {time(), L["Invite_Failed_Declined"]}
+			inviteStatusInfoList[playerName] = {time(), RIC.db.profile.Lp["Invite_Failed_Declined"]}
 		end
 	elseif string.find(msg, ERR_LEFT_GROUP_YOU) or string.find(msg, ERR_RAID_YOU_LEFT) then -- You left group/raid - reset state
 		wipe(inviteStatusList)
@@ -539,11 +541,14 @@ function RIC._Roster_Browser.startInvitePhase()
 	local raidMembers = RIC.getRaidMembers()
 	if not invitePhaseActive then -- Check if invite phase was disabled before, otherwise do nothing
 		if ((RIC.tabLength(raidMembers)==0) or UnitIsGroupLeader("player")) then -- CHeck that we are alone or a raid/group leader
+			-- START INVITE PHASE
+
 			-- Reset variables that remember who was invited/declined invite and when
 			wipe(inviteStatusList)
 			wipe(inviteTimeList)
 
 			invitePhaseActive = true
+			invitePhaseStartTime = time()
 
 			-- Change text of button
 			_G["RIC_SendMassInvites".."Text"]:SetText("Stop invites")
@@ -553,7 +558,7 @@ function RIC._Roster_Browser.startInvitePhase()
 
 			-- Notify via guild message
 			if RIC.db.profile.NotifyInvitePhaseStart then
-				RIC.SendChatMessage(L["Invite_Start"] ,"GUILD" ,nil ,nil)
+				RIC.SendChatMessage(RIC.db.profile.Lp["Invite_Start"] ,"GUILD" ,nil ,nil)
 			end
 
 			-- Notify codewords via guild
@@ -578,7 +583,7 @@ function RIC._Roster_Browser.endInvitePhase()
 
 		-- Notify via guild message
 		if RIC.db.profile.NotifyInvitePhaseEnd then
-			RIC.SendChatMessage(L["Invite_End"] ,"GUILD", nil ,nil)
+			RIC.SendChatMessage(RIC.db.profile.Lp["Invite_End"] ,"GUILD", nil ,nil)
 		end
 
 		-- Notify codewords via guild
@@ -601,7 +606,7 @@ function RIC._Roster_Browser.showPlayerTooltip(rowElement, rowNum)
 	RIC._Roster_Browser.setPlayerTooltip()
 end
 
-function RIC._Roster_Browser.setPlayerTooltip() -- TODO: Called OnUpdate
+function RIC._Roster_Browser.setPlayerTooltip()
 	if not tooltipActive then
 		return
 	end
@@ -641,7 +646,10 @@ function RIC._Roster_Browser.setPlayerTooltip() -- TODO: Called OnUpdate
 				GameTooltip:AddLine("|cFFFFFFFFStatus:|r " .. details[2] .. " (" .. date("%H:%M:%S", details[1]) .. ")") -- Show time and detail of last event
 			end
 			-- If there was a previous invite attempt, but player still not in raid, show when we plan to try inviting the next time
-			if invitePhaseActive and inviteTimeList[theName] ~= nil and raidMembers[theName] == nil then
+			if invitePhaseActive and
+					RIC.db.profile.InviteIntervalActive and
+					inviteTimeList[theName] ~= nil and
+					raidMembers[theName] == nil then
 				GameTooltip:AddLine("|cFFFFFFFFNext invite attempt in:|r " ..  inviteTimeList[theName]+RIC.db.profile.InviteInterval-time() .. " seconds (" ..
 						date("%H:%M:%S", inviteTimeList[theName]+RIC.db.profile.InviteInterval) .. ")")
 			end

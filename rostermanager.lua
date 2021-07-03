@@ -350,7 +350,7 @@ end
 
 function RIC._Roster_Manager.addReceivedRosters(rosterLists, sender)
 	if not RIC._Roster_Manager.isValidRosterList(rosterLists) then
-		RIC:Print(L["Roster_Rejected_1"] .. " " .. sender .. " " .. L["Roster_Rejected_2"])
+		RIC:Print(RIC.db.profile.Lp["Roster_Rejected_1"] .. " " .. sender .. " " .. RIC.db.profile.Lp["Roster_Rejected_2"])
 		return
 	end
 	-- Build union of current roster lists and received ones, overwriting our local lists in case of duplicate names
@@ -372,7 +372,7 @@ end
 function RIC._Roster_Manager.setReceivedRosters(rosterLists, sender)
 	-- Make sure the new list is a valid roster list, otherwise don't accept list
 	if not RIC._Roster_Manager.isValidRosterList(rosterLists) then
-		RIC:Print(L["Roster_Rejected_1"] .. " " .. sender .. " " .. L["Roster_Rejected_2"])
+		RIC:Print(RIC.db.profile.Lp["Roster_Rejected_1"] .. " " .. sender .. " " .. RIC.db.profile.Lp["Roster_Rejected_2"])
 		return
 	end
 
@@ -407,10 +407,10 @@ function RIC._Roster_Manager.send()
 	if IsInRaid() then
 		if UnitIsGroupLeader("player") then
 			RIC.SendComm(comm_msg, "RAID")
-			RIC:Print(L["Roster_Sent_Successfully_Raid"])
+			RIC:Print(RIC.db.profile.Lp["Roster_Sent_Successfully_Raid"])
 		else
 			-- We are in raid but not leader - we are NOT allowed to overwrite other people's roster
-			RIC:Print(L["Roster_Send_Failed_Not_Raid_Lead"])
+			RIC:Print(RIC.db.profile.Lp["Roster_Send_Failed_Not_Raid_Lead"])
 		end
 	end
 
@@ -418,10 +418,10 @@ function RIC._Roster_Manager.send()
 	if IsInGuild() then
 		if CanEditOfficerNote() then
 			RIC.SendComm(comm_msg, "GUILD")
-			RIC:Print(L["Roster_Sent_Successfully_Guild"])
+			RIC:Print(RIC.db.profile.Lp["Roster_Sent_Successfully_Guild"])
 		else
 			-- We are in a guild but not an "officer" - we are NOT allowed to overwrite other people's roster
-			RIC:Print(L["Roster_Send_Failed_Not_Guild_Officer"])
+			RIC:Print(RIC.db.profile.Lp["Roster_Send_Failed_Not_Guild_Officer"])
 		end
 	end
 end

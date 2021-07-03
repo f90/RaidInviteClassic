@@ -18,7 +18,7 @@ do
 	LD:Register(RIC._Durability_Manager, processPlayerDurability)
 end
 
-function RIC._Durability_Manager.checkDurabilities() -- TODO: Called OnUpdate
+function RIC._Durability_Manager.checkDurabilities()
 	local raidMembers = RIC.getRaidMembers()-- Get current list of raid members
 	-- Go through all players that joined and might still need a warning
 	for player,_ in pairs(playersNeedWarning) do
@@ -81,7 +81,7 @@ function RIC._Durability_Manager.warnPlayer(player)
 	end
 
 	-- All conditions met - warn the player now!
-	local warningText =  L["Gear_Durability_Warning_1"] .. " " .. durability[player]["percent"] .. L["Gear_Durability_Warning_2"]
+	local warningText =  RIC.db.profile.Lp["Gear_Durability_Warning_1"] .. " " .. durability[player]["percent"] .. RIC.db.profile.Lp["Gear_Durability_Warning_2"]
 	if player == GetUnitName("player", false) then
 		-- We forgot to repair ourselves!
 		if UnitAffectingCombat("player") then -- Only show popup when not in combat

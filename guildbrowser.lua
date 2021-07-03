@@ -28,7 +28,7 @@ end
 
 -- Function: buildGuildList
 -- Purpose: Builds data for listing guild members
-function RIC._Guild_Browser.buildGuildList() -- TODO: Called OnUpdate
+function RIC._Guild_Browser.buildGuildList()
 	totalGuildNumber = 0
 	totalNumber = 0
 	wipe(guildList)
