@@ -112,10 +112,10 @@ function RIC._Import_Manager.importRoster(rosterString)
 	-- If we skipped some names because they were faulty, show warning message on import
 	local warningMsg = ""
 	if string.utf8len(skippedNames) > 0 then
-		warningMsg = warningMsg .. L["Roster_Import_Name_Skip_Warning"] .. "\n" .. skippedNames
+		warningMsg = warningMsg .. RIC.db.profile.Lp["Roster_Import_Name_Skip_Warning"] .. "\n" .. skippedNames
 	end
 	if string.utf8len(fixedNames) > 0 then
-		warningMsg = warningMsg .. L["Roster_Import_Name_Fix_Warning"] .. "\n" .. fixedNames
+		warningMsg = warningMsg .. RIC.db.profile.Lp["Roster_Import_Name_Fix_Warning"] .. "\n" .. fixedNames
 	end
 	if string.utf8len(warningMsg) > 0 then
 		message(warningMsg)

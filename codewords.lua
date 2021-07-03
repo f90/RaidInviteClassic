@@ -68,9 +68,9 @@ function RIC._Codewords_Handler.startInvitePhase()
 	-- Notify guild now, if this is activated in the options
 	if RIC.db.profile.CodewordNotifyStart then
 		if #RIC.db.profile.Codewords == 0 then
-			RIC:Print(L["Codewords_Not_Set"])
+			RIC:Print(RIC.db.profile.Lp["Codewords_Not_Set"])
 		else
-			local theMsg = L["Whisper_Me"]
+			local theMsg = RIC.db.profile.Lp["Whisper_Me"]
 			for ci=1, (#RIC.db.profile.Codewords - 1) do
 				if (ci == 1) then
 					theMsg = theMsg .. " \"" .. RIC.db.profile.Codewords[ci] .. "\""
@@ -79,12 +79,12 @@ function RIC._Codewords_Handler.startInvitePhase()
 				end
 			end
 			if (#RIC.db.profile.Codewords) >= 2 then
-				theMsg = theMsg .. " " .. L["Or"] .. " \"" .. RIC.db.profile.Codewords[#RIC.db.profile.Codewords] .. "\""
+				theMsg = theMsg .. " " .. RIC.db.profile.Lp["Or"] .. " \"" .. RIC.db.profile.Codewords[#RIC.db.profile.Codewords] .. "\""
 			else
 				theMsg = theMsg ..  " \"" .. RIC.db.profile.Codewords[1] .. "\""
 			end
 
-			theMsg = theMsg .. " " .. L["For_An_Invite"]
+			theMsg = theMsg .. " " .. RIC.db.profile.Lp["For_An_Invite"]
 			RIC.SendChatMessage(theMsg ,"GUILD" ,nil ,nil)
 		end
 	end
@@ -92,7 +92,7 @@ end
 
 function RIC._Codewords_Handler.endInvitePhase()
 	if RIC.db.profile.CodewordNotifyEnd then
-		RIC.SendChatMessage(L["Codewords_End"] ,"GUILD" ,nil ,nil)
+		RIC.SendChatMessage(RIC.db.profile.Lp["Codewords_End"] ,"GUILD" ,nil ,nil)
 	end
 end
 

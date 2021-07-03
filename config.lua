@@ -1,4 +1,6 @@
 local addonName, RIC = ...
+local L = LibStub("AceLocale-3.0"):GetLocale(addonName)
+
 function RIC.getOptions()
     -- OPTIONS
 	local options = {
@@ -156,9 +158,10 @@ function RIC.getOptions()
 				type = "group",
 				args = {
 					notifyinvitephasestart = {
-						name = "Announce start of invite phase",
+						name = "Announce start of invite phase:",
 						desc = "Announces start of invite phase to guild",
 						type = "toggle",
+						width = "full",
 						order = 0,
 						set = function(info, val)
 							RIC.db.profile.NotifyInvitePhaseStart = val;
@@ -168,11 +171,30 @@ function RIC.getOptions()
 						end
 					},
 
+					notifyinvitephasestartmsg = {
+						name = "Message:",
+						desc = "Message sent to the guild when invite phase starts",
+						type = "input",
+						width = "full",
+						multiline = 0,
+						order = 1,
+						set = function(info, val)
+							RIC.db.profile.Lp["Invite_Start"] = val
+						end,
+						get = function(info)
+							return RIC.db.profile.Lp["Invite_Start"]
+						end,
+						disabled = function()
+							return (not RIC.db.profile.NotifyInvitePhaseStart)
+						end,
+					},
+
 					 notifyinvitephaseend = {
-						name = "Announce end of invite phase",
+						name = "Announce end of invite phase:",
 						desc = "Announces end of invite phase to guild",
 						type = "toggle",
-						order = 1,
+						width = "full",
+						order = 5,
 						set = function(info, val)
 							RIC.db.profile.NotifyInvitePhaseEnd = val;
 						end,
@@ -181,10 +203,32 @@ function RIC.getOptions()
 						end
 					},
 
+					notifyinvitephaseendmsg = {
+						name = "Message:",
+						desc = "Message sent to the guild when invite phase ends",
+						type = "input",
+						width = "full",
+
+						multiline = 0,
+						order = 6,
+						set = function(info, val)
+							RIC.db.profile.Lp["Invite_End"] = val
+						end,
+						get = function(info)
+							return RIC.db.profile.Lp["Invite_End"]
+						end,
+						disabled = function()
+							return (not RIC.db.profile.NotifyInvitePhaseEnd)
+						end,
+					},
+
 					hidenotifications = {
 						name = "Hide ALL outgoing notifications",
-						desc = "Hides ALL whispers sent by this addon to other players to notify them about various issues (invite failures etc.)",
+						desc = "Hides ALL whispers sent by this addon to other players that notify them about various issues (invite failures etc.). " ..
+						"This prevents addon whispers to other people from spamming your chat window, " ..
+						"but might make you miss problems with your raiders (e.g. person still in another group), so use with care",
 						type = "toggle",
+						order = 20,
 						set = function(info, val)
 							RIC.db.profile.HideOutgoingWhispers = val;
 						end,
@@ -452,7 +496,9 @@ function RIC.getOptions()
 			InviteIntervalActive = true,
 			InviteInterval = 120.0,
 			InviteUngrouped = true,
-			ShowCharRealms = false
+			ShowCharRealms = false,
+
+			Lp = L -- Load standard localised strings into profile so user can customise messages
         },
 
 		realm = {
