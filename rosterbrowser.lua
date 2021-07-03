@@ -11,6 +11,7 @@ local selectedList = {}
 
 -- Invite handling
 local invitePhaseActive = false
+local invitePhaseStartTime = nil
 local inviteStatusList = {}
 local inviteStatusInfoList = {}
 local inviteTimeList = {}
@@ -275,7 +276,7 @@ function RIC._Roster_Browser.quickScroll(self, delta)
 end
 
 function RIC._Roster_Browser.sendInvites()
-	if invitePhaseActive then
+	if invitePhaseActive and (time() - invitePhaseStartTime > RIC.db.profile.InviteDelay) then
 		local raidMembers = RIC.getRaidMembers()
 		local guildMembers = RIC._Guild_Manager.getGuildMembers() -- Retrieve this so invite function can check if people are online
 
@@ -288,8 +289,9 @@ function RIC._Roster_Browser.sendInvites()
 				if status == nil or status == RIC.InviteStatus["NOT_INVITED"] or status == RIC.InviteStatus["INVITE_FAILED"] then
 					-- Not invited before, or person left the group, or last invite failed
 					-- -> Check if its time to reinvite based on InviteInterval and whether we invite ungrouped players
-					local inviteCheck = (inviteTimeList[name] == nil) or (RIC.db.profile.InviteIntervalActive and ((time() - inviteTimeList[name]) > RIC.db.profile.InviteInterval))
-					inviteCheck = inviteCheck and (RIC.db.profile.InviteUngrouped or (groupPos > 0))
+					local inviteCheck = (inviteTimeList[name] == nil) -- Definitely invite if not invited before
+					inviteCheck = inviteCheck or (RIC.db.profile.InviteIntervalActive and ((time() - inviteTimeList[name]) > RIC.db.profile.InviteInterval)) -- Invite if last invite was too long ago
+					inviteCheck = inviteCheck and (RIC.db.profile.InviteUngrouped or (groupPos > 0)) -- If we don't invite ungrouped players, definitely don't invite those
 					if inviteCheck then
 						-- Person was never invited, or last invite was too long ago - invite!
 						RIC._Roster_Browser.invite(name, false, guildMembers)
@@ -539,11 +541,14 @@ function RIC._Roster_Browser.startInvitePhase()
 	local raidMembers = RIC.getRaidMembers()
 	if not invitePhaseActive then -- Check if invite phase was disabled before, otherwise do nothing
 		if ((RIC.tabLength(raidMembers)==0) or UnitIsGroupLeader("player")) then -- CHeck that we are alone or a raid/group leader
+			-- START INVITE PHASE
+
 			-- Reset variables that remember who was invited/declined invite and when
 			wipe(inviteStatusList)
 			wipe(inviteTimeList)
 
 			invitePhaseActive = true
+			invitePhaseStartTime = time()
 
 			-- Change text of button
 			_G["RIC_SendMassInvites".."Text"]:SetText("Stop invites")

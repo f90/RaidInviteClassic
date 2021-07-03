@@ -69,11 +69,31 @@ function RIC.getOptions()
 						end,
 					},
 
+					invitedelay = {
+						name = "Delay initial invites:",
+						desc = "Amount of seconds to wait after starting invite phase before initial invites are sent out (set to 0 to disable delay). Can be useful for your raiders to leave their groups once they see the invite announcement in guild chat",
+						type = "range",
+						width = "full",
+						order = 13,
+						min = 0.0,
+						max = 20,
+						step = 1,
+						set = function(info, val)
+							RIC.db.profile.InviteDelay = val;
+						end,
+						get = function(info)
+							return RIC.db.profile.InviteDelay
+						end,
+						disabled = function()
+							return not (RIC.db.profile.SendInvites and RIC.db.profile.SendInvites)
+						end,
+					},
+
 					inviteungrouped = {
 						name = "Invite ungrouped",
 						desc = "Disable to prevent sending any invites to people on the roster list that are NOT assigned to any group (viewed as bench players)",
 						type = "toggle",
-						order = 15,
+						order = 20,
 						set = function(info, val)
 							RIC.db.profile.InviteUngrouped = val;
 						end,
@@ -495,6 +515,7 @@ function RIC.getOptions()
 			SendInvites = true,
 			InviteIntervalActive = true,
 			InviteInterval = 120.0,
+			InviteDelay = 2.0,
 			InviteUngrouped = true,
 			ShowCharRealms = false,
 
