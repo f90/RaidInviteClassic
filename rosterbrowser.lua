@@ -320,7 +320,8 @@ function RIC._Roster_Browser.inviteWhisper(author, msg)
 	if RIC.db.realm.Whitelist[author] ~= true then
 		-- Event if message has sth like "invite" in it, probably unrelated message if we are currently completely alone (e.g. "invite person X to the guild please")
 		-- => Ignore request if we are alone. Also prevents people from pushing you into a group when you dont want to
-		if ((not IsInGroup()) and (not IsInRaid())) and RIC.db.profile.CodewordOnlyInGroup then
+		if ((not IsInGroup()) and (not IsInRaid())) and
+				((not invitePhaseActive) and RIC.db.profile.CodewordOnlyInGroup) then
 			RIC:Print("A codeword whisper by " .. author .. " was ignored because you were alone.")
 			PlaySound(846)
 			return

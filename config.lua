@@ -367,7 +367,10 @@ function RIC.getOptions()
 
 							onlyingroup = {
 								name = "Only in group",
-								desc = "Only accept codewords when you are already in group. When active, people can not force you to start a new group by whispering you, instead the request is ignored silently.",
+								desc = "Only accept codewords when you are already in group. " ..
+								"When active, people can not force you to start a new group by whispering you, " ..
+								"instead the request is ignored silently. " ..
+								"Exception: This restriction does not apply when the invite phase is active.",
 								type = "toggle",
 								order = 5,
 								set = function(info, val)
