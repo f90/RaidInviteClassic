@@ -2,6 +2,7 @@ local addonName, RIC = ...
 local sortMethod = "asc"
 local currSortIndex = 1
 local guildList = {}
+local guildNames = {}
 local guildOffset = 0
 local selectedList = {}
 local totalGuildNumber = 0
@@ -32,9 +33,9 @@ function RIC._Guild_Browser.buildGuildList()
 	totalGuildNumber = 0
 	totalNumber = 0
 	wipe(guildList)
+	wipe(guildNames)
 
 	local guildMembers = RIC._Guild_Manager.getGuildMembers()
-
 	for name, data in pairs(guildMembers) do
 		if RIC.db.profile.ShowOffline or data["online"] then
 			if RIC.db.profile.DisplayRanks[data["rankIndex"]] then
@@ -46,20 +47,14 @@ function RIC._Guild_Browser.buildGuildList()
 							 data["classFileName"],
 							 data["online"]
 						})
+				guildNames[name] = 1
 			end
 		end
 	end
 
-	-- Clear selection from people who are not shown --TODO this is slow: len(selectedList)*len(guildList) complexity. better create lookup of guildList names first, then use that within loop over selectedList
-	for name, selected in pairs(selectedList) do
-		local found = false
-		for _, val in pairs(guildList) do
-			if name == val[1] then
-				found = true
-				break
-			end
-		end
-		if not found then
+	-- Clear selection from people who are not shown
+	for name, _ in pairs(selectedList) do
+		if not guildNames[name] then
 			selectedList[name] = nil
 		end
 	end
