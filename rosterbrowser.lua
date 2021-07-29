@@ -468,7 +468,8 @@ function RIC._Roster_Browser.processSystemMessage(msg)
 
 				-- Set master looter
 				if RIC.db.profile.MasterLooter then
-					SetLootMethod("master", RIC.getUnitFullName("player"))
+					-- For some reason, SetLootMethod wants to have just the character name (e.g. Tim), not the server name (Tim-Patchwerk), so remove server name from full name
+					SetLootMethod("master", RIC.removeServerFromName(RIC.getUnitFullName("player")))
 				end
 			end
 		end
