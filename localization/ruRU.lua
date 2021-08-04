@@ -39,6 +39,7 @@ L["Invite_Failed_Not_Online"] = "Invite failed because player was offline"
 L["Invite_Failed_Declined"] = "Invite failed because player declined it"
 
 -- Other warnings/errors
+L["Roster_Import_Name_Warning"] = "WARNING: There were issues importing some names! See your chat log for details."
 L["Roster_Import_Name_Skip_Warning"] = "Skipped the following invalid names:"
 L["Roster_Import_Name_Fix_Warning"] = "Changed the following names to make them valid:"
 L["Roster_Send_Failed_Not_Raid_Lead"] = "WARNING: Could not send roster lists to raid since you are not the raid leader."

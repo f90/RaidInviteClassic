@@ -39,8 +39,9 @@ L["Invite_Failed_Not_Online"] = "Einladung gescheitert, da der Spieler offline w
 L["Invite_Failed_Declined"] = "Einladung wurde abgelehnt"
 
 -- Other warnings/errors
-L["Roster_Import_Name_Skip_Warning"] = "Skipped the following invalid names:"
-L["Roster_Import_Name_Fix_Warning"] = "Changed the following names to make them valid:"
+L["Roster_Import_Name_Warning"] = "WARNUNG: Es gab Probleme beim Importieren von Namen! Siehe Chatlog für mehr Details."
+L["Roster_Import_Name_Skip_Warning"] = "Folgende ungültige Namen wurden übersprungen:"
+L["Roster_Import_Name_Fix_Warning"] = "Folgende Namen wurden korrigiert:"
 L["Roster_Send_Failed_Not_Raid_Lead"] = "WARNUNG: Konnte die Roster Listen nicht an Raidmitglieder senden, da du kein Raidleiter bist!"
 L["Roster_Send_Failed_Not_Guild_Officer"] = "WARNUNG: Konnte die Roster Listen nicht an Gildenmitglieder senden, da du keine Rechte zum Bearbeiten der Offiziersnotizen hast!"
 L["Roster_Rejected_1"] = "WARNUNG: Die von"

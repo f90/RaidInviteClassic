@@ -89,11 +89,9 @@ function RIC._Import_Manager.importRoster(rosterString)
 			local name = RIC.trim_char_name(RIC.addServerToName(val))
 			local char_name, _ = RIC.split_char_name(name)
 
-			if char_name ~= orig_char_name then
-				-- We removed special chars from the input in hopes of fixing the char name - notify user!
-				fixedNames = fixedNames .. orig_char_name .. " -> " .. char_name .. "\n"
-			end
-			if string.utf8len(char_name) > 1 and string.utf8len(char_name) < 13 then -- Char names in WoW need to be between 2 and 12 (inclusive) chars long
+			-- Char names in WoW need to be between 2 and 12 (inclusive) chars long
+			if string.utf8len(char_name) > 1 and string.utf8len(char_name) < 13 then
+				-- Valid name: Add to roster
 				if i <= 40 and useGroupPositions then -- Use group positions for first 40 raiders?
 					if not newList[name] then -- If we encounter a duplicate, don't reset the first position we found
 						newList[name] = i
@@ -101,8 +99,14 @@ function RIC._Import_Manager.importRoster(rosterString)
 				else
 					newList[name] = 0
 				end
+				-- We added this name, but if it was corrected earlier, notify the user about it!
+				if char_name ~= orig_char_name then
+					-- We removed special chars from the input in hopes of fixing the char name - notify user!
+					fixedNames = fixedNames .. orig_char_name .. " -> " .. char_name .. "\n"
+				end
 			else
-				if string.utf8len(char_name) > 0 then -- Add to list of skipped names if they are faulty and are non empty
+				-- We skip this name since its faulty - add to list of skipped names (if they are not empty)
+				if string.utf8len(char_name) > 0 then
 					skippedNames = skippedNames .. val .. "\n"
 				end
 			end
@@ -111,14 +115,18 @@ function RIC._Import_Manager.importRoster(rosterString)
 
 	-- If we skipped some names because they were faulty, show warning message on import
 	local warningMsg = ""
+	local shortWarningMsg = ""
 	if string.utf8len(skippedNames) > 0 then
 		warningMsg = warningMsg .. RIC.db.profile.Lp["Roster_Import_Name_Skip_Warning"] .. "\n" .. skippedNames
+		shortWarningMsg = RIC.db.profile.Lp["Roster_Import_Name_Warning"]
 	end
 	if string.utf8len(fixedNames) > 0 then
 		warningMsg = warningMsg .. RIC.db.profile.Lp["Roster_Import_Name_Fix_Warning"] .. "\n" .. fixedNames
+		shortWarningMsg = RIC.db.profile.Lp["Roster_Import_Name_Warning"]
 	end
 	if string.utf8len(warningMsg) > 0 then
-		message(warningMsg)
+		RIC:Print(warningMsg)
+		message(shortWarningMsg)
 	end
 
 	-- If we have a non-empty list, we parsed successfully: Overwrite current roster list
