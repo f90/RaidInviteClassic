@@ -29,17 +29,34 @@ RIC.InviteStatus = {
     INVITE_FAILED=3
 }
 
-function RIC.trim_char_name(name)
-    if name == nil then
-        return nil -- Trimming an empty name results in another empty name
+function RIC.normAndCheckName(name)
+    -- Add server name, if it's not there yet
+    local p = RIC.addServerToName(name)
+    if p == nil then
+        return nil, nil -- Name was nil to begin with - return nil
+    end
+
+    -- Split "char-server" name into char and server names. Both parts must exist by now!
+    local orig_char_name, orig_server_name = RIC.split_char_name(p)
+    if (orig_char_name == nil) or (orig_server_name == nil) then
+        return nil, nil
     end
     -- Removes whitespace and special characters from char+realm names. Realm names must be normalized beforehand!
-    local char_name, server_name = RIC.split_char_name(name)
-    if server_name ~= nil then
-        return char_name:gsub("[%c%p%s]", "") .. "-" .. server_name:gsub("[%c%p%s]", "")
-    else
-        return (char_name:gsub("[%c%p%s]", ""))
+    local char_name = orig_char_name:gsub("[%c%p%s]", "")
+    local server_name = orig_server_name:gsub("[%c%p%s]", "")
+
+    -- Check length of char name
+    if (string.utf8len(char_name) <= 1) or (string.utf8len(char_name) >= 13) then
+        return nil, nil
     end
+
+    -- Put first letter of char name to upper, rest to lower case
+    char_name = char_name:sub(1,1):upper() .. char_name:sub(2):lower()
+
+    -- Check whether we made changes to the original name
+    local changed = (char_name ~= orig_char_name) or (server_name ~= orig_server_name)
+
+    return char_name .. "-" .. server_name, changed
 end
 
 function RIC.split_char_name(name)

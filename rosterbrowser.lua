@@ -733,10 +733,8 @@ function RIC._Roster_Browser.addNameToRoster(name, update_view)
 	-- General function to add a character to the current roster
 
 	-- Preprocess name and check if it's valid format
-	local trimmed_name = RIC.addServerToName(name)
-	trimmed_name = RIC.trim_char_name(trimmed_name)
-	local char_name, _ = RIC.split_char_name(trimmed_name)
-	if string.utf8len(char_name) > 1 and string.utf8len(char_name) < 13 then -- -- Char names in WoW need to be between 2 and 12 (inclusive) chars long
+	local trimmed_name, _ = RIC.normAndCheckName(name)
+	if trimmed_name then -- Only non-nil if name is valid
 		-- Add to roster list in case this char is not already in it
 		if RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][trimmed_name] == nil then
 			RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][trimmed_name] = 0

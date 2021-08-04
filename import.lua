@@ -85,12 +85,8 @@ function RIC._Import_Manager.importRoster(rosterString)
 	for i, val in ipairs(parsedList) do
 		if val ~= "" then -- Skip empty entries
 			-- Clean up name input
-			local orig_char_name, _ = RIC.split_char_name(val)
-			local name = RIC.trim_char_name(RIC.addServerToName(val))
-			local char_name, _ = RIC.split_char_name(name)
-
-			-- Char names in WoW need to be between 2 and 12 (inclusive) chars long
-			if string.utf8len(char_name) > 1 and string.utf8len(char_name) < 13 then
+			local name, changed = RIC.normAndCheckName(val)
+			if name then -- Name is only non-nil here when it's valid
 				-- Valid name: Add to roster
 				if i <= 40 and useGroupPositions then -- Use group positions for first 40 raiders?
 					if not newList[name] then -- If we encounter a duplicate, don't reset the first position we found
@@ -100,13 +96,12 @@ function RIC._Import_Manager.importRoster(rosterString)
 					newList[name] = 0
 				end
 				-- We added this name, but if it was corrected earlier, notify the user about it!
-				if char_name ~= orig_char_name then
+				if changed then
 					-- We removed special chars from the input in hopes of fixing the char name - notify user!
-					fixedNames = fixedNames .. orig_char_name .. " -> " .. char_name .. "\n"
+					fixedNames = fixedNames .. val .. " -> " .. name .. "\n"
 				end
 			else
-				-- We skip this name since its faulty - add to list of skipped names (if they are not empty)
-				if string.utf8len(char_name) > 0 then
+				if string.utf8len(val) > 0 then -- Add to list of skipped names if they are faulty and are non empty
 					skippedNames = skippedNames .. val .. "\n"
 				end
 			end
