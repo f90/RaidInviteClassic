@@ -40,7 +40,7 @@ function RIC._Durability_Manager.checkDurabilities()
 			end
 		else
 			-- Player not in raid - doesnt need warning or durability info anymore - EXCEPT if its ourselves at the start of building the group, then we dont count as "in the raid"
-			if player ~= GetUnitName("player", false) then
+			if player ~= RIC.getUnitFullName("player") then
 				playersNeedWarning[player] = nil
 				durability[player] = nil
 			end
@@ -82,7 +82,7 @@ function RIC._Durability_Manager.warnPlayer(player)
 
 	-- All conditions met - warn the player now!
 	local warningText =  RIC.db.profile.Lp["Gear_Durability_Warning_1"] .. " " .. durability[player]["percent"] .. RIC.db.profile.Lp["Gear_Durability_Warning_2"]
-	if player == GetUnitName("player", false) then
+	if player == RIC.getUnitFullName("player") then
 		-- We forgot to repair ourselves!
 		if UnitAffectingCombat("player") then -- Only show popup when not in combat
 			RIC:Print(warningText)
