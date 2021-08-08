@@ -200,9 +200,11 @@ function RIC.getUnitFullName(unit)
     -- Wraper for UnitFullName, ensuring output is ALWAYS (name-normalizedrealm). Only works properly for player chars!
     local name, realm = UnitFullName(unit)
     if not realm then
-        realm = GetNormalizedRealmName()
+        -- For some reason we didn't get the realm name, so try to fetch it ourselves and append it to char name
+        return RIC.addServerToName(name)
+    else
+        return name .. "-" .. realm
     end
-    return name .. "-" .. realm
 end
 
 function RIC.removeServerFromName(name)
