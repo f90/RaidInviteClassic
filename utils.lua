@@ -30,6 +30,13 @@ RIC.InviteStatus = {
 }
 
 function RIC.normAndCheckName(name)
+    -- Takes a character name and normalizes it to be in the "charname-servername" format
+    -- Also checks whether the name is of valid format and tries to correct it if it isn't
+    -- E.g. "Tim" becomes "Tim-Patchwerk", if the current server is Patchwerk, "Tim-Lucifron" would stay the same.
+    -- Returns: Tuple: (Potentially corrected) name of format "charname-servername",
+    -- bool to indicate whether name needed to be changed to become valid.
+    -- Returns (nil,nil) if charname could not be determined
+
     -- Add server name, if it's not there yet
     local p = RIC.addServerToName(name)
     if p == nil then
