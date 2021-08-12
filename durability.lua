@@ -8,8 +8,21 @@ local durability = {}
 local playersNeedWarning = {} -- Set to a certain timestamp if a player needs a durability check/warning at this point
 
 do
-	local function processPlayerDurability(percent, broken, player)
-		durability[player] = {
+	local function processPlayerDurability(percent, broken, name)
+		-- Saves durability info received from a player
+		-- percent: Number indicating current durability percentage
+		-- broken: How many items are completely broken
+		-- name: Character name - SOMETIMES has servername attached to it, sometimes not (-> unnormalized)
+
+		-- Normalize name - ALWAYS have "char-server" format.
+		local normName, changed = RIC.normAndCheckName(name)
+		if changed then -- If name was invalid (e.g. special characters or too short), don't save durability
+			RIC:Print("WARNING: Received durability info from player " .. " but player name is invalid (would be changed to " .. changed ") - Ignoring this info!")
+			return
+		end
+
+		-- Save durability info in durability table
+		durability[normName] = {
 			percent=percent,
 			broken=broken,
 			time=time()
@@ -51,9 +64,16 @@ function RIC._Durability_Manager.checkDurabilities()
 end
 
 function RIC._Durability_Manager.setPlayerWarning(player)
+	-- Normalize name and error out if it's invalid
+	local name, changed = RIC.normAndCheckName(player)
+	if changed then
+		RIC:Print("ERROR: Requested player check for " .. player " but name is invalid (would be changed to " .. name .. ") - Ignoring request!")
+		return
+	end
+
 	if RIC.db.profile.Durability_Warning and
 			((not RIC.db.profile.Durability_Invite_Phase) or RIC._Roster_Browser.isInvitePhaseActive()) then -- Only initiate checks if that is activated in the options
-		playersNeedWarning[player] = time()
+		playersNeedWarning[name] = time()
 	end
 end
 
