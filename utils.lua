@@ -58,7 +58,10 @@ function RIC.normAndCheckName(name)
     end
 
     -- Put first letter of char name to upper, rest to lower case
-    char_name = char_name:sub(1,1):upper() .. char_name:sub(2):lower()
+    -- WARNING: Note that string method :upper and :lower remove accented characters that do not have upper/lower case!
+    -- Instead, use Blizzard API which seems to handle this by leaving those chars alone
+    -- Also make sure to use utf8-aware strsub function
+    char_name = strupper(string.utf8sub(char_name, 1, 1)) .. strlower(string.utf8sub(char_name, 2))
 
     -- Check whether we made changes to the original name
     local changed = (char_name ~= orig_char_name) or (server_name ~= orig_server_name)
