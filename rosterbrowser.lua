@@ -567,7 +567,7 @@ function RIC._Roster_Browser.startInvitePhase()
 			RIC._Codewords_Handler.startInvitePhase()
 
 			-- Check gear durability of our own character - since we otherwise only check people joining our group/raid
-			RIC._Durability_Manager.setPlayerWarning(GetUnitName("player", false))
+			RIC._Durability_Manager.setPlayerWarning(RIC.getUnitFullName("player"))
 		else
 			-- We cannot activate invite phase because we are already in a group, but not leading it - give error message
 			message("You can only start the invite phase when alone or as a group or raid leader!")
