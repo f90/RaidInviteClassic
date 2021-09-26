@@ -17,7 +17,7 @@ do
 		-- Normalize name - ALWAYS have "char-server" format.
 		local normName, changed = RIC.normAndCheckName(name)
 		if changed then -- If name was invalid (e.g. special characters or too short), don't save durability
-			RIC:Print("WARNING: Received durability info from player " .. " but player name is invalid (would be changed to " .. changed ") - Ignoring this info!")
+			-- RIC:Print("WARNING: Received durability info from player " .. " but player name is invalid (would be changed to " .. normName .. ") - Ignoring this info!")
 			return
 		end
 
