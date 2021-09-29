@@ -188,7 +188,7 @@ end
 
 function addon:CHAT_MSG_WHISPER(event, msg, author, ...)
 	if author ~= nil then -- For some reason this can be nil sometimes?
-		RIC._Roster_Browser.inviteWhisper(RIC.addServerToName(author), msg)
+		RIC._Roster_Browser.processInviteWhisper(RIC.addServerToName(author), msg)
 	else
 		addon:Print(RIC.db.profile.Lp["Whisper_Author_Unknown"])
 	end

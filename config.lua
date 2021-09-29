@@ -399,7 +399,7 @@ function RIC.getOptions()
 
 							onlyfromguild = {
 								name = "Only for guild members",
-								desc = "Only accept codewords from guild members",
+								desc = "Only accept codewords from guild members. Players on your roster are still accepted.",
 								type = "toggle",
 								order = 7,
 								set = function(info, val)

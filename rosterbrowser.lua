@@ -308,55 +308,71 @@ function RIC._Roster_Browser.sendInvites()
 	end
 end
 
+-- Check whether author of invite whisper has the sufficient rights for us to invite them, otherwise give out errors
+function RIC._Roster_Browser.checkInviteWhisperRights(author)
+	local guildMembers = RIC._Guild_Manager.getGuildMembers()
+	-- If player is on whitelist, skip ALL permission checks
+	if RIC.db.realm.Whitelist[author] == true then
+		return true
+	end
+
+	-- Event if message has sth like "invite" in it, probably unrelated message if we are currently completely alone (e.g. "invite person X to the guild please")
+	-- => Ignore request if we are alone. Also prevents people from pushing you into a group when you dont want to
+	if ((not IsInGroup()) and (not IsInRaid())) and
+			((not invitePhaseActive) and RIC.db.profile.CodewordOnlyInGroup) then
+		RIC:Print("A codeword whisper by " .. author .. " was ignored because you were alone.")
+		PlaySound(846)
+		return false
+	end
+
+	-- Check if we are currently allowing invite requests
+	if RIC.db.profile.CodewordOnlyDuringInvite and (not invitePhaseActive) then
+		RIC.SendChatMessage(RIC.db.profile.Lp["Codewords_Invite_Phase"], "WHISPER", nil, author)
+		return false
+	end
+
+	-- Check if author is NOT on blacklist, otherwise deny request
+	if RIC.db.realm.Blacklist[author] == true then
+		RIC:Print("A codeword whisper by " .. author .. " was ignored because they are on your blacklist.")
+		PlaySound(846)
+		return false
+	end
+
+	-- Check if author is in rosterList
+	if RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][author] == nil then
+		if RIC.db.profile.RosterWhispersOnly then
+			-- Author is not in roster and we want to only invite roster players -> deny request
+			RIC.SendChatMessage(RIC.db.profile.Lp["Codewords_Not_In_Roster"], "WHISPER", nil, author)
+			return false
+		end
+	else
+		-- Author is in roster - accept and do not do any FURTHER permission checks such as guild membership!
+		return true
+	end
+
+	-- ONLY NON-ROSTER, NON-WHITELISTED PLAYERS ARE CHECKED WITH THE CODE BELOW FOR FURTHER REQUIREMENTS
+
+	-- Check if person is guild member
+	if RIC.db.profile.GuildWhispersOnly and (guildMembers[author] == nil) then
+		RIC.SendChatMessage(RIC.db.profile.Lp["Codewords_Not_In_Guild"], "WHISPER", nil, author)
+		return false
+	end
+
+	-- No requirement was violated nor any blanket allow was triggered -> by default send out invite
+	return true
+end
+
 -- Process an invite request whisper from one particular person
-function RIC._Roster_Browser.inviteWhisper(author, msg)
+function RIC._Roster_Browser.processInviteWhisper(author, msg)
 	-- Check if message is an invite request, otherwise ignore
 	if (not RIC._Codewords_Handler.isInviteWhisper(msg)) then
 		return
 	end
 
-	local guildMembers = RIC._Guild_Manager.getGuildMembers()
-	-- If player is NOT on whitelist, do a bunch of permission checks, otherwise skip them
-	if RIC.db.realm.Whitelist[author] ~= true then
-		-- Event if message has sth like "invite" in it, probably unrelated message if we are currently completely alone (e.g. "invite person X to the guild please")
-		-- => Ignore request if we are alone. Also prevents people from pushing you into a group when you dont want to
-		if ((not IsInGroup()) and (not IsInRaid())) and
-				((not invitePhaseActive) and RIC.db.profile.CodewordOnlyInGroup) then
-			RIC:Print("A codeword whisper by " .. author .. " was ignored because you were alone.")
-			PlaySound(846)
-			return
-		end
-
-		-- Check if we are currently allowing invite requests
-		if RIC.db.profile.CodewordOnlyDuringInvite and (not invitePhaseActive) then
-			RIC.SendChatMessage(RIC.db.profile.Lp["Codewords_Invite_Phase"], "WHISPER", nil, author)
-			return
-		end
-
-		-- Check if author is NOT on blacklist, otherwise deny request
-		if RIC.db.realm.Blacklist[author] == true then
-			RIC:Print("A codeword whisper by " .. author .. " was ignored because they are on your blacklist.")
-			PlaySound(846)
-			return
-		end
-
-		-- Check if author is in rosterList, otherwise deny request (send whisper back to person)
-		if RIC.db.profile.RosterWhispersOnly and (RIC.db.realm.RosterList[RIC.db.realm.CurrentRoster][author] == nil) then
-			RIC.SendChatMessage(RIC.db.profile.Lp["Codewords_Not_In_Roster"], "WHISPER", nil, author)
-			return
-		end
-
-		-- Check if person is guild member
-		if RIC.db.profile.GuildWhispersOnly then
-			if guildMembers[author] == nil then
-				RIC.SendChatMessage(RIC.db.profile.Lp["Codewords_Not_In_Guild"], "WHISPER", nil, author)
-				return
-			end
-		end
+	if RIC._Roster_Browser.checkInviteWhisperRights(author) then
+		-- So far, all conditions met - try to invite person
+		RIC._Roster_Browser.invite(author, true, guildMembers)
 	end
-
-	-- So far, all conditions met - try to invite person
-	RIC._Roster_Browser.invite(author, true, guildMembers)
 end
 
 -- Invites one particular person
