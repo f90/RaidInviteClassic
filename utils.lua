@@ -202,6 +202,11 @@ end
 
 function RIC.SendChatMessage(msg, chatType, language, channel)
     if msg ~= nil and string.utf8len(msg) > 0 then -- Check if message is non-nil and not empty (disabled in settings)
+        -- If we dont have a guild, just dont try sending messages to guild chat
+        if chatType == "GUILD" and not IsInGuild() then
+            return
+        end
+
         SendChatMessage(RIC._ChatString .. " " .. msg, chatType, language, channel)
     end
 end
