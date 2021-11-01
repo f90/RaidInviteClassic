@@ -1,4 +1,4 @@
-## Interface: 90005
+## Interface: 90100
 ## Title: Raid Invite Classic
 ## Author: Daniel Stoller
 ## Notes: Attempts to help guild and raid leaders automate the invitation process.
