@@ -205,27 +205,16 @@
 			<NormalFont style="GameFontHighlight"/>
 			<HighlightFont style="GameFontNormal" />
 		</Button>
-	<Frame name="RIC_MainFrame" parent="UIParent" hidden="true" enablemouse="true" movable="true" frameStrata="DIALOG">
+	<Frame name="RIC_MainFrame" parent="UIParent" hidden="true" enablemouse="true" movable="true" frameStrata="DIALOG" inherits="BackdropTemplate">
 		<Size>
 			<AbsDimension x="396" y="424" />
 		</Size>
 		<Anchors>
 			<Anchor point="CENTER" relativePoint="CENTER" relativeTo="UIParent" />
 		</Anchors>
-		<Backdrop
-			   bgFile="Interface\DialogFrame\UI-DialogBox-Background-Dark"
-			   edgeFile="Interface\DialogFrame\UI-DialogBox-Border"
-			   tile="true">
-			   <BackgroundInsets>
-				   <AbsInset left="11" right="12" top="12" bottom="11"/>
-			   </BackgroundInsets>
-			   <TileSize>
-				   <AbsValue val="32"/>
-			   </TileSize>
-			   <EdgeSize>
-				   <AbsValue val="32"/>
-			   </EdgeSize>
-		</Backdrop>
+		<KeyValues>
+			<KeyValue key="backdropInfo" value="UIPanelDialogTemplate" type="global" />
+		</KeyValues>
 		<Frames>
 			<Frame name="RIC_TabPage1">
 				<Anchors>
@@ -320,7 +309,7 @@
 						</Scripts>
 					</Frame>
 
-					<Frame name="RIC_RosterFrame">
+					<Frame name="RIC_RosterFrame" inherits="BackdropTemplate">
 						<Size>
 							<AbsDimension x="218" y="392" />
 						</Size>
@@ -329,14 +318,9 @@
 								<Offset x="16" y="-16" />
 							</Anchor>
 						</Anchors>
-						<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
-							<TileSize>
-								<AbsValue val="16" />
-							</TileSize>
-							<EdgeSize>
-								<AbsValue val="16" />
-							</EdgeSize>
-						</Backdrop>
+						<KeyValues>
+							<KeyValue key="backdropInfo" value="BACKDROP_TOOLTIP_8_8_1111" type="global" />
+						</KeyValues>
 						<Frames>
 							<Button name="$parentHeaderName" inherits="RIC_RosterHeader" id="1" text="Name">
 								<Size>
@@ -379,7 +363,7 @@
 							</OnMouseWheel>
 						</Scripts>
 					</Frame>
-					<Frame name="RIC_RosterSliderContainer">
+					<Frame name="RIC_RosterSliderContainer" inherits="BackdropTemplate">
 						<Size>
 							<AbsDimension x="23"/>
 						</Size>
@@ -436,17 +420,9 @@
 								</ThumbTexture>
 							</Slider>
 						</Frames>
-						<Backdrop edgeFile="Interface\Buttons\UI-SliderBar-Border" bgFile="Interface\Buttons\UI-SliderBar-Background" tile="true">
-							<EdgeSize>
-								<AbsValue val="8" />
-							</EdgeSize>
-							<TileSize>
-								<AbsValue val="8" />
-							</TileSize>
-							<BackgroundInsets>
-								<AbsInset left="3" right="3" top="6" bottom="6" />
-							</BackgroundInsets>
-						</Backdrop>
+						<KeyValues>
+							<KeyValue key="backdropInfo" value="BACKDROP_TOOLTIP_8_8_1111" type="global" />
+						</KeyValues>
 					</Frame>
 
 					<Button name="RIC_ManageRosters" inherits="UIPanelButtonTemplate" text="Manage rosters">
@@ -714,7 +690,7 @@
 
 				</Frames>
 			</Frame>
-			<Frame name="RIC_TabPage2">
+			<Frame name="RIC_TabPage2" inherits="BackdropTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT"/>
                 	<Anchor point="BOTTOMRIGHT"/>
@@ -729,14 +705,9 @@
 								<Offset x="16" y="-16" />
 							</Anchor>
 						</Anchors>
-						<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
-							<TileSize>
-								<AbsValue val="16" />
-							</TileSize>
-							<EdgeSize>
-								<AbsValue val="16" />
-							</EdgeSize>
-						</Backdrop>
+						<KeyValues>
+							<KeyValue key="backdropInfo" value="BACKDROP_TOOLTIP_8_8_1111" type="global" />
+						</KeyValues>
 						<Frames>
 							<Button name="$parentHeaderName" inherits="RIC_GuildHeader" id="1" text="Name">
 								<Size>
@@ -828,17 +799,6 @@
 								</ThumbTexture>
 							</Slider>
 						</Frames>
-						<Backdrop edgeFile="Interface\Buttons\UI-SliderBar-Border" bgFile="Interface\Buttons\UI-SliderBar-Background" tile="true">
-							<EdgeSize>
-								<AbsValue val="8" />
-							</EdgeSize>
-							<TileSize>
-								<AbsValue val="8" />
-							</TileSize>
-							<BackgroundInsets>
-								<AbsInset left="3" right="3" top="6" bottom="6" />
-							</BackgroundInsets>
-						</Backdrop>
 					</Frame>
 
 					<Button name="RIC_GuildSelectAll" inherits="UIPanelButtonTemplate" text="Select All">
