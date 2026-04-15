@@ -56,8 +56,11 @@ function RIC.MinimapButton_Clicked(self,button)
 			-- Right click: Quick-switch rosters
 			RIC.PopupMinimap(self)
 		elseif IsShiftKeyDown() and not IsControlKeyDown() and not IsAltKeyDown() then
-			InterfaceOptionsFrame_OpenToCategory(RIC.optionsFrame)
-			InterfaceOptionsFrame_OpenToCategory(RIC.optionsFrame)
+			if C_SettingsUtil and C_SettingsUtil.OpenSettingsPanel then
+				C_SettingsUtil.OpenSettingsPanel(RIC.optionsFrame.name)
+			else
+				Settings.OpenToCategory(RIC.optionsFrame.name)
+			end
 		end
 	end
 end
