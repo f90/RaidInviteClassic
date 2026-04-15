@@ -38,8 +38,11 @@ function addon:processConsoleCommand(cmd)
 	elseif cmd == "version" then
 		addon:Print("Version: " .. RIC._Version)
 	elseif cmd == "config" then
-		Settings.OpenToCategory(self.optionsFrame)
-		Settings.OpenToCategory(self.optionsFrame)
+		if C_SettingsUtil and C_SettingsUtil.OpenSettingsPanel then
+			C_SettingsUtil.OpenSettingsPanel(self.optionsFrame.name)
+		else
+			Settings.OpenToCategory(self.optionsFrame.name)
+		end
 	else
 		addon:Print("") -- Print just our addon name first
 		print("prefix: /ric - shows/hides main frame")

@@ -1031,8 +1031,11 @@
 				</Size>
 				<Scripts>
 					<OnClick>
-						Settings.OpenToCategory(RIC.optionsFrame)
-						Settings.OpenToCategory(RIC.optionsFrame)
+						if C_SettingsUtil and C_SettingsUtil.OpenSettingsPanel then
+							C_SettingsUtil.OpenSettingsPanel(RIC.optionsFrame.name)
+						else
+							Settings.OpenToCategory(RIC.optionsFrame.name)
+						end
 					</OnClick>
 				</Scripts>
 				<NormalTexture file="Interface\AddOns\RaidInviteClassic\img\dots_small"/>
