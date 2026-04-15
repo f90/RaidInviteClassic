@@ -103,13 +103,14 @@ function addon:OnEnable() -- Called when the addon is enabled
 		enterClicksFirstButton = true,
 		preferredIndex = 3,  -- avoid some UI taint, see http://www.wowace.com/announcements/how-to-avoid-some-ui-taint/
 		OnShow = function (self, data)
+			local editBox = self.editBox or self.EditBox or (self.GetEditBox and self:GetEditBox())
 			-- Set edit box scripts to hide popup on escape/enter, and to process name on enter
-    		self.editBox:SetScript("OnEscapePressed", function(self)
+    		editBox:SetScript("OnEscapePressed", function(self)
 				if self.autoCompleteEscaped ~= true then -- Hide on escape, if we did not escape to cancel the autocomplete window
 					StaticPopup_Hide("ROSTER_PLAYER_ENTRY")
 				end
 			end)
-			self.editBox:SetScript("OnEnterPressed", function(self)
+			editBox:SetScript("OnEnterPressed", function(self)
 				if self.autoCompleted ~= true then -- Add player on enter, if enter was not meant for confirming autocomplete suggestion
 					local text = self:GetText()
 					StaticPopup_Hide("ROSTER_PLAYER_ENTRY")
@@ -137,10 +138,11 @@ function addon:OnEnable() -- Called when the addon is enabled
 					table.insert(names, name)
 				end
 			end
-			SetupAutoComplete(self.editBox, names, 10);
+			SetupAutoComplete(editBox, names, 10);
 		end,
 		OnAccept = function(self, data, data2)
-			local text = self.editBox:GetText()
+			local editBox = self.editBox or self.EditBox or (self.GetEditBox and self:GetEditBox())
+			local text = editBox:GetText()
 			RIC._Roster_Browser.addNameToRoster(text, true)
 		end,
 	}

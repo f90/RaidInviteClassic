@@ -99,18 +99,20 @@ function RIC:OnEnableRosterManagerView()
 		enterClicksFirstButton = true,
 		preferredIndex = 3,  -- avoid some UI taint, see http://www.wowace.com/announcements/how-to-avoid-some-ui-taint/
 		OnShow = function (self, data)
+			local editBox = self.editBox or self.EditBox or (self.GetEditBox and self:GetEditBox())
 			-- Set edit box scripts to hide popup on escape/enter, and to process name on enter
-    		self.editBox:SetScript("OnEscapePressed", function(self)
+    		editBox:SetScript("OnEscapePressed", function(self)
 				StaticPopup_Hide("NEW_ROSTER_ENTRY")
 			end)
-			self.editBox:SetScript("OnEnterPressed", function(self)
+			editBox:SetScript("OnEnterPressed", function(self)
 				local text = self:GetText()
 				StaticPopup_Hide("NEW_ROSTER_ENTRY")
 				RIC._Roster_Manager.add(text)
 			end)
 		end,
 		OnAccept = function(self, data, data2)
-			local text = self.editBox:GetText()
+			local editBox = self.editBox or self.EditBox or (self.GetEditBox and self:GetEditBox())
+			local text = editBox:GetText()
 			RIC._Roster_Manager.add(text)
 		end,
 	}
@@ -127,18 +129,20 @@ function RIC:OnEnableRosterManagerView()
 		enterClicksFirstButton = true,
 		preferredIndex = 3,  -- avoid some UI taint, see http://www.wowace.com/announcements/how-to-avoid-some-ui-taint/
 		OnShow = function (self, data)
+			local editBox = self.editBox or self.EditBox or (self.GetEditBox and self:GetEditBox())
 			-- Set edit box scripts to hide popup on escape/enter, and to process name on enter
-    		self.editBox:SetScript("OnEscapePressed", function(self)
+    		editBox:SetScript("OnEscapePressed", function(self)
 				StaticPopup_Hide("RENAME_ROSTER_ENTRY")
 			end)
-			self.editBox:SetScript("OnEnterPressed", function(self)
+			editBox:SetScript("OnEnterPressed", function(self)
 				local text = self:GetText()
 				StaticPopup_Hide("RENAME_ROSTER_ENTRY")
 				RIC._Roster_Manager.rename(text)
 			end)
 		end,
 		OnAccept = function(self, data, data2)
-			local text = self.editBox:GetText()
+			local editBox = self.editBox or self.EditBox or (self.GetEditBox and self:GetEditBox())
+			local text = editBox:GetText()
 			RIC._Roster_Manager.rename(text)
 		end,
 	}
