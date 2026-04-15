@@ -1071,8 +1071,8 @@
 				</Size>
 				<Scripts>
 					<OnClick>
-						InterfaceOptionsFrame_OpenToCategory(RIC.optionsFrame)
-						InterfaceOptionsFrame_OpenToCategory(RIC.optionsFrame)
+						Settings.OpenToCategory(RIC.optionsFrame)
+						Settings.OpenToCategory(RIC.optionsFrame)
 					</OnClick>
 				</Scripts>
 				<NormalTexture file="Interface\AddOns\RaidInviteClassic\img\dots_small"/>
