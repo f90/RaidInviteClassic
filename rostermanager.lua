@@ -178,7 +178,7 @@ function RIC._Roster_Manager.draw()
 		else
 			-- Create new label for the first time
 			label = AceGUI:Create("InteractiveLabel")
-			label:SetFont(DEFAULT_FONT, 12)
+			label:SetFont(DEFAULT_FONT, 12, "")
 			label:SetJustifyH("CENTER")
 			label:SetHighlight("Interface\\BUTTONS\\UI-Listbox-Highlight.blp")
 			label:SetWidth(230)

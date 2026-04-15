@@ -59,7 +59,7 @@ function RIC:OnEnableGroupview()
 		for col = 1, 5 do
 			self.raidPlayerLabels[row][col] = AceGUI:Create("InteractiveLabel")
 			local label = self.raidPlayerLabels[row][col]
-			label:SetFont(DEFAULT_FONT, 12)
+			label:SetFont(DEFAULT_FONT, 12, "")
 			label:SetJustifyH("CENTER")
 			label.row = row
 			label.col = col
@@ -76,7 +76,7 @@ function RIC:OnEnableGroupview()
 			statusLabel:SetImage("Interface\\AddOns\\RaidInviteClassic\\img\\empty")
 			statusLabel:SetImageSize(18,18)
 			statusLabel:SetJustifyH("CENTER")
-			statusLabel:SetJustifyV("CENTER")
+			statusLabel:SetJustifyV("MIDDLE")
 			raidGroup:AddChild(statusLabel)
 			self.raidPlayerStatusLabels[row][col] = statusLabel
 		end
@@ -300,7 +300,7 @@ function RIC._Group_Manager.showPlayerBank()
 				statusLabel = RIC.playerBank.scroll.playerStatusLabels[index]
 			else
 				playerLabel = AceGUI:Create("InteractiveLabel")
-				playerLabel:SetFont(DEFAULT_FONT, 12)
+				playerLabel:SetFont(DEFAULT_FONT, 12, "")
 				playerLabel:SetHighlight("Interface\\BUTTONS\\UI-Listbox-Highlight.blp")
 				playerLabel:SetWidth(140)
 				playerLabel:SetHeight(12)
