@@ -2,6 +2,7 @@ local addonName, RIC = ...
 local guildMembersLoginTime = {} -- Track when guild members log in
 local guildMemberCameOnline = {} -- Set to true when a guild member came online, set back to nil as soon as we reset the invite state as a reaction to this
 local guildMemberWentOffline = {} -- Set to true when a guild member just went offline, set back to nil as soon as we update status information as a reaction to this
+local C_GuildInfo_GuildRoster = C_GuildInfo and C_GuildInfo.GuildRoster or GuildRoster
 
 local updateGuildList = false
 local guildList = {}
@@ -11,7 +12,7 @@ function RIC._Guild_Manager.getGuildMembers()
     end
     local numMembers = GetNumGuildMembers()
     if (in_guild and numMembers == 0 ) then -- Only request guild data if we are in guild, but appear to not have any guild members to look through
-        GuildRoster()
+        C_GuildInfo_GuildRoster()
         return guildList
     end
 

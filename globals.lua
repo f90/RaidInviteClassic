@@ -1,7 +1,7 @@
 local addonName, RIC = ...
 -- Author      : Daniel Stoller
 
-RIC._Version = GetAddOnMetadata(addonName,"Version")
+RIC._Version = (C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata)(addonName,"Version")
 
 -- MODULES
 RIC._Guild_Browser = {}
