@@ -21,6 +21,9 @@ local classFreq = {}
 local tooltipRow = nil
 local tooltipActive = false
 
+-- WoW API
+local InviteUnit = C_PartyInfo and C_PartyInfo.InviteUnit or InviteUnit
+
 function RIC._Roster_Browser.buildRosterRaidList()
 	-- Get current guild info
 	-- Checks guild member list for people who JUST came online.
